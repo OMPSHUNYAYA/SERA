@@ -1,0 +1,307 @@
+name: SERA Verify
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      - name: Verify frozen demo SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          DEMO="demo/SERA_Structural_Keyboard_Reference_Demo_v0_9_2.html"
+          FREEZE="verify/FREEZE_DEMO_SHA256.txt"
+
+          EXPECTED="$(
+            grep -Eo '[0-9a-fA-F]{64}' "$FREEZE" |
+            tail -n 1 |
+            tr 'A-F' 'a-f'
+          )"
+
+          ACTUAL="$(sha256sum "$DEMO" | awk '{print $1}')"
+
+          echo "Expected: $EXPECTED"
+          echo "Actual:   $ACTUAL"
+
+          if [ -z "$EXPECTED" ]; then
+            echo "Frozen SHA-256 could not be read."
+            exit 1
+          fi
+
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "Frozen demo SHA-256 verification failed."
+            exit 1
+          fi
+
+          echo "Frozen demo SHA-256 verified."
+
+      - name: Verify local JSON Schema package
+        run: |
+          node <<'NODE'
+          const fs = require("fs");
+
+          const files = [
+            "schema/SERA_Proposal_Schema_v1_0.json",
+            "schema/SERA_Refusal_Witness_Schema_v1_0.json",
+            "schema/SERA_Receipt_Schema_v2_0.json",
+            "schema/SERA_Session_Bundle_Schema_v2_0.json",
+          ];
+
+          for (const file of files) {
+            let schema;
+
+            try {
+              schema = JSON.parse(fs.readFileSync(file, "utf8"));
+            } catch (error) {
+              console.error(`Invalid JSON: ${file}`);
+              console.error(error);
+              process.exit(1);
+            }
+
+            if (typeof schema.$schema !== "string" || !schema.$schema) {
+              console.error(`Missing $schema declaration: ${file}`);
+              process.exit(1);
+            }
+
+            if (typeof schema.$id !== "string" || !schema.$id) {
+              console.error(`Missing $id declaration: ${file}`);
+              process.exit(1);
+            }
+
+            console.log(`PASS: ${file}`);
+          }
+
+          console.log("Local JSON Schema package verified.");
+          NODE
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.61.1
+          npx playwright install --with-deps chromium
+
+      - name: Run SERA browser release verification
+        run: |
+          node <<'NODE'
+          const path = require("path");
+          const { pathToFileURL } = require("url");
+          const { chromium } = require("playwright");
+
+          (async () => {
+            const browser = await chromium.launch({
+              headless: true,
+            });
+
+            const pageErrors = [];
+
+            try {
+              const page = await browser.newPage({
+                viewport: {
+                  width: 1600,
+                  height: 1200,
+                },
+              });
+
+              page.on("pageerror", (error) => {
+                pageErrors.push(error.message);
+                console.error("PAGE ERROR:", error.message);
+              });
+
+              page.on("console", (message) => {
+                if (message.type() === "error") {
+                  console.error("BROWSER CONSOLE ERROR:", message.text());
+                }
+              });
+
+              const demoPath = path.resolve(
+                "demo/SERA_Structural_Keyboard_Reference_Demo_v0_9_2.html"
+              );
+
+              const demoUrl = pathToFileURL(demoPath).href;
+
+              await page.goto(demoUrl, {
+                waitUntil: "load",
+              });
+
+              await page.waitForFunction(
+                () =>
+                  typeof window.SERA_AUDIT === "object" &&
+                  typeof window.SERADemo === "object" &&
+                  typeof window.SERADemo.getReceipts === "function" &&
+                  window.SERADemo.getReceipts().length > 0 &&
+                  document.getElementById("selfTestPill")?.textContent.trim() ===
+                    "Self-test: 54/54 PASS",
+                null,
+                {
+                  timeout: 30000,
+                }
+              );
+
+              const report = await page.evaluate(async () => {
+                const full = await window.SERA_AUDIT.runAll();
+
+                const multilingual =
+                  window.SERADemo.runMultilingualDemoCheck();
+
+                const grapheme =
+                  window.SERADemo.runFrozenGraphemeConformance();
+
+                const coverage =
+                  window.SERA_AUDIT.coverage({
+                    log: false,
+                  });
+
+                const regressions =
+                  window.SERA_AUDIT.regressions({
+                    log: false,
+                  });
+
+                const lastFull =
+                  window.SERA_AUDIT.lastFull();
+
+                return {
+                  full,
+                  multilingual,
+                  grapheme,
+                  coverage,
+                  regressions,
+                  lastFull,
+                };
+              });
+
+              const checks = [
+                [
+                  "Audit profile",
+                  report.full.audit_profile === "SERA-AUDIT-1-D04",
+                ],
+                [
+                  "Full release audit status",
+                  report.full.status === "PASS",
+                ],
+                [
+                  "Full release audit count",
+                  report.full.pass === 329 &&
+                    report.full.total === 329,
+                ],
+                [
+                  "Integrity regression",
+                  report.full.integrity_regression === 0,
+                ],
+                [
+                  "Unexpected mutation",
+                  report.full.unexpected_mutation === 0,
+                ],
+                [
+                  "Feature coverage in release audit",
+                  report.full.feature_coverage === "PASS",
+                ],
+                [
+                  "No audit execution error",
+                  report.full.execution_error === null,
+                ],
+                [
+                  "Known regressions",
+                  report.regressions.status === "PASS" &&
+                    report.regressions.pass === 27 &&
+                    report.regressions.total === 27,
+                ],
+                [
+                  "Feature coverage",
+                  report.coverage.status === "PASS" &&
+                    report.coverage.covered === 34 &&
+                    report.coverage.total === 34 &&
+                    report.coverage.uncovered.length === 0,
+                ],
+                [
+                  "Multilingual Demo",
+                  report.multilingual.status === "PASS",
+                ],
+                [
+                  "Frozen grapheme conformance",
+                  report.grapheme.status === "PASS" &&
+                    report.grapheme.pass === 766 &&
+                    report.grapheme.total === 766,
+                ],
+                [
+                  "Full audit archive",
+                  report.lastFull.status === "PASS" &&
+                    report.lastFull.pass === 329 &&
+                    report.lastFull.total === 329,
+                ],
+              ];
+
+              let failed = false;
+
+              for (const [name, pass] of checks) {
+                console.log(`${pass ? "PASS" : "FAIL"}: ${name}`);
+
+                if (!pass) {
+                  failed = true;
+                }
+              }
+
+              console.log("");
+              console.log(
+                `FULL AUDIT: ${report.full.pass}/${report.full.total} ${report.full.status}`
+              );
+              console.log(
+                `KNOWN REGRESSIONS: ${report.regressions.pass}/${report.regressions.total} ${report.regressions.status}`
+              );
+              console.log(
+                `FEATURE COVERAGE: ${report.coverage.covered}/${report.coverage.total} ${report.coverage.status}`
+              );
+              console.log(
+                `MULTILINGUAL DEMO: ${report.multilingual.status}`
+              );
+              console.log(
+                `FROZEN GRAPHEME CONFORMANCE: ${report.grapheme.pass}/${report.grapheme.total} ${report.grapheme.status}`
+              );
+              console.log(
+                `INTEGRITY REGRESSION: ${report.full.integrity_regression}`
+              );
+              console.log(
+                `UNEXPECTED MUTATION: ${report.full.unexpected_mutation}`
+              );
+
+              if (pageErrors.length > 0) {
+                console.error("Unexpected page errors were detected:");
+                for (const error of pageErrors) {
+                  console.error("-", error);
+                }
+                failed = true;
+              }
+
+              if (failed) {
+                console.error("SERA verification failed.");
+                process.exitCode = 1;
+              } else {
+                console.log("");
+                console.log("SERA verification passed.");
+              }
+            } finally {
+              await browser.close();
+            }
+          })().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
