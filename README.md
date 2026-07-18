@@ -48,6 +48,14 @@ The human-facing reference implementation is **Structural Keyboard**:
 
 ---
 
+# 🏗️ **SERA Architecture at a Glance**
+
+[![SERA Architecture — Structural Edit Resolution and Admission](docs/SERA-Architecture-Diagram.png)](docs/SERA-Architecture-Diagram.png)
+
+A visual overview of the SERA proposal-to-mutation boundary, from proposal surfaces through structural resolution, admission, bounded execution, and evidence.
+
+---
+
 # 🚀 **Try It in 60 Seconds**
 
 1. Open [`demo/SERA_Structural_Keyboard_Reference_Demo_v0_9_2.html`](demo/SERA_Structural_Keyboard_Reference_Demo_v0_9_2.html) in a current browser.
@@ -1426,80 +1434,6 @@ The notice does not by itself indicate:
 
 ---
 
-# 🗂️ **Current Repository Structure**
-
-```text
-LICENSE
-README.md
-
-demo/
-  SERA_Structural_Keyboard_Reference_Demo_v0_9_2.html
-
-docs/
-  FAQ.md
-  Quickstart.md
-  SERA-Architecture-Diagram.png
-  SERA_Architecture_At_A_Glance_v1_0.md
-  SERA_v0_9_2_Console_Audit_Commands.txt
-
-  specs/
-    SERA_Audit_and_Assurance_v0_9_2.txt
-    SERA_Conformance_v0_2_0.txt
-    SERA_Core_Architecture_v0_9_2.txt
-
-schema/
-  SERA_Proposal_Schema_v1_0.json
-  SERA_Receipt_Schema_v2_0.json
-  SERA_Refusal_Witness_Schema_v1_0.json
-  SERA_Session_Bundle_Schema_v2_0.json
-
-verify/
-  FREEZE_DEMO_SHA256.txt
-  VERIFY.md
-```
-
-The principal human-readable release documents are:
-
-`README.md`
-
-`docs/Quickstart.md`
-
-`docs/FAQ.md`
-
-`docs/SERA_Architecture_At_A_Glance_v1_0.md`
-
-`docs/specs/SERA_Core_Architecture_v0_9_2.txt`
-
-`docs/specs/SERA_Conformance_v0_2_0.txt`
-
-`docs/specs/SERA_Audit_and_Assurance_v0_9_2.txt`
-
-`docs/SERA_v0_9_2_Console_Audit_Commands.txt`
-
-`verify/VERIFY.md`
-
-The JSON Schema files are local structural-validation aids:
-
-`schema/SERA_Proposal_Schema_v1_0.json`
-
-`schema/SERA_Receipt_Schema_v2_0.json`
-
-`schema/SERA_Refusal_Witness_Schema_v1_0.json`
-
-`schema/SERA_Session_Bundle_Schema_v2_0.json`
-
-They do not replace the conformance specification and do not require network access.
-
-The schema package declares resolvable schema identities so that inter-schema references can be loaded and validated as a local package by compatible JSON Schema Draft 2020-12 validators.
-
-The governing separation is:
-
-`JSON Schema -> structural validation`
-
-`SERA Conformance Specification -> normative semantics`
-
-`independent verifier -> reconstructed evidence validity`
-
 # 📚 **Release Documentation**
 
 - [Quickstart](docs/Quickstart.md)
@@ -1864,8 +1798,8 @@ This repository does not claim recognition as a formal technical standard.
 
 # **Final Principle**
 
-# **Anyone may propose. Structure resolves. Admission permits. Evidence records.**
+## **Anyone may propose. Structure resolves. Admission permits. Evidence records.**
 
 For the Structural Keyboard reference surface:
 
-# **Edit at the level you think.**
+## **Edit at the level you think.**
