@@ -1,0 +1,4840 @@
+SERA
+
+Core Architecture, Edit Admission, and Deployment Direction
+
+Document version:
+v0.9.2
+
+Current reference implementation family:
+SERA v0.9.2
+Structural Keyboard Reference Surface v0.9.2
+
+Current conformance specification:
+SERA Canonicalization, Conformance, and Evidence Specification v0.2.0
+
+Current applicable profiles:
+SK-RESOLVER-1-D01
+SK-RULES-1.1.0
+SK-FP-HYBRID-1-D01
+SERA-ADMISSION-DEP-1-D01
+SERA-PROPOSAL-1-D01
+SERA-AGENT-STRICT-1-D01
+SERA-PREVIEW-COMMIT-2-D01
+SERA-MUTATION-ENVELOPE-1-D01
+SERA-EDIT-PERMIT-1-D01
+SERA-REFUSAL-WITNESS-1-D01
+SERA-RECEIPT-2
+SERA-SESSION-BUNDLE-2
+SERA-UNICODE-GRAPHEME-1-D01
+SERA-AUDIT-1-D04
+
+Current Unicode declaration:
+Unicode 17.0.0
+Grapheme revision 47
+Offset unit UTF16_CODE_UNIT
+Human-facing character unit EXTENDED_GRAPHEME_CLUSTER
+
+Declared forward profile direction:
+SERA-COMMUTE-1-D01
+
+Version date:
+July 2026
+
+Status:
+Architecture and deployment document synchronized with the SERA v0.9.2 Structural Keyboard reference implementation.
+
+The current browser reference has demonstrated a producer-side full release regression audit of:
+
+`329/329 PASS`
+
+with:
+
+`KNOWN REGRESSIONS = 27/27 PASS`
+
+`FEATURE COVERAGE = 34/34 PASS`
+
+`INTEGRITY REGRESSION = 0`
+
+`UNEXPECTED MUTATION = 0`
+
+The current Multilingual Demo check has demonstrated `PASS`, and the focused demonstration-flow audit has demonstrated `11/11 PASS`.
+
+Independent verification is not yet claimed.
+
+1 Executive Summary
+
+SERA - Structural Edit Resolution and Admission - is a deterministic architecture for governing the boundary between an edit proposal and actual mutation authority.
+
+Its central authority separation is:
+
+`proposal authority != target authority != mutation authority`
+
+A human, AI agent, API, assistive system, automation layer, or other declared source may propose an edit.
+
+The proposal source does not automatically determine the exact target.
+
+A resolved target does not automatically authorize mutation.
+
+A canonical plan does not automatically receive authority to write outside the structure required by that plan.
+
+The core processing chain is:
+
+`proposal -> resolve -> plan -> preview -> revalidate -> admit -> execute OR refuse -> receipt`
+
+The public principle is:
+
+`Anyone may propose. Structure resolves. Admission permits. Evidence records.`
+
+The strongest near-term application direction is machine and agent editing.
+
+A machine may generate a range, patch, replacement, workspace edit, locator, or another proposal artifact.
+
+SERA treats that artifact as proposal evidence rather than automatic mutation authority.
+
+The intended relation is:
+
+`agent proposes -> SERA resolves and admits -> host executes`
+
+This separates:
+
+`model proposal quality != edit-admission correctness`
+
+The architecture is designed to prevent three broad classes of silent failure within a declared profile:
+
+- silent mis-targeting;
+- stale application;
+- mutation beyond the authority required by the resolved action.
+
+The human-facing reference implementation is Structural Keyboard.
+
+Its role is not to claim that structural targeting itself is new.
+
+Its role is to demonstrate that the same edit-admission contract can govern a human proposal through a visible interaction surface.
+
+The architectural relationship is:
+
+`SERA = core edit-resolution and admission contract`
+
+`Structural Keyboard = reference human interaction surface`
+
+`proposal adapters = human, agent, API, and assistive proposal surfaces`
+
+`schema providers = structural interpretation sources`
+
+`host adapters = execution surfaces`
+
+The Structural Keyboard principle is:
+
+`Edit at the level you think.`
+
+SERA preserves conventional execution mechanisms such as ranges, replacement operations, transactions, patches, editor commands, and host-specific mutation APIs.
+
+Its architectural contribution lies in what governs the transition from declared intent to exact mutation.
+
+The proposal source expresses intent.
+
+The resolver determines whether one supported target exists.
+
+The planner constructs a canonical classical edit plan.
+
+The preview layer exposes and commits the intended target and exact plan.
+
+The admission layer revalidates the target and the exact structural dependencies on which the plan relies.
+
+The mutation envelope bounds where the admitted plan may write.
+
+The host adapter executes only the admitted plan.
+
+The evidence layer records what resolved, what was refused, what was admitted, and what changed.
+
+The refusal path is a first-class success condition.
+
+`uncertain target OR invalidated meaning OR excess authority -> no silent mutation`
+
+A refusal is expected to preserve:
+
+`zero mutation + explicit state + declared reason + evidence`
+
+The current browser reference demonstrates the v0.9.2 architecture through TEXT and MARKDOWN schemas, persistent structural scope, structural navigation, canonical action planning, Preview v2 commitment, explicit ambiguity, dependency-aware admission, mutation envelopes, structural edit permits, canonical machine proposals, strict agent range-hint handling, the No Silent Retarget Law, refusal witnesses, concurrent proposal demonstrations, the Admission Boundary Matrix, deterministic receipts, producer-side replay, verifier-fixture generation, grapheme-aware resolution, and cumulative regression audit.
+
+The current v0.9.2 reference surface also includes a separate Multilingual Demo. The first public multilingual demonstration contains Tamil and French content while the deeper Unicode audit continues to exercise Tamil, emoji, canonical equivalence, combining sequences, and an Indic conjunct vector.
+
+The current implementation therefore demonstrates:
+
+- machine-first edit admission;
+- Structural Relevance classification;
+- Structural Admission Survival for unrelated change;
+- human-readable refusal explanations separated from canonical witness identity;
+- strict agent proposal handling;
+- the No Silent Retarget Law;
+- explicit separation of planning notation from the Shunyaya collapse operator;
+- deterministic refusal witnesses;
+- grapheme-aware structural scope under a frozen profile;
+- a separate Multilingual Demo;
+- admission-boundary measurement;
+- expanded interaction and regression coverage;
+- producer-side verifier fixtures and replay-oriented evidence.
+
+The principal remaining assurance priorities include:
+
+- an independent verifier;
+- publication of frozen refusal-inclusive corpora;
+- an independent second resolver after verifier-facing semantics are frozen;
+- broader multilingual review;
+- commutativity certification.
+
+The current implementation remains a reference architecture and research implementation.
+
+It does not claim universal linguistic correctness, universal edit-resolution totality, production readiness, independent verification, legal assurance, safety-critical qualification, or universal superiority over established editing systems.
+
+The strongest architectural claim is narrower:
+
+SERA defines a combined first-class contract joining explicit target non-resolution, canonical pre-commit planning, commit-time structural revalidation, dependency-aware admission, bounded mutation authority, actor-independent proposal handling, explicit refusal, and replay-oriented evidence.
+
+
+2 Purpose
+
+This document defines the core architecture of SERA and the deployment direction of the Structural Keyboard reference surface.
+
+It establishes:
+
+- project identity;
+- authority separation;
+- the proposal-to-mutation pipeline;
+- target-resolution states;
+- canonical planning;
+- planning-notation discipline;
+- preview commitment;
+- the No Silent Retarget Law;
+- dependency-aware admission;
+- mutation envelopes;
+- structural edit permits;
+- actor-independent proposal handling;
+- strict and compatibility-oriented machine proposal modes;
+- schema and host boundaries;
+- concurrency semantics;
+- structural independence and commutativity direction;
+- refusal witnesses;
+- evidence architecture;
+- independent verification direction;
+- interaction architecture;
+- multilingual and grapheme-aware segmentation direction;
+- implementation invariants;
+- current reference implementation boundaries;
+- deployment direction;
+- structural-to-classical plan equivalence;
+- deterministic post-action anchor semantics;
+- explicit ambiguity-choice evidence;
+- undo and redo safety policy;
+- session identity and chain-head separation;
+- informative state alignment with the wider Shunyaya admissibility vocabulary;
+- claim limits.
+
+This document defines architecture and semantics.
+
+Exact canonical serialization, byte-level hashing, normative refusal ordering, conformance vectors, and cross-implementation identity belong to the separate SERA Canonicalization, Conformance, and Evidence Specification.
+
+Reference-demo audit profiles, regression coverage, and release acceptance belong to the separate SERA Reference Demo Audit and Assurance Specification.
+
+This v0.9.2 architecture document distinguishes current demonstrated behavior from future assurance and deployment directions.
+
+Such requirements become demonstrated claims only after:
+
+`implementation + permanent regression coverage + full audit`
+
+and, where independent assurance is claimed:
+
+`independent verifier or independent implementation evidence`
+
+
+3 Project Identity
+
+Project name:
+
+SERA
+
+Expanded name:
+
+Structural Edit Resolution and Admission
+
+Reference human interaction surface:
+
+Structural Keyboard
+
+Primary architectural principle:
+
+`Anyone may propose. Structure resolves. Admission permits. Evidence records.`
+
+Primary human interaction principle:
+
+`Edit at the level you think.`
+
+Core authority relation:
+
+`proposal authority != target authority != mutation authority`
+
+Core processing relation:
+
+`proposal -> resolve -> plan -> preview -> revalidate -> admit -> execute OR refuse -> receipt`
+
+Naming note:
+
+`SERA in this project = Structural Edit Resolution and Admission within the Shunyaya ecosystem`
+
+The project name is unrelated to other uses of the same acronym in other technical, research, or safety-engineering contexts.
+
+SERA is protocol-independent.
+
+A proposal may enter through:
+
+- Structural Keyboard;
+- an AI-agent adapter;
+- a local function;
+- an application API;
+- a service API;
+- an assistive-technology adapter;
+- another declared proposal surface.
+
+The transport or invocation mechanism does not become edit authority.
+
+`transport mechanism != target authority`
+
+The host editor also remains distinct from structural authority.
+
+`host execution capability != admission authority`
+
+A browser, code editor, document editor, transaction engine, or structured host may execute an admitted plan without becoming the source of the structural decision.
+
+The project should consistently distinguish:
+
+`SERA = architecture`
+
+from:
+
+`Structural Keyboard = one reference interaction surface`
+
+This distinction allows the same edit-admission contract to govern both machine and human proposals.
+
+
+4 Core Problem
+
+Most editing systems ultimately execute exact positions, ranges, patches, diffs, replacement operations, or transactions.
+
+The core SERA problem is not that these mechanisms exist.
+
+The problem is that the mechanism or actor that produced an edit may silently become the practical authority over what changes.
+
+This is especially acute in machine editing.
+
+An AI agent, automation layer, or API may produce:
+
+- a range;
+- a patch;
+- a rewritten block;
+- a workspace edit;
+- a structural locator;
+- raw coordinates.
+
+If that output is applied directly, the proposal may become mutation authority.
+
+Three broad failure classes follow.
+
+Silent mis-targeting:
+
+`proposal refers to wrong target -> mutation still proceeds`
+
+Stale application:
+
+`document meaning changes after proposal -> old plan still executes`
+
+Over-broad mutation:
+
+`declared intent is narrow -> applied write is broader than required`
+
+SERA inserts a declared structural boundary:
+
+`declared proposal -> target resolution -> canonical plan -> preview -> revalidation -> admission -> bounded execution`
+
+For a machine proposal:
+
+`generated patch or range -> direct mutation`
+
+becomes:
+
+`declared proposal -> resolve -> plan -> revalidate -> bounded execution`
+
+For a human editing surface:
+
+`position cursor -> construct exact range -> perform action`
+
+can become:
+
+`declare scope -> resolve target -> preview exact effect -> admit -> execute`
+
+The architecture therefore reduces several dependencies from sole authority:
+
+- manual precision selection;
+- raw proposal output;
+- machine-generated coordinates;
+- whole-document invalidation as the only staleness model;
+- unconstrained host execution;
+- producer interface as the only account of what happened.
+
+The dependency-reduction model is:
+
+| Domain | Dependency no longer treated as sole authority | Structural basis |
+| Human editing | Manual precision selection | Declared scope + structural resolution |
+| Agent and API editing | Raw diff, range, or proposal output | Resolution + canonical planning + admission |
+| Concurrent proposals | Whole-document change as universal invalidator | Declared admission dependencies |
+| Mutation execution | Unconstrained host execution | Admitted mutation envelope |
+| Edit evidence | Producer interface as the only account of what happened | Receipts + replay-oriented evidence |
+
+The project-level dependency statement is:
+
+`document mutation can be governed by declared structural resolution and admission without allowing manual range construction, machine-generated edit output, or host execution mechanics to remain the sole authority over what changes`
+
+The architecture does not require the elimination of ranges, patches, transactions, or host editing APIs.
+
+It changes their authority role.
+
+`operational mechanism may remain`
+
+while:
+
+`operational mechanism != sole resolution authority`
+
+
+5 Architectural Authority Model
+
+5.1 Proposal Authority
+
+A proposal source may declare edit intent.
+
+Examples:
+
+`source = HUMAN`
+
+`source = AI_AGENT`
+
+`source = API`
+
+`source = ASSISTIVE_TECHNOLOGY`
+
+A proposal may declare:
+
+- schema;
+- scope;
+- locator or anchor;
+- action;
+- payload where required;
+- expected profile identity;
+- optional expected document identity.
+
+The proposal source may not silently replace an unresolved or stale target with another target.
+
+`proposal -> intent`
+
+not:
+
+`proposal -> unquestioned mutation authority`
+
+
+5.2 Target Authority
+
+The resolver determines the supported target state under the active schema and frozen rules.
+
+The resolver may return:
+
+`RESOLVED`
+
+`AMBIGUOUS`
+
+`UNSUPPORTED`
+
+Only a supported resolved target, or a valid explicit candidate choice under the declared profile, may proceed to canonical planning.
+
+The resolver is the source of target authority within the declared profile.
+
+
+5.3 Planning Authority
+
+The planner converts a structural action into an exact canonical classical edit plan.
+
+Examples include:
+
+`DELETE_RANGE(start, end)`
+
+`INSERT_AT(position, content)`
+
+`REPLACE_RANGE(start, end, content)`
+
+`MOVE_RANGE(start, end, destination)`
+
+The planner determines the exact operational form of the proposed mutation.
+
+The planner does not itself authorize execution.
+
+
+5.4 Admission Authority
+
+The admission layer determines whether the committed plan still has the same required structural meaning.
+
+It returns:
+
+`ADMITTED`
+
+`STALE`
+
+`CONFLICT`
+
+Only:
+
+`RESOLVED + ADMITTED -> execution`
+
+Admission is evaluated against declared structural dependencies, not merely against the existence of any document change.
+
+
+5.5 Mutation Authority
+
+The admitted mutation envelope defines the bounded region in which the canonical plan may write.
+
+The governing law is:
+
+`write_set(E_c) subseteq admitted_mutation_envelope`
+
+A plan that requires mutation outside the admitted envelope must not execute as admitted.
+
+A violation is a conflict.
+
+`plan escape -> CONFLICT`
+
+The proposal source receives no more mutation authority than the resolved action requires.
+
+
+5.6 Execution Authority
+
+The host adapter applies the admitted canonical plan.
+
+Execution may use:
+
+- browser string operations;
+- editor transactions;
+- document model operations;
+- code-editor edits;
+- API-backed document changes;
+- another declared host mechanism.
+
+Execution is operational.
+
+It is not the source of target resolution or structural admission.
+
+
+5.7 Evidence Authority
+
+Receipts record the declared transition boundary.
+
+Evidence may support:
+
+- replay;
+- chain verification;
+- comparison of intended and observed transition;
+- refusal reconstruction;
+- plan binding;
+- mutation-envelope checking.
+
+Evidence does not create authority retroactively.
+
+`receipt -> evidence`
+
+not:
+
+`receipt -> permission`
+
+
+6 Core Processing Pipeline
+
+The canonical SERA pipeline is:
+
+`proposal -> resolve -> plan -> preview -> revalidate -> admit -> execute OR refuse -> receipt`
+
+Each stage has a separate responsibility.
+
+Proposal:
+
+`what is being requested?`
+
+Resolve:
+
+`what supported structural target, if any, does the proposal identify?`
+
+Plan:
+
+`what exact classical operation represents the structural action?`
+
+Preview:
+
+`what exact target and plan are being presented for commitment?`
+
+Revalidate:
+
+`do the target and required structural dependencies still have the same meaning?`
+
+Admit:
+
+`is this committed plan still permitted under the declared profile?`
+
+Execute:
+
+`apply the admitted plan within its mutation envelope`
+
+Refuse:
+
+`produce an explicit non-mutating outcome`
+
+Receipt:
+
+`record the declared transition or refusal`
+
+This ordering is deliberate.
+
+Planning and preview occur before final commit-time admission because the admission decision binds the exact plan being committed.
+
+A plan that changes after preview must not silently inherit the earlier admission basis.
+
+`changed plan -> re-preview -> revalidate again`
+
+
+7 Structural Resolution
+
+Let:
+
+`K = active structural schema`
+
+`V = frozen rules version`
+
+`S = selected structural scope`
+
+`A = current anchor or locator`
+
+`D0 = canonical document state at resolution`
+
+`P = proposal`
+
+Target resolution is:
+
+`R = resolve(K, V, S, A, D0, P)`
+
+
+7.1 RESOLVED
+
+`RESOLVED` means exactly one supported target is admitted by the resolver under the declared rules.
+
+A resolved result should identify:
+
+- schema;
+- rules profile;
+- scope;
+- anchor;
+- target span or structural identity;
+- target content identity;
+- target fingerprint;
+- resolution mode.
+
+
+7.2 AMBIGUOUS
+
+`AMBIGUOUS` means more than one target remains valid under the declared rules, or the profile intentionally refuses to force one interpretation.
+
+Ambiguity is a valid deterministic result.
+
+`deterministic resolution includes deterministic non-resolution`
+
+A human or machine caller may choose a declared candidate when the active profile permits explicit candidate selection.
+
+The resulting evidence should preserve:
+
+`candidate-set commitment`
+
+`selected candidate identity`
+
+`selected target fingerprint`
+
+`resolution_mode = EXPLICIT_CHOICE`
+
+The architecture must distinguish:
+
+`automatic RESOLVED target`
+
+from:
+
+`explicitly chosen candidate from AMBIGUOUS result`
+
+The choice must become part of the committed evidence.
+
+
+7.3 UNSUPPORTED
+
+`UNSUPPORTED` means the active schema or profile does not support the requested structural interpretation.
+
+The correct response is absence rather than fabricated precision.
+
+`unsupported target -> no mutation`
+
+
+7.4 Absence Over Falsehood
+
+The resolver must prefer:
+
+`AMBIGUOUS`
+
+or:
+
+`UNSUPPORTED`
+
+over silently inventing a target that the profile cannot support.
+
+This principle is particularly important for:
+
+- uncertain linguistic segmentation;
+- malformed structure;
+- unsupported schema units;
+- cross-script boundaries not validated by the active profile;
+- incomplete structural context.
+
+
+8 Structural Schemas and Scope
+
+A schema declares the structural units and resolver rules available for a document family.
+
+The current browser reference includes:
+
+TEXT:
+`writing.basic`
+version `1.1.0`
+
+Available scopes:
+
+`GRAPHEME`
+
+`CODE_POINT`
+
+`WORD`
+
+`SENTENCE`
+
+`PARAGRAPH`
+
+MARKDOWN:
+`markdown.basic`
+version `1.1.0`
+
+Available scopes:
+
+`GRAPHEME`
+
+`CODE_POINT`
+
+`WORD`
+
+`SENTENCE`
+
+`PARAGRAPH`
+
+`LIST_ITEM`
+
+`SECTION`
+
+The current reference therefore preserves two distinct low-level scopes:
+
+`GRAPHEME -> extended grapheme cluster under the frozen grapheme profile`
+
+`CODE_POINT -> Unicode code point`
+
+while evidence offsets remain:
+
+`UTF16_CODE_UNIT`
+
+A schema may come from:
+
+- an embedded deterministic resolver;
+- a parser;
+- a syntax provider;
+- a document model;
+- a structured editor;
+- another declared source.
+
+A schema provider may supply structure without becoming admission authority.
+
+`syntax provider != admission authority`
+
+For example:
+
+`syntax-provider structure -> SERA target resolver -> admission -> host edit`
+
+The parser supplies structure.
+
+SERA still governs whether the target resolves, what plan is committed, whether the plan is still valid, and where it may write.
+
+9 Anchor Semantics
+
+The anchor is the position or structural locator from which resolution begins.
+
+For a human surface, it may originate from:
+
+- caret position;
+- explicit structural navigation;
+- explicit candidate choice.
+
+For a machine proposal, it may originate from:
+
+- `current`;
+- numbered sentence;
+- numbered paragraph;
+- paragraph-and-sentence locator;
+- a future structured path.
+
+The anchor is not itself the final target.
+
+`anchor -> resolver input`
+
+`resolved structural unit -> target`
+
+After structural navigation or a committed edit, the anchor may move according to the declared action semantics.
+
+Navigation should move both:
+
+- structural focus;
+- visual attention.
+
+For explicit Previous or Next navigation, a distant resolved target should be brought into the visible editor viewport.
+
+The reference interaction principle is:
+
+`navigation changes target -> viewport follows target`
+
+Automatic re-resolution caused by ordinary typing should not force unnecessary viewport movement.
+
+
+9.1 Structural Anchor Representation
+
+A stronger structural anchor may be represented as:
+
+`anchor = structural path + local affinity`
+
+Possible affinity values include:
+
+`BEFORE`
+
+`AFTER`
+
+`INSIDE`
+
+The structural path identifies the declared structural position.
+
+The local affinity disambiguates where an anchor belongs when a structural boundary has more than one valid local side.
+
+A raw character offset may still be retained for collapse and host integration, but the raw offset should not replace the declared structural path as target authority.
+
+
+9.2 Deterministic Post-Action Anchor Rules
+
+A frozen action profile should declare how the anchor changes after a successful action.
+
+Candidate rules include:
+
+`DELETE -> successor at scope`
+
+otherwise:
+
+`predecessor at scope`
+
+otherwise:
+
+`parent`
+
+For movement:
+
+`MOVE -> anchor follows moved unit`
+
+For duplication:
+
+`DUPLICATE -> anchor remains on original`
+
+unless a schema explicitly declares another behavior.
+
+For scope change:
+
+`scope change -> re-project anchor into the new scope`
+
+For structural navigation:
+
+`navigation -> anchor becomes the resolved destination unit`
+
+The deterministic transition relation is:
+
+`same pre-anchor + same admitted action + same schema + same rules version -> same post-anchor`
+
+For an action sequence:
+
+`same initial document + same schema + same rules + same initial anchor + same admitted action sequence -> same final document + same final anchor`
+
+A future cross-implementation profile should freeze and test these anchor semantics explicitly.
+
+
+10 Canonical Planning
+
+Let:
+
+`E_s = structural edit intent`
+
+`D = canonical document state`
+
+The planner computes:
+
+`E_c = plan(E_s, D)`
+
+where:
+
+`E_c = canonical classical edit plan`
+
+The plan should be inspectable before mutation.
+
+A canonical plan may contain operations such as:
+
+`DELETE_RANGE`
+
+`INSERT_AT`
+
+`REPLACE_RANGE`
+
+or an ordered combination of those operations.
+
+The plan is the exact operational representation of the structural intent.
+
+The same structural action under the same canonical document state and same declared planning rules should produce the same canonical plan.
+
+`same structural intent + same canonical state + same planning profile -> same canonical plan`
+
+The notation `plan()` is deliberately distinct from the Shunyaya collapse operator.
+
+Within the wider Shunyaya ecosystem:
+
+`phi((m, a)) = m`
+
+and related `phi` expressions denote declared value-preserving collapse.
+
+Planning has a different role.
+
+`plan(E_s, D)` constructs a canonical mutation artifact.
+
+Therefore:
+
+`planning != collapse`
+
+The preferred forward notation is:
+
+`E_c = plan(E_s, D)`
+
+Any normative change from an earlier canonical field name or hash-domain subject must be introduced through an explicit profile or specification version transition.
+
+The structural-to-classical plan-equivalence relation is:
+
+`apply_structural(E_s, D) = apply_classical(plan(E_s, D), D)`
+
+A stronger conformance profile should verify this relation within its declared scope.
+
+The equivalence check should compare:
+
+- canonical final document;
+- canonical final document hash;
+- post-action anchor where the profile binds it.
+
+The host adapter may use a different execution mechanism, but it must preserve the admitted canonical plan semantics.
+
+
+10.1 Delete
+
+A structural delete resolves a target and any separator normalization required by the profile.
+
+The canonical plan may include:
+
+- one target deletion;
+- one bounded separator correction.
+
+The dependency set may therefore include:
+
+`target + required separator context`
+
+
+10.2 Copy
+
+Copy is non-mutating.
+
+It may resolve and capture:
+
+- target content;
+- structural identity;
+- source schema and scope;
+- source target fingerprint.
+
+Copy does not require a mutation envelope for the document because it does not modify document content.
+
+
+10.3 Cut
+
+Cut combines:
+
+- structural copy semantics;
+- admitted structural deletion.
+
+Its mutation authority is governed by the delete plan.
+
+
+10.4 Paste
+
+Paste requires an insertion relation.
+
+A stronger profile may bind:
+
+`insertion anchor + insertion relation + separator policy`
+
+The inserted content does not become authority over unrelated document structure.
+
+
+10.5 Duplicate
+
+Duplicate is represented as a canonical insertion derived from the resolved target and its insertion relation.
+
+
+10.6 Move
+
+Move may require:
+
+- source target;
+- source context;
+- destination relation;
+- destination context;
+- separator normalization.
+
+Its mutation envelope may therefore contain multiple bounded regions.
+
+A move is not an unconstrained rewrite of the whole document.
+
+
+11 Preview and Preview Commitment
+
+The preview layer exposes the resolved target and canonical plan before commitment.
+
+The preview serves two roles:
+
+- human or machine inspection;
+- commitment identity.
+
+A preview commitment binds the exact proposal state intended for later admission.
+
+Conceptually:
+
+`preview_commitment = H(profile + pre_state + target_fingerprint + admission_fingerprint + action + canonical_plan + mutation_envelope)`
+
+The exact canonical encoding is defined by the conformance specification.
+
+The architectural law is:
+
+`executed admitted plan = previewed committed plan`
+
+If the canonical plan changes after preview:
+
+`plan changed -> STALE -> re-resolve and re-preview`
+
+A non-mutating current-state check may report:
+
+`CURRENTLY VALID`
+
+`CURRENTLY STALE`
+
+`CURRENTLY CONFLICTING`
+
+These are informative pre-check states.
+
+They are not equivalent to final commit-time admission.
+
+`CURRENTLY VALID != ADMITTED`
+
+True admission occurs immediately before execution.
+
+
+11.1 No Silent Retarget Law
+
+A proposal must not silently execute against a different target from the target represented by its active preview commitment.
+
+The governing relation is:
+
+`preview_target_fingerprint != commit_target_fingerprint -> no execution under old commitment`
+
+A valid continuation requires:
+
+`re-resolve -> new preview -> new commitment -> new admission`
+
+The old commitment may remain available as evidence.
+
+It must not silently transfer authority to the newly resolved target.
+
+This law applies regardless of proposal source.
+
+`human proposal -> same retarget rule`
+
+`agent proposal -> same retarget rule`
+
+`API proposal -> same retarget rule`
+
+The purpose is to prevent:
+
+`changed target identity -> inherited old mutation authority`
+
+The correct relation is:
+
+`changed target identity -> new authority decision`
+
+
+12 Dependency-Aware Admission
+
+A simple staleness model may treat any document change as invalidating every pending edit.
+
+SERA separates whole-document identity from action-specific structural dependencies.
+
+The document hash may remain available for evidence and replay.
+
+Admission may separately bind:
+
+`admission_fingerprint = H(declared admission dependencies)`
+
+The dependency model asks:
+
+`what exact structure must remain equivalent for this proposal to keep the same meaning?`
+
+Examples:
+
+DELETE:
+
+`target + required separator context`
+
+MOVE:
+
+`source target + source context + destination relation + destination context`
+
+PASTE:
+
+`insertion anchor + insertion relation + separator policy`
+
+This allows:
+
+`unrelated structural change -> proposal may remain admissible`
+
+while:
+
+`required structural change -> STALE or CONFLICT`
+
+
+12.1 ADMITTED
+
+`ADMITTED` means the committed target, dependencies, plan, preview commitment, and mutation envelope satisfy the active admission profile immediately before execution.
+
+
+12.2 STALE
+
+`STALE` means the earlier committed meaning is no longer current.
+
+Examples:
+
+- target content changed;
+- target boundary changed;
+- required destination relation changed;
+- dependency fingerprint no longer matches;
+- previewed plan no longer represents the same structural action.
+
+A stale proposal must not mutate the document under its old commitment.
+
+
+12.3 CONFLICT
+
+`CONFLICT` means the proposal cannot be safely admitted under the declared profile.
+
+Examples:
+
+- plan escape from the mutation envelope;
+- incompatible structural dependency change;
+- contradictory current state;
+- invalid permit;
+- incompatible concurrent mutation.
+
+
+12.4 Whole-Document Hash and Dependency Fingerprint
+
+These identities have different roles.
+
+`document_hash -> whole canonical document identity`
+
+`admission_fingerprint -> identity of declared admission dependencies`
+
+A document hash may change while the admission fingerprint remains valid.
+
+That distinction is essential to dependency-aware concurrency.
+
+
+12.5 Relevant Change Principle
+
+SERA distinguishes:
+
+`document changed`
+
+from:
+
+`required structure changed`
+
+The governing principle is:
+
+`irrelevant change must not automatically invalidate valid edit authority`
+
+paired with:
+
+`dependency-changing mutation must not silently preserve old edit authority`
+
+The resulting relation is:
+
+`unrelated change -> authority may survive`
+
+`relevant change -> authority must be re-established`
+
+This principle does not permit blind reuse of an earlier proposal.
+
+The current target, declared dependencies, canonical plan, preview commitment, and mutation envelope remain subject to revalidation.
+
+
+12.6 Structural Relevance Classification
+
+The current reference surface exposes an informative classification of concurrent change relative to a prepared proposal.
+
+The current classes are:
+
+`IRRELEVANT`
+
+`DEPENDENCY_RELEVANT`
+
+`TARGET_MUTATING`
+
+`RULES_RELEVANT`
+
+`SCHEMA_RELEVANT`
+
+Conceptually:
+
+`IRRELEVANT -> commitment may survive`
+
+`DEPENDENCY_RELEVANT -> revalidate`
+
+`TARGET_MUTATING -> old commitment cannot execute`
+
+`RULES_RELEVANT -> re-resolve under applicable rules`
+
+`SCHEMA_RELEVANT -> re-resolve under applicable schema`
+
+The current classification is explanatory reference behavior.
+
+It does not create a new canonical admission profile or replace the governing admission fingerprint.
+
+
+12.7 Structural Admission Survival
+
+Structural Admission Survival is the demonstrated case in which the complete document changes while the structure required by a prepared proposal remains valid.
+
+The governing relation is:
+
+`document changed AND required dependencies unchanged -> prepared authority may remain valid`
+
+A survival result requires more than document-hash inequality.
+
+The prepared proposal must continue to satisfy the active contract, including:
+
+- the resolved target identity;
+- the admission dependency fingerprint;
+- the canonical plan;
+- the preview commitment;
+- the admitted mutation envelope.
+
+The concept therefore preserves:
+
+`concurrency without blind permissiveness`
+
+and:
+
+`safety without universal invalidation`
+
+The current Two-Agent Structural Admission Races include one visible unrelated-change case demonstrating this behavior.
+
+
+13 Admitted Mutation Envelope
+
+The mutation envelope defines the bounded region or structural write set within which the admitted plan may act.
+
+The governing relation is:
+
+`write_set(E_c) subseteq admitted_mutation_envelope`
+
+The envelope is derived from the exact plan and the structure required to execute that plan.
+
+Examples:
+
+DELETE:
+
+- target range;
+- required separator normalization range.
+
+MOVE:
+
+- source range;
+- source normalization range;
+- destination insertion region;
+- destination normalization region.
+
+PASTE:
+
+- insertion point or insertion region;
+- required separator normalization region.
+
+The envelope is not necessarily one contiguous range.
+
+The envelope should be no broader than necessary for the admitted plan.
+
+This is the structural least-authority principle:
+
+`resolved action -> minimum declared mutation authority required for that action`
+
+The execution adapter must not broaden the envelope merely because the host editor exposes broader mutation APIs.
+
+
+14 Structural Edit Permit
+
+A structural edit permit is a deterministic, single-use commitment to an admitted edit plan.
+
+Conceptually:
+
+`permit = H(profile + target_fingerprint + dependency_fingerprint + plan_hash + mutation_envelope)`
+
+A permit does not create independent authority.
+
+It represents the identity of an admitted plan under a declared structural state.
+
+The structural validity model is:
+
+`valid required structure -> permit may commit`
+
+`changed required structure -> STALE or CONFLICT`
+
+`successful commit -> permit consumed`
+
+The permit is structurally bounded rather than time-based.
+
+Wall-clock expiry may be added by a higher-level policy system, but it is not required for the core SERA admission model.
+
+The permit also does not replace:
+
+- access control;
+- user authorization;
+- organizational policy;
+- application permissions;
+- legal authorization.
+
+Those may exist above SERA.
+
+SERA determines the bounded edit meaning and its structural validity.
+
+
+15 Actor-Independent Proposal Contract
+
+The same architecture can accept proposals from different sources.
+
+The core proposal model may include:
+
+`proposal_id`
+
+`source`
+
+`schema`
+
+`scope`
+
+`locator`
+
+`action`
+
+`payload`
+
+`expected_profile`
+
+`expected_document_hash`
+
+Not every field is required for every adapter.
+
+The architectural requirement is that proposal source and transport remain explicit and distinct from target authority.
+
+Example:
+
+`source = AI_AGENT`
+
+`schema = TEXT`
+
+`scope = SENTENCE`
+
+`locator = paragraph 3, sentence 2`
+
+`action = DELETE`
+
+The proposal still passes through:
+
+`resolver -> planner -> preview -> revalidation -> admission -> bounded execution`
+
+The agent does not receive authority to choose an alternate target when the original becomes stale.
+
+An API does not receive authority to bypass the mutation envelope.
+
+A human interaction surface does not bypass admission merely because the request came directly from a user.
+
+The contract is actor-independent at the edit-admission boundary.
+
+
+15.1 Proposal Coordinates Are Evidence, Not Automatic Authority
+
+A machine proposal may contain:
+
+- offsets;
+- ranges;
+- paths;
+- line numbers;
+- node identifiers;
+- structural locators.
+
+These values may be useful evidence or resolver input.
+
+They do not automatically become mutation authority.
+
+The governing distinction is:
+
+`provided coordinates -> proposal evidence`
+
+not:
+
+`provided coordinates -> unquestioned write permission`
+
+
+15.2 Strict Machine Proposal Profile
+
+The current reference implementation declares:
+
+`SERA-AGENT-STRICT-1-D01`
+
+Under this strict profile:
+
+`machine-supplied range = locator hint`
+
+unless the active resolver independently resolves and admits the corresponding target under the frozen profile.
+
+The strict profile should reject any attempt to bypass:
+
+- target resolution;
+- preview commitment;
+- commit-time revalidation;
+- mutation-envelope enforcement.
+
+The intended relation is:
+
+`generated coordinates -> candidate evidence -> structural resolution -> admitted plan`
+
+
+15.3 Compatibility Proposal Direction
+
+A compatibility profile may accept legacy range-bearing proposals while preserving the SERA authority boundary.
+
+The compatibility relation is:
+
+`legacy range -> resolver hint`
+
+not:
+
+`legacy range -> final mutation authority`
+
+A compatibility adapter should declare exactly how range-bearing input is converted into resolver input.
+
+The adapter must not silently promote legacy coordinates into an admitted plan.
+
+
+15.4 Policy Boundary
+
+SERA governs edit meaning and bounded mutation authority.
+
+It does not replace higher-level authorization.
+
+The separation is:
+
+`SERA edit admission != organizational authorization`
+
+`SERA edit admission != legal permission`
+
+`SERA edit admission != access control`
+
+A higher policy layer may deny an otherwise structurally admissible edit.
+
+A structurally invalid edit must not become valid merely because a higher policy layer authorizes the actor.
+
+
+16 Protocol Independence
+
+SERA is not defined as one agent-tool protocol, service protocol, browser-specific protocol, or editor-specific protocol.
+
+The relationship is:
+
+`SERA proposal schema = core contract`
+
+`agent-tool adapter = possible adapter`
+
+`service API = possible adapter`
+
+`local function = possible adapter`
+
+`Structural Keyboard = reference human adapter`
+
+`host editor transaction = execution adapter`
+
+The governing principle is:
+
+`invocation mechanism != edit authority`
+
+This allows the architecture to be reused without coupling its identity to one transport protocol.
+
+
+17 Host Adapter Architecture
+
+The host adapter receives an admitted canonical plan and applies it through the host's native execution mechanism.
+
+Examples include:
+
+`SERA admitted canonical plan -> browser text operation`
+
+`SERA admitted canonical plan -> code-editor transaction`
+
+`SERA admitted canonical plan -> structured-editor transaction`
+
+`SERA admitted canonical plan -> workspace edit`
+
+`SERA admitted canonical plan -> document API operation`
+
+The host adapter should preserve:
+
+- exact plan semantics;
+- mutation envelope;
+- action order;
+- precondition checks where required;
+- observed post-state reporting.
+
+The adapter must not silently substitute a different target or broaden the write set.
+
+If the host cannot apply the admitted plan exactly:
+
+`execution refusal -> no successful edit receipt`
+
+The architecture separates:
+
+`planning correctness`
+
+from:
+
+`host execution capability`
+
+
+18 Structural Keyboard Reference Surface
+
+Structural Keyboard is the reference human interaction surface for SERA.
+
+Its purpose is to make the edit-admission architecture visible through ordinary editing actions.
+
+The reference-surface claim is:
+
+`same admission contract for machine and human proposals`
+
+Structural Keyboard does not serve as the sole identity of SERA.
+
+It is the human proof surface for the wider architecture.
+
+The current v0.9.2 interaction model uses:
+
+- Schema;
+- persistent Scope;
+- current structural target;
+- structural navigation;
+- familiar editing actions;
+- visible resolution state;
+- visible admission state;
+- pre-commit canonical plan preview;
+- structural position;
+- Agent Proposal;
+- Refusal Challenge;
+- Compare Current Target;
+- Reset Demo;
+- Boundary Challenge;
+- Multilingual Demo;
+- Admission Boundary Matrix;
+- Two-Agent Structural Admission Races;
+- evidence and audit tools.
+
+
+18.1 Persistent Scope
+
+The selected structural level remains visible state.
+
+Examples:
+
+`GRAPHEME`
+
+`CODE_POINT`
+
+`WORD`
+
+`SENTENCE`
+
+`PARAGRAPH`
+
+`LIST_ITEM`
+
+`SECTION`
+
+A common action vocabulary can operate through the selected scope.
+
+
+18.2 Structural Navigation
+
+Previous and Next move between structural units rather than individual character positions.
+
+For explicit structural navigation:
+
+`new resolved target -> visual viewport follows target`
+
+The editor should not leave the selected target off-screen after an explicit navigation command.
+
+
+18.3 Structural Position
+
+A continuous editor should not invent unstable page numbers.
+
+Instead it may expose a structural location such as:
+
+`Sentence 12 of 38`
+
+`Paragraph 7 of 14`
+
+`Section 3 of 6`
+
+This identity follows the active structural scope.
+
+
+18.4 Interactive Target State
+
+The TARGET state control may:
+
+- focus the current target;
+- bring it into view;
+- open resolution details.
+
+The architecture treats the state as both information and an inspection surface.
+
+
+18.5 Interactive Admission State
+
+The ADMISSION state control may expose:
+
+- target fingerprint;
+- dependency fingerprint;
+- canonical plan;
+- mutation envelope;
+- permit identity;
+- preview commitment.
+
+A non-mutating check may report current validity.
+
+Final `ADMITTED` remains a commit-time result.
+
+
+18.6 Agent Proposal
+
+The reference surface demonstrates that a machine-originated proposal enters the same architecture as a human action.
+
+A valid proposal may be:
+
+`resolved -> planned -> previewed -> committed -> revalidated -> admitted -> executed`
+
+An unavailable or malformed target is explicitly rejected.
+
+The source identity remains visible in evidence.
+
+The current implementation declares:
+
+`SERA-PROPOSAL-1-D01`
+
+and:
+
+`SERA-AGENT-STRICT-1-D01`
+
+Under strict handling:
+
+`machine-supplied range -> locator hint`
+
+not:
+
+`machine-supplied range -> automatic mutation authority`
+
+
+18.7 Compare Current Target
+
+Comparison uses:
+
+`current editor content + current caret + current scope`
+
+It does not rely on a separate hidden sample.
+
+The comparison is illustrative and bounded.
+
+Its purpose is to show the difference between:
+
+- a deliberately forced target choice;
+- SERA structural resolution, including explicit ambiguity or unsupported state.
+
+The reference demonstration should not claim that every conventional or structural editor would make the same forced choice.
+
+The current interface computes and displays comparison results automatically when the comparison opens and exposes `Run Again` for deterministic replay.
+
+
+18.8 Boundary Challenge
+
+Boundary Challenge supplies difficult examples that exercise:
+
+- ambiguity;
+- punctuation boundaries;
+- abbreviations;
+- decimals;
+- ellipses;
+- separator behavior.
+
+It remains separate from the Multilingual Demo.
+
+This separation keeps the ambiguity corpus focused and prevents multilingual examples from being presented merely as punctuation edge cases.
+
+Boundary Challenge is a demonstration corpus, not a universal linguistic benchmark.
+
+
+18.9 Multilingual Demo
+
+The current reference includes a dedicated:
+
+`Multilingual Demo`
+
+The first public multilingual demonstration contains:
+
+`Tamil`
+
+and:
+
+`French`
+
+The demo loads directly into the same main Structural Keyboard editing surface.
+
+Users can apply the same structural scopes and actions to the multilingual content, including:
+
+`GRAPHEME`
+
+`CODE_POINT`
+
+`WORD`
+
+`SENTENCE`
+
+`PARAGRAPH`
+
+The Multilingual Demo is intentionally extensible.
+
+Additional languages may be added without changing the identity of the demonstration, provided that any normative change to segmentation behavior is introduced through the applicable versioned profile.
+
+The current dedicated multilingual check verifies:
+
+- the multilingual content is separate from Boundary Challenge;
+- the exact Tamil content is present;
+- the exact French content is present;
+- each language resolves into three declared sentences;
+- neither language introduces sentence ambiguity in the declared demo text;
+- Tamil `கி` resolves as one grapheme;
+- the declared grapheme spans for `தமிழ்` match;
+- French `é` resolves as one grapheme.
+
+The demonstrated result is:
+
+`SERA MULTILINGUAL DEMO CHECK -> PASS`
+
+
+18.10 Refusal Challenge
+
+The Refusal Challenge demonstrates the No Silent Retarget Law.
+
+It prepares a valid preview commitment, changes required target structure, and then attempts commit-time revalidation.
+
+The expected outcome is:
+
+`STALE`
+
+with:
+
+`TARGET_STALE`
+
+and:
+
+`successful mutation = 0`
+
+The current interface displays the result automatically when opened and exposes `Run Again` for deterministic replay.
+
+
+18.11 Admission Boundary Matrix
+
+The Admission Boundary Matrix changes one part of a frozen proposal environment at a time.
+
+It distinguishes:
+
+`unrelated change`
+
+from:
+
+`required structural change`
+
+from:
+
+`mutation-envelope conflict`
+
+The current interface runs the matrix automatically when opened and exposes `Run Again`.
+
+
+18.12 Two-Agent Structural Admission Races
+
+The current reference surface presents three deterministic races between:
+
+`DRAFT_AGENT`
+
+and:
+
+`REVIEW_AGENT`
+
+Both begin from the same declared state.
+
+The visible cases are:
+
+`same target -> TARGET_MUTATING -> old authority refused`
+
+`unrelated change -> IRRELEVANT -> prepared authority may survive`
+
+`required dependency changes -> DEPENDENCY_RELEVANT -> revalidation may refuse`
+
+The demonstration is designed to show both sides of dependency-aware admission:
+
+`relevant change can invalidate authority`
+
+and:
+
+`irrelevant change need not invalidate authority`
+
+Results appear automatically when the demonstration opens and may be replayed through Run Again.
+
+The demonstration does not claim to implement a collaborative merge algorithm.
+
+
+18.13 Keyboard-Only Operability and Interaction Assurance
+
+Because Structural Keyboard is the reference human surface, keyboard-only operability remains a declared assurance boundary.
+
+The current audit includes keyboard-focused regression coverage for important reference interactions.
+
+The interaction boundary includes:
+
+- schema and scope change;
+- structural navigation;
+- edit actions;
+- modal opening and closing;
+- visible focus behavior;
+- status controls;
+- keyboard shortcuts;
+- evidence and proposal workflows.
+
+Current audit coverage does not by itself prove accessibility benefit.
+
+Actual accessibility outcomes require dedicated evaluation with relevant users and assistive technologies.
+
+19 Concurrency and Multi-Proposal Admission
+
+Commit-time admission becomes especially important when more than one proposal exists.
+
+SERA distinguishes three core cases.
+
+
+19.1 Same-Target Race
+
+Two proposals resolve against the same initial target.
+
+Proposal A commits first.
+
+Proposal B's required target structure changes.
+
+Expected result:
+
+`B -> STALE`
+
+and:
+
+`B -> no mutation`
+
+
+19.2 Independent-Target Race
+
+Two proposals depend on structurally independent regions.
+
+Proposal A commits.
+
+Proposal B's declared admission dependencies remain unchanged.
+
+Expected result:
+
+`B -> may remain ADMITTED`
+
+This demonstrates that SERA is not merely whole-document optimistic locking.
+
+
+19.3 Structural Interference
+
+Proposal A changes a boundary, destination, separator relation, or context required by Proposal B.
+
+Expected result:
+
+`B -> STALE`
+
+or:
+
+`B -> CONFLICT`
+
+according to the active profile.
+
+
+19.4 Governing Concurrency Principle
+
+`Not every concurrent edit is unsafe.`
+
+`Not every changed offset creates a new target.`
+
+`Declared structural dependency determines whether the original proposal still means the same thing.`
+
+
+19.5 Independence and Commutativity
+
+A stronger assurance profile may distinguish:
+
+`proposal independence`
+
+`commit compatibility`
+
+`result commutativity`
+
+Two proposals may be structurally independent without necessarily producing the same final text under every execution order.
+
+The architecture should not equate:
+
+`independent dependency sets`
+
+with:
+
+`commutative result`
+
+unless both are verified.
+
+
+19.6 Commutativity Certification Direction
+
+A stronger collaborative or multi-agent profile may verify both supported execution orders.
+
+Compare:
+
+`apply(E1, apply(E2, D))`
+
+with:
+
+`apply(E2, apply(E1, D))`
+
+If the canonical final states are identical:
+
+`COMMUTE(E1, E2)`
+
+Otherwise:
+
+`ORDER_DEPENDENT(E1, E2)`
+
+A commutativity certificate should not be inferred merely from:
+
+- non-overlapping original character ranges;
+- separate initial targets;
+- disjoint source offsets.
+
+One edit may change:
+
+- later offsets;
+- structural boundaries;
+- anchors;
+- separator relationships;
+- destination relationships;
+- another proposal's admission dependencies.
+
+The architecture therefore distinguishes:
+
+`proposal independence`
+
+`commit compatibility`
+
+`result commutativity`
+
+as three separate questions.
+
+A future certificate profile may be declared as:
+
+`SERA-COMMUTE-1-D01`
+
+A certificate may bind:
+
+`pre_state_hash`
+
+`plan_A_hash`
+
+`plan_B_hash`
+
+`dependency_A_hash`
+
+`dependency_B_hash`
+
+`envelope_A_hash`
+
+`envelope_B_hash`
+
+`A_then_B_final_hash`
+
+`B_then_A_final_hash`
+
+`commutativity_result`
+
+The certificate should state the frozen profile under which the result was established.
+
+The certificate is evidence of bounded commutativity under that profile.
+
+It is not a universal statement that the two semantic intentions commute in every document state.
+
+
+20 Evidence Architecture
+
+SERA evidence is intended to preserve the proposal-to-transition boundary.
+
+A receipt may bind:
+
+- receipt profile;
+- receipt kind;
+- proposal identity;
+- proposal source;
+- schema identity;
+- rules profile;
+- scope;
+- anchor or locator;
+- resolution state;
+- candidate set or explicit choice;
+- target fingerprint;
+- action;
+- canonical plan or plan hash;
+- admission dependency fingerprint;
+- mutation envelope;
+- preview commitment;
+- structural edit permit;
+- canonical pre-document hash;
+- canonical post-document hash;
+- previous receipt hash.
+
+Receipt kinds may include:
+
+`GENESIS`
+
+`EDIT`
+
+`REFUSAL`
+
+`UNDO`
+
+`REDO`
+
+The current browser reference emits:
+
+`SERA-RECEIPT-2`
+
+and exports:
+
+`SERA-SESSION-BUNDLE-2`
+
+The exact canonical form belongs to the conformance specification.
+
+
+20.1 Genesis
+
+A genesis receipt establishes the initial canonical document identity and profile context for a recorded session.
+
+
+20.2 Edit Receipt
+
+An edit receipt records a successful admitted transition.
+
+
+20.3 Refusal Receipt and Refusal Witness
+
+A refusal receipt records a non-mutating outcome such as:
+
+`AMBIGUOUS`
+
+`UNSUPPORTED`
+
+`STALE`
+
+`CONFLICT`
+
+A refusal should not fabricate a post-mutation state.
+
+The current evidence relation is:
+
+`refusal = deterministic non-mutation + reason + witness`
+
+The current reference implementation declares:
+
+`SERA-REFUSAL-WITNESS-1-D01`
+
+For `AMBIGUOUS`, a witness may bind:
+
+`candidate_set_hash`
+
+`candidate_count`
+
+`resolution_reason`
+
+For `UNSUPPORTED`, a witness may bind:
+
+`requested_schema`
+
+`requested_scope`
+
+`unsupported_reason`
+
+For `STALE`, a witness may bind:
+
+`expected_dependency_fingerprint`
+
+`current_dependency_fingerprint`
+
+`stale_reason`
+
+For `CONFLICT`, a witness may bind:
+
+`conflict_reason`
+
+`expected_envelope_hash`
+
+`declared conflicting dependency evidence`
+
+The witness must not reveal more document content than the active evidence profile permits.
+
+The architectural law is:
+
+`refusal -> zero successful mutation`
+
+A refusal receipt should make the reason reconstructable within the declared evidence boundary.
+
+
+20.4 Undo and Redo
+
+Undo and redo are structural history operations in the reference surface.
+
+A stronger evidence profile may record them as explicit receipts linked to the prior content chain.
+
+The preferred bounded history policy is:
+
+`safe direct inverse -> UNDO`
+
+otherwise:
+
+`REFUSAL`
+
+A future versioned rebasing policy may be defined separately.
+
+The architecture should not silently apply an unsafe inverse under a profile that declares only direct inversion.
+
+Undo does not erase the earlier edit receipt.
+
+Redo should likewise append new evidence rather than rewriting the earlier receipt chain.
+
+
+20.5 Session Identity and Chain Head
+
+The current chain head identifies the latest receipt in the evolving evidence chain.
+
+Because the chain head changes whenever a new receipt is appended:
+
+`session identity != receipt-chain head`
+
+A stable session identifier, where required, should be declared separately from:
+
+`chain_head`
+
+`receipt_hash`
+
+and any future:
+
+`bundle_root`
+
+
+20.6 Replay
+
+The replay relation is:
+
+`genesis document + validated receipt chain + frozen profiles -> verified final document`
+
+A producer-side replay implementation is useful but does not by itself constitute independent verification.
+
+
+20.7 Independent Evidence Boundary
+
+The browser producer may generate:
+
+- receipts;
+- bundles;
+- PASS labels;
+- replay results.
+
+An independent verifier must not trust a producer-generated PASS label as evidence of correctness.
+
+The independent verification relation is:
+
+`declared inputs + frozen profiles + independently reconstructed transitions -> independently checked final identity`
+
+The verifier and the producer may share a written specification.
+
+They should not share the same implementation path for the checks being presented as independent.
+
+
+20.8 Human-Readable Refusal Explanations
+
+A refusal witness is deterministic evidence.
+
+A refusal explanation is presentation.
+
+The architecture preserves:
+
+`refusal witness = machine-verifiable evidence`
+
+`refusal explanation = human-readable interpretation`
+
+`explanation != evidence authority`
+
+The explanation may improve over time without redefining the canonical refusal witness, provided no implementation represents changed presentation text as unchanged canonical evidence.
+
+The current reference surface presents plain-language explanations for surfaced refusal reasons so a user is not required to interpret hashes or reason codes alone.
+
+
+20.9 Local JSON Schema Artifacts
+
+The current repository direction includes local JSON Schema files for:
+
+`SERA-PROPOSAL-1-D01`
+
+`SERA-REFUSAL-WITNESS-1-D01`
+
+`SERA-RECEIPT-2`
+
+`SERA-SESSION-BUNDLE-2`
+
+The schema files are structural-validation aids.
+
+They do not replace the normative conformance specification.
+
+The governing separation is:
+
+`JSON Schema -> structural validation`
+
+`SERA conformance rules -> semantic validity`
+
+`independent verifier -> reconstructed evidence validity`
+
+No hosted SERA schema service is required.
+
+Network retrieval is not part of SERA admission authority.
+
+
+21 Verification Architecture
+
+The verification direction is reconstructive rather than label-based.
+
+A verifier should be able to check, where the applicable frozen profile defines the required data:
+
+`canonical identity`
+
+`receipt chain integrity`
+
+`content transition integrity`
+
+`preview binding`
+
+`No Silent Retarget compliance`
+
+`admission dependency integrity`
+
+`mutation envelope integrity`
+
+`permit use`
+
+`refusal non-mutation`
+
+`refusal witness integrity`
+
+`replay identity`
+
+`post-action anchor determinism`
+
+`explicit candidate-choice evidence`
+
+`undo and redo inverse-or-refuse behavior`
+
+`session identity separation`
+
+`concurrency admission behavior`
+
+`commutativity classification where a profile defines it`
+
+A future independent verifier may emit results such as:
+
+`BUNDLE_VALID`
+
+`CHAIN_VERIFIED`
+
+`REPLAY_VERIFIED`
+
+`PREVIEW_BINDING_VERIFIED`
+
+`MUTATION_ENVELOPE_VERIFIED`
+
+`REFUSAL_VERIFIED`
+
+and precise failures such as:
+
+`BUNDLE_INVALID(reason)`
+
+`CHAIN_DIVERGED(seq)`
+
+`REPLAY_DIVERGED(seq)`
+
+`PREVIEW_DIVERGED(seq)`
+
+`TARGET_RETARGETED(seq)`
+
+`PLAN_ESCAPE(seq)`
+
+`PERMIT_REUSED(seq)`
+
+`REFUSAL_MUTATED(seq)`
+
+`CONFORMANCE_DIVERGED(vector_id)`
+
+The independent verifier should be deliberately narrower than the full browser implementation.
+
+Its role is to reconstruct and check declared evidence.
+
+It is not required to reproduce the complete user interface.
+
+
+21.1 Assurance Sequence
+
+The recommended assurance sequence is:
+
+`freeze verifier-facing canonical semantics`
+
+then:
+
+`freeze minimal replay and adversarial corpora`
+
+then:
+
+`implement independent verifier`
+
+then:
+
+`publish refusal-inclusive frozen corpora`
+
+then:
+
+`implement second resolver`
+
+then:
+
+`compare cross-implementation results`
+
+The ordering is deliberate.
+
+The independent verifier should be prioritized ahead of the second resolver because producer-side audit is the weakest external evidence boundary in the current reference implementation.
+
+The verifier and second resolver serve different purposes.
+
+`independent verifier -> did the recorded transition chain reconstruct correctly?`
+
+`independent resolver -> did another implementation independently reach the same declared structural result?`
+
+Before the verifier is frozen, any normative change to canonical planning names, receipt fields, or hash subjects should be completed through an explicit versioned profile transition.
+
+After a verifier-facing profile is frozen:
+
+`normative identity change -> new profile version`
+
+not:
+
+`silent mutation of existing profile semantics`
+
+
+21.2 Separated Corpus Families
+
+The assurance program should avoid one undifferentiated corpus.
+
+Recommended families include:
+
+`SERA-CANON-1`
+
+`SERA-RESOLVE-ADV-1`
+
+`SERA-ADMIT-ADV-1`
+
+`SERA-REPLAY-1`
+
+`SERA-UNICODE-1`
+
+Their roles are:
+
+`SERA-CANON-1 -> canonicalization and identity`
+
+`SERA-RESOLVE-ADV-1 -> resolution and explicit non-resolution`
+
+`SERA-ADMIT-ADV-1 -> dependency-aware admission and mutation-envelope behavior`
+
+`SERA-REPLAY-1 -> independently reconstructable receipt transitions`
+
+`SERA-UNICODE-1 -> Unicode, grapheme, multilingual, and offset-boundary behavior`
+
+A future commutativity corpus may be separated as:
+
+`SERA-COMMUTE-1`
+
+
+22 Current Browser Reference Implementation
+
+The current reference implementation family is:
+
+`SERA v0.9.2`
+
+`Structural Keyboard Reference Surface v0.9.2`
+
+Current conformance specification:
+
+`SERA Canonicalization, Conformance, and Evidence Specification v0.2.0`
+
+Current profiles include:
+
+`SK-RESOLVER-1-D01`
+
+`SK-RULES-1.1.0`
+
+`SK-FP-HYBRID-1-D01`
+
+`SERA-ADMISSION-DEP-1-D01`
+
+`SERA-PROPOSAL-1-D01`
+
+`SERA-AGENT-STRICT-1-D01`
+
+`SERA-PREVIEW-COMMIT-2-D01`
+
+`SERA-MUTATION-ENVELOPE-1-D01`
+
+`SERA-EDIT-PERMIT-1-D01`
+
+`SERA-REFUSAL-WITNESS-1-D01`
+
+`SERA-RECEIPT-2`
+
+`SERA-SESSION-BUNDLE-2`
+
+`SERA-UNICODE-GRAPHEME-1-D01`
+
+`SERA-AUDIT-1-D04`
+
+Current Unicode declaration:
+
+`unicode_version = 17.0.0`
+
+`grapheme_revision = 47`
+
+Current offset representation:
+
+`UTF16_CODE_UNIT`
+
+Current human-facing character unit:
+
+`EXTENDED_GRAPHEME_CLUSTER`
+
+The browser reference currently demonstrates:
+
+- TEXT and MARKDOWN schemas;
+- `GRAPHEME` and `CODE_POINT` as distinct scopes;
+- persistent structural scope;
+- structural navigation;
+- automatic viewport following for explicit navigation;
+- structural position indicators;
+- Select;
+- Cut;
+- Copy;
+- Paste;
+- Delete;
+- Duplicate;
+- Move Back;
+- Move Forward;
+- Undo;
+- Redo;
+- Save;
+- `RESOLVED`, `AMBIGUOUS`, and `UNSUPPORTED`;
+- `ADMITTED`, `STALE`, and `CONFLICT`;
+- canonical proposal identity;
+- strict machine range-hint handling;
+- canonical plan preview;
+- Preview v2 commitment;
+- the No Silent Retarget Law;
+- dependency-aware admission;
+- mutation envelopes;
+- structural edit permits;
+- deterministic refusal witnesses;
+- interactive TARGET and ADMISSION controls;
+- Agent Proposal;
+- Refusal Challenge;
+- Compare Current Target;
+- Boundary Challenge;
+- Reset Demo;
+- Multilingual Demo with Tamil and French;
+- Admission Boundary Matrix;
+- multi-proposal admission race demonstrations;
+- deterministic Receipt v2 evidence;
+- Session Bundle v2 export;
+- producer-side replay;
+- verifier-fixture generation;
+- frozen grapheme conformance tooling;
+- cumulative console audit and permanent regression coverage.
+
+The current Multilingual Demo keeps multilingual content separate from Boundary Challenge.
+
+Its public content contains three Tamil sentences and three semantically corresponding French sentences.
+
+The deeper Unicode audit separately checks:
+
+- base-plus-combining-mark graphemes;
+- surrogate-pair code points;
+- Tamil grapheme behavior;
+- emoji ZWJ behavior;
+- an Indic conjunct vector;
+- Tamil canonical-equivalence normalization;
+- normalization stability.
+
+The reference implementation is self-contained and does not require:
+
+- an external AI model;
+- an external editing service;
+- a database;
+- a network connection for ordinary local operation.
+
+The current browser console may display a local `file:` unique-origin warning when the page is opened directly from disk.
+
+That browser-origin warning is separate from the SERA audit result and does not, by itself, indicate a SERA functional failure.
+
+23 Current Audit and Assurance Boundary
+
+The current reference-demo audit profile is:
+
+`SERA-AUDIT-1-D04`
+
+The latest demonstrated v0.9.2 full release regression audit is:
+
+`329/329 PASS`
+
+with:
+
+`CORE = 26/26 PASS`
+
+`RESOLUTION = 7/7 PASS`
+
+`EDITING = 5/5 PASS`
+
+`ADMISSION = 5/5 PASS`
+
+`PREVIEW = 5/5 PASS`
+
+`NO SILENT RETARGET = 6/6 PASS`
+
+`PROPOSALS = 16/16 PASS`
+
+`REFUSAL WITNESSES = 11/11 PASS`
+
+`COMPARISON = 9/9 PASS`
+
+`DEMO FLOWS = 11/11 PASS`
+
+`INTERACTION = 3/3 PASS`
+
+`VIEWPORT = 4/4 PASS`
+
+`STATUS CONTROLS = 4/4 PASS`
+
+`STRUCTURAL POSITION = 4/4 PASS`
+
+`BUTTON AFFORDANCE = 21/21 PASS`
+
+`CONCURRENCY = 9/9 PASS`
+
+`ADMISSION BOUNDARY = 9/9 PASS`
+
+`EVIDENCE = 10/10 PASS`
+
+`UI = 21/21 PASS`
+
+`KEYBOARD = 10/10 PASS`
+
+`UNICODE = 13/13 PASS`
+
+`BUILT-IN SELF-TEST = 54/54 PASS`
+
+`STATE RESTORATION = 1/1 PASS`
+
+`AUDIT HARNESS = 4/4 PASS`
+
+`KNOWN REGRESSIONS = 27/27 PASS`
+
+`FEATURE COVERAGE = 34/34 PASS`
+
+`INTEGRITY REGRESSION = 0`
+
+`UNEXPECTED MUTATION = 0`
+
+`FINAL STATUS = PASS`
+
+The dedicated multilingual check has demonstrated:
+
+`SERA MULTILINGUAL DEMO CHECK -> PASS`
+
+The focused demonstration-flow audit has demonstrated:
+
+`DEMO FLOWS = 11/11 PASS`
+
+The current audit architecture preserves the last complete full-audit result across later quick and focused checks.
+
+Permanent regression discipline remains:
+
+`bug found -> fix implemented -> permanent regression test added -> full audit must pass`
+
+The multilingual separation requirement is protected by:
+
+`REG-025`
+
+which requires the Multilingual Demo to remain separate from Boundary Challenge and preserve the declared Tamil and French content.
+
+These results establish producer-side reference-demo behavior under the implemented audit harness.
+
+They do not establish:
+
+- independent verification;
+- cross-engine conformance;
+- exhaustive defect absence;
+- universal browser equivalence;
+- production qualification.
+
+Detailed audit semantics and release acceptance belong to the SERA Reference Demo Audit and Assurance Specification.
+
+24 Unicode, Grapheme, and Segmentation Boundary
+
+Text segmentation is part of the structural resolver contract.
+
+A release profile should declare:
+
+`unicode_version`
+
+`segmentation_profile`
+
+`normalization`
+
+`offset_unit`
+
+`character_unit`
+
+`grapheme_relation`
+
+`word_boundary_relation`
+
+`sentence_boundary_relation`
+
+`tailoring`
+
+The current v0.9.2 browser reference declares:
+
+`unicode_version = 17.0.0`
+
+`grapheme_profile = SERA-UNICODE-GRAPHEME-1-D01`
+
+`grapheme_revision = 47`
+
+`offset_unit = UTF16_CODE_UNIT`
+
+`character_unit = EXTENDED_GRAPHEME_CLUSTER`
+
+The browser exposes both:
+
+`GRAPHEME`
+
+and:
+
+`CODE_POINT`
+
+These scopes must not be conflated.
+
+A user-perceived character may contain multiple code points.
+
+A code point may occupy one or two UTF-16 code units.
+
+Therefore:
+
+`offset representation != structural character unit`
+
+and:
+
+`code point != user-perceived character`
+
+and:
+
+`grapheme != code point`
+
+The current `CODE_POINT` scope remains a technical scope.
+
+The current `GRAPHEME` scope is the human-facing character scope under the frozen `SERA-UNICODE-GRAPHEME-1-D01` profile.
+
+The implementation preserves UTF-16 code-unit offsets for evidence while resolving grapheme structure independently under the declared profile.
+
+The implementation should not silently delegate conformance authority to an unfrozen runtime segmentation implementation whose version or tailoring behavior may differ across environments.
+
+
+24.1 Boundary Challenge and Multilingual Demo Separation
+
+Boundary Challenge and Multilingual Demo serve different purposes.
+
+Boundary Challenge focuses on:
+
+- ambiguity;
+- punctuation boundaries;
+- abbreviations;
+- decimals;
+- ellipses;
+- separator behavior.
+
+Multilingual Demo focuses on ordinary structural navigation and editing across more than one language.
+
+The governing separation is:
+
+`ambiguity corpus != multilingual demonstration corpus`
+
+This separation is permanent regression coverage in the current reference implementation.
+
+
+24.2 Current Multilingual Demonstration
+
+The current Multilingual Demo contains:
+
+`தமிழ்`
+
+followed by:
+
+`நீங்கள் மாற்ற விரும்பும் பகுதியை முதலில் தெளிவாக கண்டறியலாம். நீங்கள் ஒரு வார்த்தை, ஒரு வாக்கியம் அல்லது ஒரு பத்தியை மிக எளிதாகத் தேர்ந்தெடுத்து திருத்தலாம். எந்தப் பகுதியை மாற்ற வேண்டும் என்பது தெளிவாகத் தெரியவில்லை என்றால், யூகிக்க முயற்சிப்பதை விட நிறுத்துவதே பாதுகாப்பானது.`
+
+and:
+
+`Français`
+
+followed by:
+
+`Vous pouvez d’abord identifier clairement la partie que vous souhaitez modifier. Vous pouvez très facilement sélectionner et corriger un mot, une phrase ou un paragraphe. Si la partie à modifier n’est pas clairement identifiable, il est plus sûr de s’arrêter que d’essayer de deviner.`
+
+The two language blocks carry the same simple demonstration idea:
+
+- clearly identify what should change;
+- select and edit a word, sentence, or paragraph;
+- stop rather than guess when the intended part is unclear.
+
+The current dedicated check verifies that both blocks resolve into three declared sentences without ambiguity under the active demonstration rules.
+
+The Multilingual Demo is a reference interaction demonstration.
+
+It is not a claim of universal linguistic coverage.
+
+
+24.3 Current Grapheme and Unicode Review Vectors
+
+The current reference includes permanent checks for:
+
+`கி`
+
+`தமிழ்`
+
+`👩‍💻`
+
+`क्ष`
+
+and canonically equivalent Tamil input resolving to:
+
+`கொ`
+
+The current Unicode-focused audit verifies, among other requirements:
+
+- grapheme profile identity;
+- Unicode version identity;
+- UTF-16 evidence offsets;
+- extended-grapheme-cluster character identity;
+- surrogate-pair code-point handling;
+- normalization stability;
+- base-plus-combining-mark grapheme preservation;
+- Tamil grapheme boundaries;
+- emoji ZWJ preservation;
+- an Indic consonant-linker-consonant conjunct case;
+- Tamil canonical equivalence.
+
+The current focused Unicode audit has demonstrated:
+
+`13/13 PASS`
+
+The reference also exposes a frozen grapheme conformance runner containing:
+
+`766 vectors`
+
+The existence of those vectors does not convert the current browser implementation into a universal linguistic authority.
+
+
+24.4 Normative Conformance and Human Language Review
+
+Unicode algorithm conformance and language-specific human review are separate evidence categories.
+
+The distinction is:
+
+`normative algorithm result`
+
+from:
+
+`human linguistic review`
+
+Therefore:
+
+`Unicode algorithm conformance != universal linguistic correctness`
+
+The current Tamil and French demonstration text is human-facing example content.
+
+The deeper conformance vectors test declared segmentation behavior.
+
+Neither layer should silently stand in for the other.
+
+
+24.5 Normalization and Equivalence
+
+The canonical text profile may normalize canonically equivalent representations while the structural resolver operates on the normalized canonical document.
+
+A conformance corpus should include canonically equivalent sequences that are expected to produce the same canonical document identity.
+
+The exact byte-level normalization rules belong to the conformance specification.
+
+
+24.6 Refusal Before False Precision
+
+The governing segmentation law is:
+
+`unsupported safe segmentation -> AMBIGUOUS OR UNSUPPORTED`
+
+not:
+
+`unsupported safe segmentation -> silent target fabrication`
+
+This is the multilingual form of the wider SERA principle:
+
+`absence over falsehood`
+
+25 Comparison and Adjacent-Mechanism Boundary
+
+Structural editing is established.
+
+Relevant generic traditions include:
+
+- text-object editing;
+- selection-first structural editing;
+- voice-driven structural targeting;
+- syntax-tree-backed editing;
+- structure-preserving editing;
+- smart-selection systems;
+- structured-editor transaction systems.
+
+SERA does not claim novelty merely from acting on words, sentences, paragraphs, list items, sections, or syntax nodes.
+
+Commit-time checking also exists in adjacent mechanism families.
+
+Acknowledging those mechanisms sharpens the actual SERA claim.
+
+
+25.1 Whole-Resource Preconditions
+
+A whole-resource precondition asks whether the complete resource still matches an expected identity.
+
+A change anywhere may invalidate a pending operation.
+
+SERA instead allows an admission profile to ask:
+
+`did the structure required by this proposal change?`
+
+The distinction is:
+
+`whole resource changed?`
+
+versus:
+
+`required edit structure changed?`
+
+This permits unrelated changes to remain potentially admissible while required structural changes produce `STALE` or `CONFLICT`.
+
+
+25.2 Test-Then-Apply Patch Mechanisms
+
+A test-before-apply patch may assert expected values or paths before mutation.
+
+Such assertions can provide valuable commit-time protection.
+
+SERA's distinct architectural focus is that the precondition is derived from:
+
+`declared structural resolution + declared admission dependencies`
+
+and is combined with:
+
+`explicit non-resolution + canonical planning + bounded mutation authority + refusal evidence`
+
+SERA does not claim that conditional patching itself is new.
+
+
+25.3 Merge-Based Collaborative Models
+
+Collaborative merge systems answer questions about combining or reconciling concurrent edits.
+
+SERA asks a different question:
+
+`is this proposal still admissible under its declared structural dependencies?`
+
+The relation is:
+
+`merge discipline != admission discipline`
+
+The two may be complementary.
+
+SERA does not claim to replace collaborative merge systems.
+
+
+25.4 Bounded Differentiation
+
+The architecture does not establish universal novelty, patentability, or superiority.
+
+Its principal differentiation is the combined declared contract joining:
+
+- explicit target-resolution states;
+- canonical pre-commit planning;
+- preview commitment;
+- the No Silent Retarget Law;
+- commit-time structural revalidation;
+- dependency-aware admission;
+- bounded mutation authority;
+- explicit refusal;
+- actor-independent proposal handling;
+- replay-oriented evidence.
+
+A comparison should remain bounded.
+
+A blank or partial capability in another category should not be presented as criticism.
+
+Different systems may be optimized for different goals.
+
+
+26 Deployment Direction
+
+SERA is designed to separate the core contract from any one interface or editor.
+
+The deployment path is:
+
+`core resolver and admission contract`
+
+plus:
+
+`schema provider`
+
+plus:
+
+`proposal adapter`
+
+plus:
+
+`host execution adapter`
+
+plus:
+
+`evidence adapter`
+
+Potential host directions include:
+
+- browser text editors;
+- code editors;
+- structured document editors;
+- source-code editors;
+- controlled document systems;
+- local automation;
+- agent editing tools;
+- assistive interfaces.
+
+
+26.1 Human Editing
+
+Structural Keyboard remains the reference human interaction model.
+
+Its strongest value is not merely faster selection.
+
+It demonstrates visible structural target state, exact plan preview, bounded mutation, and explicit refusal in a direct editing workflow.
+
+
+26.2 AI and Automated Editing
+
+AI and agentic editing are the highest-priority application direction for the next SERA implementation cycle.
+
+An agent may propose intent without receiving direct mutation authority.
+
+The intended relation is:
+
+`agent proposes -> SERA resolves and admits -> host executes`
+
+This separates:
+
+`model proposal quality`
+
+from:
+
+`edit-admission correctness`
+
+The agent may supply:
+
+- semantic intent;
+- a locator;
+- a candidate range;
+- replacement content;
+- a structural path;
+- another declared proposal artifact.
+
+The proposal still passes through the active SERA contract.
+
+A strict profile may treat:
+
+`machine-supplied range = locator hint`
+
+rather than:
+
+`machine-supplied range = mutation authority`
+
+SERA does not determine whether the agent's requested content is factually correct, desirable, lawful, or authorized at a higher policy level.
+
+Optional machine assistance may later support:
+
+- phrase interpretation;
+- semantic grouping;
+- candidate generation;
+- rewriting suggestions;
+- structural intent suggestions.
+
+The governing boundary remains:
+
+`optional machine assistance != deterministic target authority`
+
+unless a separately declared profile explicitly admits that assistance as part of the target-resolution contract.
+
+The strongest future deployment pattern is:
+
+`untrusted proposal -> deterministic structural gate -> bounded execution -> verifiable evidence`
+
+
+26.3 APIs and Automation
+
+An API may submit the same proposal contract used by the human reference surface.
+
+The API remains an invocation path rather than target authority.
+
+
+26.4 Assistive Technology
+
+Structural scope may reduce some dependence on fine-grained pointer selection.
+
+Actual accessibility benefits require dedicated evaluation with relevant users and assistive technologies.
+
+
+26.5 Controlled and Audit-Sensitive Documents
+
+SERA may be relevant where a system benefits from explicit distinction among:
+
+`what was proposed`
+
+`what target resolved`
+
+`what plan was committed`
+
+`what was admitted`
+
+`what was refused`
+
+`what exact bounded mutation executed`
+
+Domain-specific assurance remains necessary.
+
+
+27 Implementation Invariants
+
+A conforming SERA implementation should preserve the following architectural invariants.
+
+
+27.1 Authority Separation
+
+`proposal authority != target authority != mutation authority`
+
+
+27.2 Resolution Before Mutation
+
+`no supported target -> no structural mutation`
+
+
+27.3 Plan Before Commit
+
+`mutating structural action -> canonical plan before final admission`
+
+
+27.4 Preview Binding
+
+`executed admitted plan = committed previewed plan`
+
+
+27.5 No Silent Retarget
+
+`preview_target_fingerprint != commit_target_fingerprint -> no execution under old commitment`
+
+
+27.6 Commit-Time Revalidation
+
+`previous validity != automatic current admission`
+
+
+27.7 Dependency-Aware Admission
+
+`unrelated change may preserve validity`
+
+`required structural change may produce STALE or CONFLICT`
+
+
+27.8 Structural Least Authority
+
+`write_set(plan) subseteq admitted mutation envelope`
+
+
+27.9 Explicit Refusal
+
+`AMBIGUOUS OR UNSUPPORTED OR STALE OR CONFLICT -> no silent substitute mutation`
+
+
+27.10 Refusal Non-Mutation
+
+`refusal -> zero successful mutation`
+
+
+27.11 Host Separation
+
+`execution mechanism != structural decision authority`
+
+
+27.12 Evidence Separation
+
+`evidence records authority decisions`
+
+`evidence does not create authority`
+
+
+27.13 Planning Notation Separation
+
+`plan(E_s, D) -> canonical edit construction`
+
+`phi((m, a)) = m -> Shunyaya collapse`
+
+The two operations must not be conflated.
+
+
+27.14 Structural-to-Classical Plan Equivalence
+
+Where a frozen profile claims equivalence:
+
+`apply_structural(E_s, D) = apply_classical(plan(E_s, D), D)`
+
+
+27.15 Anchor Determinism
+
+Where a frozen profile binds anchor transitions:
+
+`same pre-anchor + same admitted action + same schema + same rules -> same post-anchor`
+
+
+27.16 Explicit Choice Preservation
+
+An explicit candidate choice from an ambiguous result must remain visible in evidence.
+
+
+27.17 History Safety
+
+`safe direct inverse -> UNDO`
+
+otherwise:
+
+`REFUSAL`
+
+unless a separately versioned rebasing rule applies.
+
+
+27.18 Session Identity Separation
+
+`stable session identity != changing receipt-chain head`
+
+
+27.19 Actor Independence
+
+`proposal source != automatic target authority`
+
+
+27.20 Machine Coordinate Non-Authority
+
+Under a strict machine profile:
+
+`machine-supplied coordinates -> proposal evidence`
+
+not:
+
+`machine-supplied coordinates -> unquestioned mutation authority`
+
+
+27.21 Audit Accumulation
+
+For the reference implementation:
+
+`bug found -> fix implemented -> permanent regression test added -> full audit must pass`
+
+
+27.22 Relevant Change Discipline
+
+`document changed != proposal automatically stale`
+
+Admission validity depends on the declared structure required by the proposal.
+
+
+27.23 Admission Survival
+
+`required dependencies unchanged -> prepared authority may survive unrelated document change`
+
+Survival must be demonstrated through revalidation rather than assumption.
+
+
+27.24 Refusal Explanation Separation
+
+`human-readable explanation != canonical refusal evidence`
+
+Presentation text must not silently redefine deterministic witness identity.
+
+
+27.25 Coordinate Translation Boundary
+
+`canonical structural identity != host-native coordinate representation`
+
+A host using another native coordinate unit must perform declared deterministic translation before execution or canonical evidence production.
+
+
+28 Measurable Evaluation Direction
+
+The architecture should avoid broad superiority claims without evidence.
+
+Human-side measurements may include:
+
+`manual range-construction actions`
+
+`pointer precision actions`
+
+`total interaction count`
+
+`repair actions`
+
+`task completion time`
+
+Structural and agent-side measurements may include:
+
+`false admission rate`
+
+`false refusal rate`
+
+`explicit ambiguity rate`
+
+`silent mis-target rate`
+
+`unsafe silent mutations`
+
+`mis-targeted forced edits prevented`
+
+`stale proposal detection`
+
+`mutation-envelope violations prevented`
+
+A strong bounded target for a frozen adversarial corpus is:
+
+`unsafe silent mutations = 0`
+
+within the declared profile and corpus.
+
+This target does not imply universal zero-risk behavior outside the declared corpus.
+
+
+28.1 Admission Boundary Matrix
+
+A high-value evaluation artifact is an Admission Boundary Matrix.
+
+For one frozen proposal, the corpus systematically changes different structural regions and records the expected admission result.
+
+Examples include:
+
+`unrelated earlier region changed -> may remain ADMITTED`
+
+`unrelated later region changed -> may remain ADMITTED`
+
+`target content changed -> STALE`
+
+`required target boundary changed -> STALE`
+
+`required destination relation changed -> STALE OR CONFLICT`
+
+`write escapes admitted envelope -> CONFLICT`
+
+The matrix makes the dependency-aware claim directly testable.
+
+The central question is:
+
+`which changes actually matter to this proposal?`
+
+This provides a stronger demonstration than merely showing that a whole-document hash changed.
+
+
+28.2 Refusal Quality
+
+Evaluation should measure not only whether the system refused.
+
+It should also measure whether the refusal was:
+
+- deterministic;
+- non-mutating;
+- correctly classified;
+- accompanied by the required witness fields;
+- reproducible under replay.
+
+A useful bounded measure is:
+
+`refusal mutation count = 0`
+
+within the declared refusal corpus.
+
+
+29 Claim Boundary
+
+SERA and Structural Keyboard are a reference architecture, reference implementation, and research program.
+
+The project may claim what is demonstrated under declared profiles.
+
+The current v0.9.2 browser implementation demonstrates only the features implemented and covered by its current audit boundary.
+
+The current producer-side full release regression audit has demonstrated:
+
+`329/329 PASS`
+
+with:
+
+`KNOWN REGRESSIONS = 27/27 PASS`
+
+`FEATURE COVERAGE = 34/34 PASS`
+
+`INTEGRITY REGRESSION = 0`
+
+`UNEXPECTED MUTATION = 0`
+
+The current Multilingual Demo check has demonstrated `PASS`.
+
+These results remain producer-side evidence.
+
+The project should not claim:
+
+- universal linguistic correctness;
+- that every target can always be resolved;
+- superiority over expert-optimized editors;
+- replacement of conventional selection;
+- replacement of collaborative merge systems;
+- replacement of host transaction systems;
+- production readiness by default;
+- independent verification before a separate verifier exists;
+- independent semantic agreement before a second resolver exists;
+- external authenticity from an unanchored receipt chain;
+- automatic accessibility benefit;
+- legal, regulatory, or safety assurance;
+- that a hash establishes authorship or external truth;
+- that current browser audit coverage proves absence of all defects;
+- that generic Unicode conformance proves universal linguistic correctness;
+- that the current Tamil and French demo establishes universal multilingual support;
+- general commutativity of structurally independent proposals;
+- complete cross-implementation post-action anchor conformance;
+- complete undo and redo rebasing correctness;
+- stable session identity from the changing receipt-chain head.
+
+Incomplete, ambiguous, unsupported, stale, conflicting, or envelope-violating proposals may remain unresolved or refused.
+
+Broader deployment, security, accessibility, domain, comparative, multilingual, and safety claims require additional validation.
+
+The current bounded architectural principle is:
+
+`uncertainty or invalidated authority -> explicit non-mutation`
+
+not:
+
+`uncertainty -> forced edit`
+
+30 Future Architecture Direction
+
+The v0.9.2 browser reference has completed several milestones that were forward directions in v0.9.0.
+
+Current implemented milestones include:
+
+- canonical proposal identity through `SERA-PROPOSAL-1-D01`;
+- strict agent range-hint handling through `SERA-AGENT-STRICT-1-D01`;
+- Preview v2 through `SERA-PREVIEW-COMMIT-2-D01`;
+- the No Silent Retarget Law;
+- deterministic refusal witnesses through `SERA-REFUSAL-WITNESS-1-D01`;
+- Receipt v2 and Session Bundle v2;
+- a frozen grapheme profile through `SERA-UNICODE-GRAPHEME-1-D01`;
+- a separate Multilingual Demo with Tamil and French;
+- an Admission Boundary Matrix;
+- multi-proposal admission race demonstrations;
+- expanded keyboard, UI, interaction, and regression coverage;
+- producer-side verifier-fixture generation.
+
+The next milestones are ordered by assurance value and semantic dependency.
+
+
+30.1 Freeze Verifier-Facing Semantics
+
+The v0.2.0 conformance specification establishes the current forward canonical profile family.
+
+Before an independent verifier is declared stable, verifier-facing semantics should remain frozen for:
+
+- canonical JSON;
+- text normalization;
+- offset semantics;
+- proposal representation;
+- target fingerprint;
+- canonical plan representation;
+- dependency representation;
+- mutation envelope;
+- preview commitment;
+- permit identity;
+- refusal witness;
+- receipt format;
+- bundle format.
+
+A normative identity change requires a new profile or specification version.
+
+
+30.2 Freeze and Publish Minimal Corpora
+
+Maintain separated evidence families:
+
+`SERA-CANON-1`
+
+`SERA-RESOLVE-ADV-1`
+
+`SERA-ADMIT-ADV-1`
+
+`SERA-REPLAY-1`
+
+`SERA-UNICODE-1`
+
+The corpora should contain both successful and refusal cases.
+
+The Unicode family should preserve the current grapheme vectors while clearly separating:
+
+`normative conformance`
+
+from:
+
+`language-specific human review`
+
+
+30.3 Implement the Independent Verifier
+
+The first major new assurance artifact should independently reconstruct:
+
+`genesis document + receipt chain + frozen profiles -> final document identity`
+
+The verifier should reject at least:
+
+- modified genesis;
+- modified canonical plan;
+- modified receipt;
+- broken previous-receipt link;
+- invalid envelope evidence;
+- permit reuse where forbidden;
+- refusal mutation;
+- unexpected reconstructed final identity.
+
+The verifier should not rely on browser-produced PASS labels.
+
+
+30.4 Publish the Frozen Adversarial Corpus
+
+The public corpus should expose the cases behind bounded claims such as:
+
+`unsafe silent mutations = 0`
+
+within the declared profile and corpus.
+
+The corpus should include:
+
+- successful edits;
+- ambiguity refusals;
+- unsupported cases;
+- stale commitments;
+- conflicts;
+- mutation-envelope violations;
+- multilingual and Unicode vectors.
+
+
+30.5 Implement an Independent Second Resolver
+
+A second resolver should test semantic agreement from the written specification.
+
+Target relation:
+
+`independent implementation A + independent implementation B + same frozen vector -> same declared result`
+
+The second resolver comes after the independent replay verifier because the two serve different assurance purposes.
+
+
+30.6 Expand Multilingual Review
+
+The Multilingual Demo now provides a stable extensible surface.
+
+Future additions may include more languages and scripts while preserving:
+
+`one demonstration identity + multiple language blocks`
+
+New languages should be selected for meaningful structural coverage rather than decorative breadth.
+
+The program should distinguish:
+
+`demo content expansion`
+
+from:
+
+`normative segmentation profile change`
+
+A new language block does not automatically require a profile change.
+
+A change to normative segmentation semantics does.
+
+
+30.7 Expand Grapheme and Cross-Runtime Conformance
+
+The current reference declares Unicode 17.0.0, grapheme revision 47, and a frozen grapheme profile.
+
+Next assurance work should compare the frozen profile across independent runtimes and implementations.
+
+The target relation is:
+
+`same normalized text + same frozen grapheme profile -> same declared grapheme spans`
+
+
+30.8 Add Commutativity Certification
+
+Develop:
+
+`SERA-COMMUTE-1-D01`
+
+for bounded evidence that two admitted plans commute under a frozen profile.
+
+
+30.9 Expand Independent Evidence Publication
+
+Publish verifier fixtures and independently reconstructable bundles containing both successful edits and refusals.
+
+The evidence path should make clear:
+
+`producer-generated PASS != independent verification`
+
+
+30.10 Real Host Integration
+
+Integrate SERA with a host transaction system while preserving:
+
+`target authority`
+
+`admission authority`
+
+`mutation envelope`
+
+as distinct from host execution.
+
+
+30.11 Continue Human Surface Assurance
+
+Continue permanent regression coverage for every material user-facing fix.
+
+Extend evaluation beyond functional keyboard operation into dedicated accessibility testing with relevant users and assistive technologies.
+
+
+30.12 Continue Measured Evaluation
+
+Evaluate:
+
+- human interaction efficiency;
+- false admission;
+- false refusal;
+- ambiguity exposure;
+- silent mis-target prevention;
+- agent proposal behavior;
+- multilingual structural behavior;
+- cross-engine conformance;
+- independent replay verification.
+
+The architecture should remain disciplined about profile changes.
+
+A user-interface update does not automatically require a canonical specification version change.
+
+A normative change to:
+
+- resolution semantics;
+- canonical plan representation;
+- hashing;
+- dependency representation;
+- mutation envelope representation;
+- permit identity;
+- receipt canonicalization;
+- grapheme segmentation semantics;
+
+does require the applicable normative profile to change.
+
+31 Final Architectural Perspective
+
+SERA does not remove classical editing operations.
+
+It changes the authority chain that determines when those operations may execute.
+
+The architecture preserves familiar implementation mechanisms while separating:
+
+`who proposes`
+
+from:
+
+`what target resolves`
+
+from:
+
+`what exact plan represents the edit`
+
+from:
+
+`whether the plan is still valid`
+
+from:
+
+`where the plan may write`
+
+from:
+
+`how the transition is executed`
+
+from:
+
+`how the result is recorded`
+
+The resulting relation is:
+
+`proposal -> structural meaning -> exact plan -> current validity -> bounded authority -> execution -> evidence`
+
+The core principle is:
+
+`Anyone may propose. Structure resolves. Admission permits. Evidence records.`
+
+
+Appendix A - Core Architecture Summary
+
+A1 Identity
+
+`SERA = Structural Edit Resolution and Admission`
+
+`Structural Keyboard = reference human interaction surface`
+
+
+A2 Core Pipeline
+
+`proposal -> resolve -> plan -> preview -> revalidate -> admit -> execute OR refuse -> receipt`
+
+
+A3 Authority Separation
+
+`proposal authority != target authority != mutation authority`
+
+
+A4 Resolution States
+
+`RESOLVED`
+
+`AMBIGUOUS`
+
+`UNSUPPORTED`
+
+
+A5 Admission States
+
+`ADMITTED`
+
+`STALE`
+
+`CONFLICT`
+
+
+A6 Dependency-Aware Admission
+
+`admission_fingerprint = H(declared admission dependencies)`
+
+
+A7 Mutation Boundary
+
+`write_set(E_c) subseteq admitted_mutation_envelope`
+
+
+A8 Edit Permit
+
+`permit = H(profile + target_fingerprint + dependency_fingerprint + plan_hash + mutation_envelope)`
+
+
+A9 Preview Law
+
+`executed admitted plan = previewed committed plan`
+
+
+A10 Evidence Law
+
+`genesis + validated receipt chain + frozen profiles -> replayable final document`
+
+
+A11 Actor Independence
+
+`HUMAN`
+
+`AI_AGENT`
+
+`API`
+
+`ASSISTIVE_TECHNOLOGY`
+
+all enter the same resolution and admission contract.
+
+
+A12 Protocol Independence
+
+`proposal schema = core contract`
+
+`transport = adapter`
+
+`host = execution adapter`
+
+
+A13 Plan Equivalence
+
+`apply_structural(E_s, D) = apply_classical(plan(E_s, D), D)`
+
+
+A14 Anchor Determinism
+
+`same pre-anchor + same admitted action + same schema + same rules -> same post-anchor`
+
+
+A15 Explicit Choice Evidence
+
+`candidate-set commitment + selected candidate identity + selected target fingerprint`
+
+
+A16 History Safety
+
+`safe direct inverse -> UNDO`
+
+otherwise:
+
+`REFUSAL`
+
+
+A17 Session Identity
+
+`stable session identity != receipt-chain head`
+
+
+A18 Concurrency Separation
+
+`proposal independence != commit compatibility != result commutativity`
+
+
+Appendix B - Machine-Facing Proposal Semantics
+
+B1 Core Fields
+
+A proposal may declare:
+
+`proposal_id`
+
+`source`
+
+`schema`
+
+`scope`
+
+`locator`
+
+`action`
+
+`payload`
+
+`expected_profile`
+
+`expected_document_hash`
+
+
+B2 Source
+
+The source identifies where the proposal originated.
+
+Examples:
+
+`HUMAN`
+
+`AI_AGENT`
+
+`API`
+
+`ASSISTIVE_TECHNOLOGY`
+
+The source is evidence.
+
+It is not target authority.
+
+
+B3 Schema
+
+The schema identifies the structural interpretation family.
+
+Examples:
+
+`TEXT`
+
+`MARKDOWN`
+
+Future examples may include:
+
+`CODE`
+
+`SPREADSHEET`
+
+`FORM`
+
+`MATHEMATICS`
+
+
+B4 Scope
+
+The scope identifies the requested structural unit.
+
+Examples:
+
+`GRAPHEME`
+
+`CODE_POINT`
+
+`WORD`
+
+`SENTENCE`
+
+`PARAGRAPH`
+
+`LIST_ITEM`
+
+`SECTION`
+
+
+B5 Locator
+
+The locator identifies the structural region from which resolution begins.
+
+Examples:
+
+`current`
+
+`sentence 2`
+
+`paragraph 3`
+
+`paragraph 3, sentence 1`
+
+A locator is resolver input.
+
+It does not directly become the mutation range.
+
+
+B6 Action
+
+Examples:
+
+`DELETE`
+
+`COPY`
+
+`CUT`
+
+`PASTE`
+
+`DUPLICATE`
+
+`MOVE_BACK`
+
+`MOVE_FORWARD`
+
+
+B7 Expected Profile
+
+A proposal may declare the profile it expects.
+
+A mismatch may require refusal or re-evaluation rather than silent execution under a different contract.
+
+
+Appendix C - Canonical Action Examples
+
+C1 Delete
+
+Structural intent:
+
+`delete current sentence`
+
+Resolution:
+
+`target = sentence at active anchor`
+
+Plan:
+
+`DELETE_RANGE(target_start, target_end)`
+
+Optional separator normalization:
+
+`REPLACE_RANGE(separator_region, canonical_separator)`
+
+Dependencies:
+
+`target + required separator context`
+
+Envelope:
+
+`target region + separator normalization region`
+
+
+C2 Duplicate
+
+Structural intent:
+
+`duplicate current paragraph`
+
+Plan:
+
+`INSERT_AT(after_target_relation, target_content + required_separator)`
+
+Dependencies:
+
+`target + insertion relation + separator policy`
+
+Envelope:
+
+`bounded insertion region`
+
+
+C3 Move
+
+Structural intent:
+
+`move current sentence forward`
+
+Plan:
+
+`DELETE_RANGE(source)`
+
+plus:
+
+`INSERT_AT(destination_relation, normalized_source_content)`
+
+Dependencies:
+
+`source target + source context + destination relation + destination context`
+
+Envelope:
+
+`source region + source normalization + destination insertion region + destination normalization`
+
+
+C4 Paste
+
+Structural intent:
+
+`paste after current structural unit`
+
+Dependencies:
+
+`insertion anchor + insertion relation + separator policy`
+
+The clipboard payload does not grant authority outside the admitted insertion envelope.
+
+
+Appendix D - Dependency-Aware Admission Examples
+
+D1 Unrelated Change
+
+Proposal B targets paragraph 8.
+
+Proposal A edits paragraph 2.
+
+B's declared target and dependency context remain unchanged.
+
+Possible result:
+
+`B -> ADMITTED`
+
+even though:
+
+`whole document hash changed`
+
+
+D2 Target Change
+
+Proposal B targets sentence 4.
+
+Another edit changes sentence 4 before B commits.
+
+Expected result:
+
+`B -> STALE`
+
+
+D3 Boundary Change
+
+Proposal B depends on a sentence boundary.
+
+Another edit removes or changes that boundary.
+
+Expected result:
+
+`B -> STALE`
+
+or:
+
+`B -> CONFLICT`
+
+according to the profile.
+
+
+D4 Destination Change
+
+A move proposal depends on inserting after paragraph 5.
+
+Another edit removes or structurally changes paragraph 5.
+
+Expected result:
+
+`STALE`
+
+or:
+
+`CONFLICT`
+
+
+D5 Plan Escape
+
+The committed plan attempts to write outside its mutation envelope.
+
+Expected result:
+
+`CONFLICT`
+
+with no successful mutation.
+
+
+Appendix E - Multi-Proposal Race Model
+
+E1 Same Target
+
+Initial state:
+
+`A and B resolve same target`
+
+Sequence:
+
+`A commits`
+
+`B revalidates`
+
+Result:
+
+`B -> STALE`
+
+
+E2 Independent Targets
+
+Initial state:
+
+`A depends on region X`
+
+`B depends on region Y`
+
+with:
+
+`X structurally independent of Y`
+
+Sequence:
+
+`A commits`
+
+`B revalidates`
+
+Possible result:
+
+`B -> ADMITTED`
+
+
+E3 Structural Interference
+
+Initial state:
+
+`B depends on target or destination structure Z`
+
+Sequence:
+
+`A changes Z`
+
+`B revalidates`
+
+Result:
+
+`B -> STALE OR CONFLICT`
+
+
+E4 Result Commutativity
+
+Where both execution orders are supported:
+
+`D12 = apply(E1, apply(E2, D))`
+
+`D21 = apply(E2, apply(E1, D))`
+
+If:
+
+`canonical(D12) = canonical(D21)`
+
+then:
+
+`COMMUTE(E1, E2)`
+
+otherwise:
+
+`ORDER_DEPENDENT(E1, E2)`
+
+
+Appendix F - Structural Keyboard Interaction Model
+
+F1 Primary Context Controls
+
+`Schema`
+
+`Scope`
+
+`TARGET state`
+
+`ADMISSION state`
+
+
+F2 Proposal and Demonstration Controls
+
+`Agent Proposal`
+
+`Refusal Challenge`
+
+`Compare Current Target`
+
+`Reset Demo`
+
+`Boundary Challenge`
+
+`Multilingual Demo`
+
+`Admission Boundary Matrix`
+
+`Two-Agent Structural Admission Races`
+
+
+F3 Frequent Structural Actions
+
+`Previous`
+
+`Next`
+
+`Select`
+
+`Cut`
+
+`Copy`
+
+`Paste`
+
+`Delete`
+
+`Duplicate`
+
+`Move Back`
+
+`Move Forward`
+
+`Undo`
+
+`Redo`
+
+`Save`
+
+
+F4 Visual Follow Rule
+
+`explicit structural navigation -> selected target brought into visible view`
+
+
+F5 Structural Position
+
+Examples:
+
+`Sentence 1 of 6`
+
+`Paragraph 2 of 3`
+
+`Word 8 of 41`
+
+
+F6 Status Interaction
+
+TARGET control:
+
+`focus target + show resolution details`
+
+ADMISSION control:
+
+`show current contract + permit non-mutating current-state check`
+
+Final admission remains commit-time.
+
+
+F7 Automatic Demonstration Results
+
+The current reference displays results automatically when these demonstrations open:
+
+`Refusal Challenge`
+
+`Compare Current Target`
+
+`Admission Boundary Matrix`
+
+`Two-Agent Structural Admission Races`
+
+Each exposes:
+
+`Run Again`
+
+for deterministic replay.
+
+
+F8 Multilingual Demonstration
+
+The current dedicated demonstration is:
+
+`Multilingual Demo`
+
+Current languages:
+
+`Tamil`
+
+`French`
+
+The demonstration is separate from Boundary Challenge and loads into the same main editing surface.
+
+Appendix G - Comparative Positioning
+
+G1 Established Structural Editing
+
+SERA recognizes established structural-editing traditions including:
+
+- text objects;
+- selection-first editing;
+- syntax-aware navigation;
+- tree-backed structural editing;
+- voice-driven structural targeting;
+- smart selection.
+
+G2 SERA Focus
+
+SERA focuses on the combined contract after a proposal exists and before mutation executes.
+
+Key questions are:
+
+`What exact target resolved?`
+
+`What exact plan represents the proposed edit?`
+
+`Is that same meaning still valid now?`
+
+`What structure did admission depend on?`
+
+`Where may the plan write?`
+
+`What happens when the answer is ambiguous, unsupported, stale, or conflicting?`
+
+`Can the resulting transition be reconstructed from evidence?`
+
+G3 Bounded Differentiation
+
+The architecture should not claim that individual concepts such as structural targeting, previews, hashes, transactions, or syntax trees are unique.
+
+Its differentiation lies in their combined declared authority model.
+
+
+Appendix H - Application Directions
+
+H1 AI and Agent Editing
+
+`agent proposes -> SERA resolves and admits -> host executes`
+
+Potential benefit:
+
+separate generative proposal quality from edit-admission correctness.
+
+
+H2 Human Editing
+
+`scope + anchor + familiar action -> structural proposal`
+
+Potential benefit:
+
+reduce some manual range construction while preserving visible target and plan state.
+
+
+H3 APIs
+
+`API request -> proposal contract -> SERA pipeline`
+
+Potential benefit:
+
+avoid treating raw API edit coordinates as unquestioned mutation authority.
+
+
+H4 Assistive Interfaces
+
+Potential benefit:
+
+reduce some fine-grained selection demands.
+
+Required evidence:
+
+dedicated accessibility evaluation.
+
+
+H5 Controlled Documents
+
+Potential benefit:
+
+record proposal, resolution, admission, refusal, and exact bounded mutation as distinct evidence states.
+
+
+Appendix I - Research and Deployment Roadmap
+
+I1 Current v0.9.2 Reference Milestones
+
+Implemented in the current browser reference:
+
+- canonical proposal identity;
+- strict agent handling;
+- Preview v2;
+- No Silent Retarget;
+- deterministic refusal witnesses;
+- Receipt v2;
+- Session Bundle v2;
+- frozen grapheme profile;
+- Multilingual Demo with Tamil and French;
+- Admission Boundary Matrix;
+- multi-proposal race demonstrations;
+- expanded cumulative regression coverage.
+
+
+I2 Canonical Profile Freeze
+
+Maintain the versioned current definitions for:
+
+- canonical JSON;
+- text normalization;
+- offset semantics;
+- proposal representation;
+- target fingerprint;
+- canonical plan representation;
+- dependency representation;
+- mutation envelope;
+- preview commitment;
+- permit identity;
+- refusal witness;
+- receipt format;
+- bundle format.
+
+
+I3 Conformance Corpus
+
+Maintain positive and refusal-inclusive vectors for:
+
+`BOUNDARY`
+
+`AMBIGUITY`
+
+`UNICODE`
+
+`GRAPHEME`
+
+`MULTILINGUAL`
+
+`REPETITION`
+
+`MALFORMED`
+
+`SEPARATOR`
+
+`MARKDOWN`
+
+`STALE`
+
+`CONFLICT`
+
+`DEPENDENCY`
+
+`MUTATION_ENVELOPE`
+
+`EXPLICIT_CHOICE`
+
+`ANCHOR`
+
+`PLAN_EQUIVALENCE`
+
+`UNDO_REDO`
+
+`INDEPENDENCE`
+
+`COMMUTATIVITY`
+
+`REFUSAL`
+
+
+I4 Independent Verifier
+
+The verifier should reconstruct the evidence contract without trusting stored PASS labels.
+
+
+I5 Independent Second Resolver
+
+A second implementation should resolve the same frozen vectors independently.
+
+Target relation:
+
+`independent implementation A + independent implementation B + same vector -> same declared result`
+
+
+I6 Multilingual Expansion
+
+Use the existing Multilingual Demo as the stable public interaction surface for additional languages.
+
+Preserve the distinction:
+
+`additional demo language != automatic normative profile change`
+
+
+I7 Real Editor Integration
+
+Integrate SERA with a host transaction system while preserving:
+
+`target authority`
+
+`admission authority`
+
+`mutation envelope`
+
+as distinct from host execution.
+
+
+I8 Evaluation
+
+Measure:
+
+- human interaction efficiency;
+- false admission;
+- false refusal;
+- ambiguity exposure;
+- silent mis-target prevention;
+- agent proposal behavior;
+- multilingual structural behavior;
+- cross-engine conformance;
+- independent replay verification.
+
+Appendix J - Informative State Alignment with the Shunyaya Admissibility Vocabulary
+
+J1 Purpose
+
+SERA uses stage-specific states because edit resolution and edit admission answer different questions.
+
+The wider Shunyaya ecosystem may normalize these states into a more general admissibility vocabulary for cross-project comparison.
+
+The preferred representation is:
+
+`native_stage_state + normalized_admissibility_class + reason_code`
+
+The mapping is informative.
+
+It is not a formal reduction of SERA's normative state machine.
+
+
+J2 Resolution-State Alignment
+
+`RESOLVED -> RESOLVED`
+
+Meaning:
+
+one supported target exists under the active frozen rules.
+
+`AMBIGUOUS -> ABSTAIN`
+
+Meaning:
+
+multiple valid targets remain or one interpretation is intentionally not forced.
+
+`UNSUPPORTED -> INCOMPLETE OR FORBIDDEN`
+
+The normalized class is reason-dependent.
+
+Examples:
+
+`required structural capability absent -> INCOMPLETE`
+
+`active profile explicitly excludes operation -> FORBIDDEN`
+
+
+J3 Admission-State Alignment
+
+`ADMITTED -> RESOLVED at admission stage`
+
+Meaning:
+
+the committed edit remains structurally admissible immediately before execution.
+
+`STALE -> ABSTAIN`
+
+Meaning:
+
+the old commitment no longer has current authority and must be re-resolved or re-previewed.
+
+`CONFLICT -> CONFLICT`
+
+Meaning:
+
+the edit cannot be safely admitted under the current structural state and profile.
+
+
+J4 Separation Law
+
+`SERA native state = stage-specific precision`
+
+`normalized class = ecosystem-level alignment`
+
+The normalized class must not erase the native SERA state or its reason code.
+
+
+Appendix K - No Silent Retarget Model
+
+K1 Law
+
+`preview_target_fingerprint != commit_target_fingerprint -> no execution under old commitment`
+
+
+K2 Valid Continuation
+
+`re-resolve -> new preview -> new commitment -> new admission`
+
+
+K3 Invalid Continuation
+
+`old commitment + new target -> silent execution`
+
+This path is forbidden.
+
+
+K4 Evidence Direction
+
+A refusal or re-preview path should preserve enough evidence to show:
+
+- original target identity;
+- current target identity where disclosure is permitted;
+- reason for invalidation;
+- new commitment identity if the proposal is continued.
+
+
+Appendix L - Refusal Witness Direction
+
+L1 AMBIGUOUS
+
+Possible witness fields:
+
+`candidate_set_hash`
+
+`candidate_count`
+
+`resolution_reason`
+
+
+L2 UNSUPPORTED
+
+Possible witness fields:
+
+`requested_schema`
+
+`requested_scope`
+
+`unsupported_reason`
+
+
+L3 STALE
+
+Possible witness fields:
+
+`expected_dependency_fingerprint`
+
+`current_dependency_fingerprint`
+
+`stale_reason`
+
+
+L4 CONFLICT
+
+Possible witness fields:
+
+`conflict_reason`
+
+`expected_envelope_hash`
+
+`declared conflicting dependency evidence`
+
+
+L5 Privacy Boundary
+
+A refusal witness should disclose only the evidence permitted by the active profile.
+
+`verifiability != unrestricted content disclosure`
+
+
+Appendix M - Admission Boundary Matrix Direction
+
+M1 Purpose
+
+The Admission Boundary Matrix measures exactly which structural changes invalidate one frozen proposal.
+
+
+M2 Example Rows
+
+`unrelated earlier edit -> may remain ADMITTED`
+
+`unrelated later edit -> may remain ADMITTED`
+
+`target content edit -> STALE`
+
+`required separator edit -> STALE`
+
+`destination relation edit -> STALE OR CONFLICT`
+
+`plan escape -> CONFLICT`
+
+
+M3 Evaluation Law
+
+`change anywhere != automatic invalidation`
+
+`change to declared dependency -> admission consequence`
+
+
+Appendix N - Multilingual and Grapheme Demonstration
+
+N1 Technical Layers
+
+`UTF16_CODE_UNIT != UNICODE_CODE_POINT`
+
+`UNICODE_CODE_POINT != EXTENDED_GRAPHEME_CLUSTER`
+
+The current browser reference declares:
+
+`offset_unit = UTF16_CODE_UNIT`
+
+`character_unit = EXTENDED_GRAPHEME_CLUSTER`
+
+and exposes both:
+
+`GRAPHEME`
+
+and:
+
+`CODE_POINT`
+
+
+N2 Current Multilingual Demo
+
+Current language blocks:
+
+`Tamil`
+
+`French`
+
+Tamil content:
+
+`நீங்கள் மாற்ற விரும்பும் பகுதியை முதலில் தெளிவாக கண்டறியலாம். நீங்கள் ஒரு வார்த்தை, ஒரு வாக்கியம் அல்லது ஒரு பத்தியை மிக எளிதாகத் தேர்ந்தெடுத்து திருத்தலாம். எந்தப் பகுதியை மாற்ற வேண்டும் என்பது தெளிவாகத் தெரியவில்லை என்றால், யூகிக்க முயற்சிப்பதை விட நிறுத்துவதே பாதுகாப்பானது.`
+
+French content:
+
+`Vous pouvez d’abord identifier clairement la partie que vous souhaitez modifier. Vous pouvez très facilement sélectionner et corriger un mot, une phrase ou un paragraphe. Si la partie à modifier n’est pas clairement identifiable, il est plus sûr de s’arrêter que d’essayer de deviner.`
+
+The current dedicated check verifies:
+
+`Tamil sentence count = 3`
+
+`French sentence count = 3`
+
+`Tamil sentence ambiguity = false`
+
+`French sentence ambiguity = false`
+
+`கி -> one grapheme`
+
+`தமிழ் -> declared grapheme spans`
+
+`é -> one grapheme`
+
+Current result:
+
+`SERA MULTILINGUAL DEMO CHECK -> PASS`
+
+
+N3 Deeper Unicode and Grapheme Vectors
+
+Current audit vectors include:
+
+`கி`
+
+`தமிழ்`
+
+`👩‍💻`
+
+`क्ष`
+
+`கொ`
+
+The focused Unicode audit has demonstrated:
+
+`13/13 PASS`
+
+The reference also exposes:
+
+`766 frozen grapheme conformance vectors`
+
+
+N4 Evidence Separation
+
+`normative Unicode conformance`
+
+and:
+
+`language-specific human review`
+
+remain separate evidence categories.
+
+The Multilingual Demo is public interaction content.
+
+The deeper Unicode and grapheme corpus is conformance-oriented evidence.
+
+
+N5 Demonstration Separation
+
+`Boundary Challenge != Multilingual Demo`
+
+Boundary Challenge exercises ambiguity and punctuation behavior.
+
+Multilingual Demo exercises ordinary structural navigation and editing across multiple language blocks.
+
+This separation is protected by permanent regression coverage.
+
+
+N6 Expansion Direction
+
+The Multilingual Demo is intended to support additional languages over time.
+
+The preferred relation is:
+
+`one stable multilingual demonstration surface + independently reviewed language blocks`
+
+Additional languages should be added deliberately.
+
+A demo-content expansion does not automatically change normative segmentation semantics.
+
+
+N7 Safety Direction
+
+`unsupported safe segmentation -> AMBIGUOUS OR UNSUPPORTED`
+
+rather than:
+
+`unsupported safe segmentation -> silent mis-segmentation`

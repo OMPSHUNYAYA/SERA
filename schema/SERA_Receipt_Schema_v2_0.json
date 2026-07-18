@@ -1,0 +1,633 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "SERA_Receipt_Schema_v2_0.json",
+  "title": "SERA Receipt Schema v2.0",
+  "description": "Structural validation schema for SERA-RECEIPT-2. Receipt hashes, chain continuity, non-mutation, plan replay, envelope checks, and other semantic requirements must be independently reconstructed under the SERA Conformance Specification.",
+  "type": "object",
+  "required": [
+    "v",
+    "kind",
+    "seq",
+    "prev",
+    "ts",
+    "context",
+    "receipt_hash"
+  ],
+  "properties": {
+    "v": {
+      "const": "SERA-RECEIPT-2"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "GENESIS",
+        "EDIT",
+        "REFUSAL",
+        "UNDO",
+        "REDO"
+      ]
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "prev": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/hash"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ts": {
+      "type": "null"
+    },
+    "context": {
+      "$ref": "#/$defs/context"
+    },
+    "receipt_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "label": {
+      "type": "string"
+    },
+    "canonicalization": {
+      "type": "object",
+      "required": [
+        "text_encoding",
+        "unicode_normalization",
+        "line_endings"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "text_encoding": {
+          "const": "UTF-8"
+        },
+        "unicode_normalization": {
+          "const": "NFC"
+        },
+        "line_endings": {
+          "const": "LF"
+        }
+      }
+    },
+    "doc": {
+      "type": "object",
+      "required": [
+        "doc_hash",
+        "length"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "doc_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "proposal": {
+      "type": "object",
+      "required": [
+        "profile",
+        "source",
+        "proposal_id",
+        "proposal_hash"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "const": "SERA-PROPOSAL-1-D01"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "HUMAN",
+            "AI_AGENT",
+            "API",
+            "ASSISTIVE_TECHNOLOGY"
+          ]
+        },
+        "proposal_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "proposal_hash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/hash"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "resolution": {
+      "type": "object"
+    },
+    "admissibility": {
+      "type": "object"
+    },
+    "action": {
+      "type": "object"
+    },
+    "attempted": {
+      "type": "object"
+    },
+    "phase": {
+      "type": "string"
+    },
+    "refusal": {
+      "type": "object",
+      "required": [
+        "profile",
+        "witness",
+        "witness_hash"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "const": "SERA-REFUSAL-WITNESS-1-D01"
+        },
+        "witness": {
+          "$ref": "#/$defs/refusalWitness"
+        },
+        "witness_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    },
+    "pre": {
+      "$ref": "#/$defs/documentState"
+    },
+    "post": {
+      "$ref": "#/$defs/documentState"
+    },
+    "preview": {
+      "type": "object"
+    },
+    "mutation_envelope": {
+      "type": "object"
+    },
+    "permit": {
+      "type": "object"
+    },
+    "canonical_plan": {
+      "$ref": "#/$defs/planRecord"
+    },
+    "inverts_seq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "inverts_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "reapplies_seq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "reapplies_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "proposal_hash": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/hash"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "range_hint": {
+      "$ref": "#/$defs/span"
+    },
+    "resolved_span": {
+      "$ref": "#/$defs/span"
+    },
+    "stale": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "GENESIS"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "canonicalization",
+          "doc"
+        ],
+        "properties": {
+          "seq": {
+            "const": 0
+          },
+          "prev": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "EDIT"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "proposal",
+          "resolution",
+          "admissibility",
+          "action",
+          "pre",
+          "post",
+          "preview",
+          "mutation_envelope",
+          "permit",
+          "canonical_plan"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "REFUSAL"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "proposal",
+          "phase",
+          "resolution",
+          "attempted",
+          "refusal",
+          "pre",
+          "post"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "UNDO"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "inverts_seq",
+          "inverts_hash",
+          "pre",
+          "post",
+          "canonical_plan"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "REDO"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "reapplies_seq",
+          "reapplies_hash",
+          "pre",
+          "post",
+          "canonical_plan"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "span": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "integer",
+          "minimum": 0
+        }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "context": {
+      "type": "object",
+      "required": [
+        "architecture_version",
+        "conformance_version",
+        "schema_id",
+        "schema_version",
+        "rules_version",
+        "resolver_profile",
+        "fingerprint_profile",
+        "admission_profile",
+        "proposal_profile",
+        "strict_agent_profile",
+        "preview_profile",
+        "mutation_envelope_profile",
+        "permit_profile",
+        "refusal_witness_profile",
+        "grapheme_profile",
+        "unicode_version",
+        "receipt_profile",
+        "bundle_format",
+        "offset_unit",
+        "character_unit"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "architecture_version": {
+          "type": "string"
+        },
+        "conformance_version": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "string"
+        },
+        "rules_version": {
+          "type": "string"
+        },
+        "resolver_profile": {
+          "type": "string"
+        },
+        "fingerprint_profile": {
+          "type": "string"
+        },
+        "admission_profile": {
+          "type": "string"
+        },
+        "proposal_profile": {
+          "type": "string"
+        },
+        "strict_agent_profile": {
+          "type": "string"
+        },
+        "preview_profile": {
+          "type": "string"
+        },
+        "mutation_envelope_profile": {
+          "type": "string"
+        },
+        "permit_profile": {
+          "type": "string"
+        },
+        "refusal_witness_profile": {
+          "type": "string"
+        },
+        "grapheme_profile": {
+          "type": "string"
+        },
+        "unicode_version": {
+          "type": "string"
+        },
+        "receipt_profile": {
+          "const": "SERA-RECEIPT-2"
+        },
+        "bundle_format": {
+          "const": "SERA-SESSION-BUNDLE-2"
+        },
+        "offset_unit": {
+          "const": "UTF16_CODE_UNIT"
+        },
+        "character_unit": {
+          "const": "EXTENDED_GRAPHEME_CLUSTER"
+        }
+      }
+    },
+    "documentState": {
+      "type": "object",
+      "required": [
+        "doc_hash"
+      ],
+      "properties": {
+        "doc_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "anchor": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "canonicalOperation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "op",
+            "start",
+            "end"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "op": {
+              "const": "DELETE_RANGE"
+            },
+            "start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "op",
+            "position",
+            "content"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "op": {
+              "const": "INSERT_AT"
+            },
+            "position": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "content": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "op",
+            "start",
+            "end",
+            "content"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "op": {
+              "const": "REPLACE_RANGE"
+            },
+            "start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "content": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "op",
+            "start",
+            "end",
+            "destination"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "op": {
+              "const": "MOVE_RANGE"
+            },
+            "start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "destination": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      ]
+    },
+    "canonicalPlan": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/canonicalOperation"
+      }
+    },
+    "planRecord": {
+      "type": "object",
+      "required": [
+        "mode",
+        "plan",
+        "plan_hash"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "inline"
+        },
+        "plan": {
+          "$ref": "#/$defs/canonicalPlan"
+        },
+        "plan_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    },
+    "refusalWitness": {
+      "type": "object",
+      "required": [
+        "profile",
+        "proposal_id",
+        "state",
+        "reason_code",
+        "pre_doc_hash",
+        "details"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "const": "SERA-REFUSAL-WITNESS-1-D01"
+        },
+        "proposal_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "AMBIGUOUS",
+            "UNSUPPORTED",
+            "STALE",
+            "CONFLICT"
+          ]
+        },
+        "reason_code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pre_doc_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "details": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

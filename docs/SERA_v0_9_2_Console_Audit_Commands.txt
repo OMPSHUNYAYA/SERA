@@ -1,0 +1,331 @@
+SERA / STRUCTURAL KEYBOARD v0.9.2
+CONSOLE AUDIT COMMANDS
+
+CURRENT REFERENCE FILE
+
+SERA_Structural_Keyboard_Reference_Demo_v0_9_2.html
+
+
+PRIMARY RELEASE GATE
+
+await SERA_AUDIT.runAll()
+
+CURRENT VERIFIED FULL-AUDIT RESULT
+
+329/329 PASS
+
+CURRENT VERIFIED RELEASE SUMMARY
+
+CORE: 26/26 PASS
+RESOLUTION: 7/7 PASS
+EDITING: 5/5 PASS
+ADMISSION: 5/5 PASS
+PREVIEW: 5/5 PASS
+NO SILENT RETARGET: 6/6 PASS
+PROPOSALS: 16/16 PASS
+REFUSAL WITNESSES: 11/11 PASS
+COMPARISON: 9/9 PASS
+DEMO FLOWS: 11/11 PASS
+INTERACTION: 3/3 PASS
+VIEWPORT: 4/4 PASS
+STATUS CONTROLS: 4/4 PASS
+STRUCTURAL POSITION: 4/4 PASS
+BUTTON AFFORDANCE: 21/21 PASS
+CONCURRENCY: 9/9 PASS
+ADMISSION BOUNDARY: 9/9 PASS
+EVIDENCE: 10/10 PASS
+UI: 21/21 PASS
+KEYBOARD: 10/10 PASS
+UNICODE: 13/13 PASS
+BUILT-IN SELF-TEST: 54/54 PASS
+STATE RESTORATION: 1/1 PASS
+AUDIT HARNESS: 4/4 PASS
+KNOWN REGRESSIONS: 27/27 PASS
+FEATURE COVERAGE: 34/34 PASS
+
+TOTAL: 329/329 PASS
+INTEGRITY REGRESSION: 0
+UNEXPECTED MUTATION: 0
+FEATURE COVERAGE: PASS
+FINAL STATUS: PASS
+
+
+QUICK REGRESSION CHECK
+
+await SERA_AUDIT.quick()
+
+CURRENT EXPECTED D04 COMPOSITION
+
+102 checks
+
+The quick audit is intended for development iteration.
+It does not replace the complete full release gate.
+
+
+MULTILINGUAL DEMO CHECK
+
+SERADemo.runMultilingualDemoCheck()
+
+CURRENT VERIFIED RESULT
+
+PASS
+
+CURRENT VERIFIED CHECKS
+
+multilingual_content_is_separate: true
+tamil_text_present: true
+french_text_present: true
+tamil_sentence_count_is_3: true
+french_sentence_count_is_3: true
+tamil_sentences_match: true
+french_sentences_match: true
+no_tamil_sentence_ambiguity: true
+no_french_sentence_ambiguity: true
+tamil_ki_is_one_grapheme: true
+tamil_word_spans_match: true
+french_accent_is_one_grapheme: true
+
+
+FROZEN GRAPHEME CONFORMANCE
+
+SERADemo.runFrozenGraphemeConformance()
+
+CURRENT VERIFIED RESULT
+
+766/766 PASS
+
+
+COMPARE CURRENT TARGET
+
+await SERA_AUDIT.runComparison()
+
+CURRENT VERIFIED RESULT
+
+9/9 PASS
+
+Manual behavior:
+- Open Compare Current Target.
+- Results should already be visible automatically.
+- The action button should say Run Again.
+- Pressing Run Again should recompute and visibly pulse the result.
+
+
+REFUSAL CHALLENGE
+
+await SERA_AUDIT.runRefusalWitnesses()
+
+CURRENT VERIFIED RESULT
+
+11/11 PASS
+
+Manual behavior:
+- Open Refusal Challenge.
+- Prepared commitment, STALE / TARGET_STALE, NO MUTATION, and refusal evidence should appear automatically.
+- The action button should say Run Again.
+
+
+DEMO FLOWS
+
+await SERA_AUDIT.runDemoFlows()
+
+CURRENT VERIFIED RESULT
+
+11/11 PASS
+
+Manual behavior:
+- Reset Demo, Boundary Challenge, and Multilingual Demo must remain distinct and reversible.
+- Boundary Challenge must not contain the multilingual demonstration content.
+- Multilingual Demo must contain the declared Tamil and French content.
+
+
+ADMISSION BOUNDARY MATRIX
+
+await SERA_AUDIT.runAdmissionBoundary()
+
+CURRENT VERIFIED RESULT
+
+9/9 PASS
+
+Manual behavior:
+- Open Admission Boundary Matrix from the information panel.
+- Results should appear automatically.
+- The action button should say Run Again.
+
+
+TWO-AGENT STRUCTURAL ADMISSION RACES
+
+await SERA_AUDIT.runConcurrency()
+
+CURRENT VERIFIED RESULT
+
+9/9 PASS
+
+CURRENT VERIFIED DEMONSTRATION CLASSES
+
+IRRELEVANT
+DEPENDENCY_RELEVANT
+TARGET_MUTATING
+RULES_RELEVANT
+SCHEMA_RELEVANT
+
+CURRENT VERIFIED ADMISSION-SURVIVAL DIRECTION
+
+document changed + required dependencies unchanged -> proposal may remain ADMITTED
+
+Manual behavior:
+- Open Two-Agent Structural Admission Races from the information panel.
+- Results should appear automatically.
+- The action button should say Run Again.
+
+
+NO SILENT RETARGET
+
+await SERA_AUDIT.runNoSilentRetarget()
+
+CURRENT VERIFIED RESULT
+
+6/6 PASS
+
+
+PROPOSAL AUTHORITY
+
+await SERA_AUDIT.runProposals()
+
+CURRENT VERIFIED RESULT
+
+16/16 PASS
+
+
+UNICODE
+
+await SERA_AUDIT.runUnicode()
+
+CURRENT VERIFIED RESULT
+
+13/13 PASS
+
+
+KNOWN REGRESSION STATUS
+
+SERA_AUDIT.regressions()
+
+CURRENT VERIFIED RESULT
+
+27/27 PASS
+
+
+LATEST PERMANENT REGRESSIONS
+
+REG-021
+Compare Current Target must display results automatically when opened and expose Run Again.
+
+REG-022
+Refusal Challenge must display its refusal result automatically and visibly show zero mutation.
+
+REG-023
+Admission Boundary Matrix must display results automatically and expose Run Again.
+
+REG-024
+Agent Admission Races must display results automatically and expose Run Again.
+
+REG-025
+Multilingual Demo must remain separate from Boundary Challenge and preserve the declared Tamil and French content.
+
+REG-026
+Every surfaced refusal must remain understandable without requiring the user to interpret hashes or reason codes alone.
+
+REG-027
+Agent Admission Races must preserve the distinction between unrelated change, target mutation, and required-dependency change.
+
+FEATURE COVERAGE
+
+SERA_AUDIT.coverage()
+
+CURRENT VERIFIED RESULT
+
+34/34 PASS
+UNCOVERED FEATURES: 0
+
+
+CURRENT STATE
+
+SERA_AUDIT.inspect()
+
+
+LAST COMPLETE FULL AUDIT
+
+SERA_AUDIT.lastFull()
+
+
+AUDIT SESSION STATUS
+
+SERA_AUDIT.status()
+
+
+AUDIT REQUIREMENTS
+
+SERA_AUDIT.requirements()
+
+
+ALL FOCUSED AUDIT COMMANDS
+
+await SERA_AUDIT.runCore()
+await SERA_AUDIT.runResolution()
+await SERA_AUDIT.runEditing()
+await SERA_AUDIT.runAdmission()
+await SERA_AUDIT.runPreview()
+await SERA_AUDIT.runNoSilentRetarget()
+await SERA_AUDIT.runProposals()
+await SERA_AUDIT.runRefusalWitnesses()
+await SERA_AUDIT.runComparison()
+await SERA_AUDIT.runDemoFlows()
+await SERA_AUDIT.runInteraction()
+await SERA_AUDIT.runViewport()
+await SERA_AUDIT.runStatusControls()
+await SERA_AUDIT.runStructuralPosition()
+await SERA_AUDIT.runButtonAffordance()
+await SERA_AUDIT.runConcurrency()
+await SERA_AUDIT.runAdmissionBoundary()
+await SERA_AUDIT.runEvidence()
+await SERA_AUDIT.runUI()
+await SERA_AUDIT.runKeyboard()
+await SERA_AUDIT.runUnicode()
+
+
+RECOMMENDED RELEASE VERIFICATION SEQUENCE
+
+await SERA_AUDIT.runAll()
+SERADemo.runMultilingualDemoCheck()
+SERADemo.runFrozenGraphemeConformance()
+SERA_AUDIT.coverage()
+SERA_AUDIT.regressions()
+SERA_AUDIT.lastFull()
+SERA_AUDIT.inspect()
+
+
+RECOMMENDED DEVELOPMENT VERIFICATION SEQUENCE
+
+await SERA_AUDIT.quick()
+await SERA_AUDIT.runComparison()
+await SERA_AUDIT.runRefusalWitnesses()
+await SERA_AUDIT.runDemoFlows()
+await SERA_AUDIT.runAdmissionBoundary()
+await SERA_AUDIT.runConcurrency()
+SERADemo.runMultilingualDemoCheck()
+SERADemo.runFrozenGraphemeConformance()
+
+
+CURRENT ASSURANCE BOUNDARY
+
+SERA-AUDIT-1-D04
+
+Producer-side browser reference assurance:
+329/329 PASS
+
+Independent verification:
+NOT YET CLAIMED
+
+
+DEVELOPMENT LAW
+
+bug found -> fix implemented -> permanent regression test added -> runAll() must pass

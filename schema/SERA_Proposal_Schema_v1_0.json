@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "SERA_Proposal_Schema_v1_0.json",
+  "title": "SERA Proposal Schema v1.0",
+  "description": "Structural validation schema for the canonical SERA-PROPOSAL-1-D01 object. Canonical hashing and semantic authority remain defined by the SERA Conformance Specification.",
+  "type": "object",
+  "required": [
+    "profile",
+    "proposal_id",
+    "source",
+    "schema",
+    "scope",
+    "locator",
+    "action",
+    "payload",
+    "expected_profile",
+    "expected_document_hash",
+    "range_hint"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profile": {
+      "const": "SERA-PROPOSAL-1-D01"
+    },
+    "proposal_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "HUMAN",
+        "AI_AGENT",
+        "API",
+        "ASSISTIVE_TECHNOLOGY"
+      ]
+    },
+    "schema": {
+      "type": "object",
+      "required": [
+        "id",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "GRAPHEME",
+        "CODE_POINT",
+        "WORD",
+        "SENTENCE",
+        "PARAGRAPH",
+        "LIST_ITEM",
+        "SECTION"
+      ]
+    },
+    "locator": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "CURRENT"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "path"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "STRUCTURAL_PATH"
+            },
+            "path": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "paragraph",
+            "sentence"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "PARAGRAPH_SENTENCE_INDEX"
+            },
+            "paragraph": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "sentence": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "paragraph",
+            "word"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "PARAGRAPH_WORD_INDEX"
+            },
+            "paragraph": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "word": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "paragraph"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "PARAGRAPH_INDEX"
+            },
+            "paragraph": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "sentence"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "SENTENCE_INDEX"
+            },
+            "sentence": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "word"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "WORD_INDEX"
+            },
+            "word": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "offset"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "UTF16_OFFSET"
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "unit"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "SCOPE_UNIT_INDEX"
+            },
+            "unit": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "DECLARED_TEXT"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "action": {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "type": "object"
+        }
+      }
+    },
+    "payload": {
+      "type": [
+        "object",
+        "array",
+        "string",
+        "number",
+        "integer",
+        "boolean",
+        "null"
+      ]
+    },
+    "expected_profile": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "expected_document_hash": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/hash"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "range_hint": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/span"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "span": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "integer",
+          "minimum": 0
+        }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    }
+  }
+}

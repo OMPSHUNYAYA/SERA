@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "SERA_Session_Bundle_Schema_v2_0.json",
+  "title": "SERA Session Bundle Schema v2.0",
+  "description": "Structural validation schema for SERA-SESSION-BUNDLE-2 producer exports. Producer checks are assertions only; independent verification must reconstruct the declared evidence.",
+  "type": "object",
+  "required": [
+    "format",
+    "producer",
+    "verification_scope",
+    "profile_manifest",
+    "genesis",
+    "receipts",
+    "chain_head",
+    "final",
+    "producer_checks"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "SERA-SESSION-BUNDLE-2"
+    },
+    "producer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verification_scope": {
+      "const": "PRODUCER_EXPORT"
+    },
+    "profile_manifest": {
+      "type": "object",
+      "required": [
+        "architecture_version",
+        "conformance_version",
+        "receipt_profile",
+        "proposal_profile",
+        "strict_agent_profile",
+        "resolver_profile",
+        "rules_version",
+        "fingerprint_profile",
+        "admission_profile",
+        "preview_profile",
+        "mutation_envelope_profile",
+        "permit_profile",
+        "refusal_witness_profile",
+        "grapheme_profile",
+        "unicode_version",
+        "offset_unit",
+        "character_unit"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "architecture_version": {
+          "type": "string"
+        },
+        "conformance_version": {
+          "type": "string"
+        },
+        "receipt_profile": {
+          "const": "SERA-RECEIPT-2"
+        },
+        "proposal_profile": {
+          "const": "SERA-PROPOSAL-1-D01"
+        },
+        "strict_agent_profile": {
+          "const": "SERA-AGENT-STRICT-1-D01"
+        },
+        "resolver_profile": {
+          "type": "string"
+        },
+        "rules_version": {
+          "type": "string"
+        },
+        "fingerprint_profile": {
+          "type": "string"
+        },
+        "admission_profile": {
+          "type": "string"
+        },
+        "preview_profile": {
+          "const": "SERA-PREVIEW-COMMIT-2-D01"
+        },
+        "mutation_envelope_profile": {
+          "const": "SERA-MUTATION-ENVELOPE-1-D01"
+        },
+        "permit_profile": {
+          "const": "SERA-EDIT-PERMIT-1-D01"
+        },
+        "refusal_witness_profile": {
+          "const": "SERA-REFUSAL-WITNESS-1-D01"
+        },
+        "grapheme_profile": {
+          "const": "SERA-UNICODE-GRAPHEME-1-D01"
+        },
+        "unicode_version": {
+          "type": "string"
+        },
+        "offset_unit": {
+          "const": "UTF16_CODE_UNIT"
+        },
+        "character_unit": {
+          "const": "EXTENDED_GRAPHEME_CLUSTER"
+        }
+      }
+    },
+    "genesis": {
+      "$ref": "#/$defs/document"
+    },
+    "receipts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "SERA_Receipt_Schema_v2_0.json"
+      }
+    },
+    "chain_head": {
+      "$ref": "#/$defs/hash"
+    },
+    "final": {
+      "$ref": "#/$defs/document"
+    },
+    "producer_checks": {
+      "type": "object",
+      "required": [
+        "chain_valid",
+        "replay_valid"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "chain_valid": {
+          "type": "boolean"
+        },
+        "replay_valid": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "document": {
+      "type": "object",
+      "required": [
+        "canonical_text",
+        "doc_hash"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "canonical_text": {
+          "type": "string"
+        },
+        "doc_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    }
+  }
+}

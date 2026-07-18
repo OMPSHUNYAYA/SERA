@@ -1,0 +1,2082 @@
+SERA
+
+Reference Demo Audit and Assurance Specification
+
+Document version:
+v0.9.2
+
+Specification family:
+SERA Reference Assurance Architecture
+
+Current demonstrated implementation family:
+SERA v0.9.2
+Structural Keyboard Reference Surface v0.9.2
+Multilingual Demo reference update
+
+Companion documents:
+SERA_Core_Architecture_v0_9_2.txt
+SERA_Conformance_v0_2_0.txt
+
+Current implemented audit profile:
+SERA-AUDIT-1-D04
+
+Current rules profile:
+SK-RULES-1.1.0
+
+Current relevant implemented profiles:
+SK-RESOLVER-1-D01
+SK-FP-HYBRID-1-D01
+SERA-PROPOSAL-1-D01
+SERA-AGENT-STRICT-1-D01
+SERA-ADMISSION-DEP-1-D01
+SERA-PREVIEW-COMMIT-2-D01
+SERA-MUTATION-ENVELOPE-1-D01
+SERA-EDIT-PERMIT-1-D01
+SERA-REFUSAL-WITNESS-1-D01
+SERA-RECEIPT-2
+SERA-SESSION-BUNDLE-2
+SERA-UNICODE-GRAPHEME-1-D01
+
+Version date:
+July 2026
+
+Status:
+Current external reference assurance specification synchronized with the verified SERA v0.9.2 Structural Keyboard implementation.
+
+Latest verified producer-side full release audit:
+329/329 PASS
+
+Known regressions:
+27/27 PASS
+
+Feature coverage:
+34/34 PASS
+
+Integrity regression:
+0
+
+Unexpected mutation:
+0
+
+Independent verification:
+NOT YET CLAIMED
+
+
+1 Purpose
+
+This specification defines the audit, permanent-regression, feature-coverage, assurance, and release-acceptance model for the SERA browser reference implementation.
+
+The current demonstrated implementation is:
+
+`SERA v0.9.2`
+
+with:
+
+`Structural Keyboard Reference Surface v0.9.2`
+
+under:
+
+`SERA-AUDIT-1-D04`
+
+The current primary release gate is:
+
+`await SERA_AUDIT.runAll()`
+
+The latest verified browser result is:
+
+`329/329 PASS`
+
+with:
+
+`INTEGRITY REGRESSION = 0`
+
+`UNEXPECTED MUTATION = 0`
+
+`KNOWN REGRESSIONS = 27/27 PASS`
+
+`FEATURE COVERAGE = 34/34 PASS`
+
+`FINAL STATUS = PASS`
+
+The audit system is designed to ensure that:
+
+- core structural behavior remains stable after updates;
+- every discovered deterministic bug becomes a permanent regression test;
+- newly implemented deterministic features become explicit coverage obligations;
+- human-facing and machine-facing workflows are tested as complete interaction flows where practical;
+- refusal is treated as a successful non-mutating outcome when refusal is the correct result;
+- old preview authority cannot silently transfer to a changed target;
+- machine-supplied coordinates do not become direct mutation authority under the strict proposal profile;
+- preview v2, receipt v2, refusal witnesses, grapheme handling, multilingual demonstrations, and verifier-fixture generation remain inside the permanent audit boundary;
+- partial audits do not erase the latest complete full-audit record;
+- the user's working state is restored after full audit execution;
+- producer-side audit results remain clearly separated from independent verification.
+
+The governing development law is:
+
+`bug found -> fix implemented -> permanent regression test added -> full audit must pass`
+
+The governing feature law is:
+
+`implemented deterministic feature -> declared audit coverage -> permanent regression protection`
+
+The governing release law is:
+
+`full audit PASS + feature coverage PASS + known regressions PASS + state restoration PASS + zero unexpected mutation -> reference release candidate accepted`
+
+
+2 Assurance Boundary
+
+2.1 Included
+
+This specification covers:
+
+- the complete browser full release audit;
+- the quick audit;
+- focused audit groups;
+- audit-state capture and restoration;
+- full-audit archive persistence;
+- feature-to-test coverage;
+- permanent known-regression registration;
+- canonical proposal identity checks;
+- strict machine proposal authority checks;
+- No Silent Retarget checks;
+- refusal-witness checks;
+- preview v2 checks;
+- receipt and bundle v2 checks;
+- dependency-aware concurrency;
+- Admission Boundary Matrix behavior;
+- live comparison behavior;
+- Refusal Challenge behavior;
+- Multilingual Demo behavior;
+- Unicode and grapheme behavior;
+- frozen grapheme conformance;
+- keyboard workflow checks;
+- verifier-fixture generation checks;
+- legacy evidence read compatibility;
+- producer-side release acceptance.
+
+2.2 Excluded
+
+This specification does not:
+
+- replace the SERA conformance specification;
+- define canonical byte serialization in full;
+- constitute independent verification;
+- constitute third-party certification;
+- prove absence of all defects;
+- prove universal browser compatibility;
+- prove production readiness;
+- prove security suitability;
+- prove accessibility outcomes;
+- prove universal linguistic correctness;
+- prove human usability superiority;
+- prove correctness outside the declared audit boundary.
+
+The exact current scope is:
+
+`SERA-AUDIT-1-D04 = producer-side SERA v0.9.2 reference-demo regression and assurance profile`
+
+The correct interpretation is:
+
+`the reference implementation passed its declared producer-side regression and assurance suite`
+
+not:
+
+`an independent implementation verified all SERA semantics`
+
+
+3 Assurance Principles
+
+3.1 One Principal Release Gate
+
+The reference implementation exposes one primary release command:
+
+`await SERA_AUDIT.runAll()`
+
+The full audit is the authoritative producer-side release gate for the current implementation.
+
+Focused and quick audits support development and investigation.
+
+They do not replace the full release gate.
+
+
+3.2 Bugs Become Permanent Tests
+
+When a deterministic bug is discovered:
+
+1. reproduce the failure;
+2. fix the implementation;
+3. add a permanent named regression;
+4. map the regression to one or more executable tests;
+5. run the complete full audit;
+6. accept the update only after the complete release gate passes.
+
+The objective is:
+
+`discover each deterministic bug once`
+
+
+3.3 Deterministic Features Require Coverage
+
+A deterministic feature is not considered represented in the assurance boundary merely because it exists in the interface.
+
+The required relation is:
+
+`implemented feature -> executable tests -> feature coverage entry`
+
+The current D04 feature registry contains:
+
+`34 feature families`
+
+The current verified result is:
+
+`34/34 PASS`
+
+with:
+
+`UNCOVERED FEATURES = 0`
+
+
+3.4 Workflow Tests Are Preferred
+
+Where practical, tests should cover complete workflows rather than only function presence.
+
+Examples:
+
+`proposal -> evaluate -> resolve -> preview -> revalidate -> admit OR refuse -> evidence`
+
+`refusal challenge open -> automatic result display -> STALE -> TARGET_STALE -> zero mutation -> refusal witness`
+
+`multilingual demo load -> Tamil and French content present -> structural resolution remains valid -> reset path remains available`
+
+`comparison open -> automatic live result -> Run Again -> result remains bound to current editor state`
+
+
+3.5 Refusal Is a Valid Audited Outcome
+
+A correct refusal is an assurance success when the declared rules require non-mutation.
+
+The governing relation is:
+
+`valid refusal -> expected state + expected reason + zero mutation + expected evidence`
+
+The audit must fail if a refusal unexpectedly mutates the document.
+
+
+3.6 No Silent Retarget Is a Permanent Invariant
+
+The governing law is:
+
+`preview_target_fingerprint != commit_target_fingerprint -> no execution under old commitment`
+
+A valid continuation requires:
+
+`re-resolve -> new preview -> new commitment -> new admission`
+
+The audit permanently verifies that a changed target cannot inherit old preview authority.
+
+
+3.7 Machine Coordinates Are Not Automatic Authority
+
+Under:
+
+`SERA-AGENT-STRICT-1-D01`
+
+the audit preserves:
+
+`machine-supplied range = locator hint`
+
+not:
+
+`machine-supplied range = mutation authority`
+
+A mismatching range hint must not silently become the target.
+
+
+3.8 State Preservation
+
+The full audit follows:
+
+`capture state -> run isolated audit -> restore state`
+
+The captured boundary includes, where applicable:
+
+- document text;
+- schema;
+- scope;
+- anchor;
+- clipboard state;
+- receipts;
+- undo stack;
+- redo stack;
+- proposal state;
+- preview state;
+- editor selection;
+- editor scroll position;
+- drawer and modal state;
+- active inspector tab;
+- current demo mode;
+- relevant focus state.
+
+The current verified result is:
+
+`STATE RESTORATION = 1/1 PASS`
+
+
+3.9 Partial Audits Do Not Replace Full Evidence
+
+The harness separately preserves:
+
+`last full audit`
+
+`last quick audit`
+
+`last focused audit`
+
+A later quick or focused audit must not erase the complete full-audit archive.
+
+The latest complete full-audit result is preserved separately from later partial runs.
+
+The archive sequence number is page-session-specific and does not form part of the release identity.
+
+The preserved result is:
+
+`329/329 PASS`
+
+
+3.10 Producer Audit and Independent Verification Remain Separate
+
+The browser may generate:
+
+- receipts;
+- bundles;
+- verifier fixtures;
+- producer-side replay results;
+- PASS labels.
+
+These are not independent verification.
+
+The separation is:
+
+`producer audit PASS != independent verifier PASS`
+
+
+4 Audit Identity
+
+Architecture version:
+
+`0.9.2`
+
+Audit profile:
+
+`SERA-AUDIT-1-D04`
+
+Rules profile:
+
+`SK-RULES-1.1.0`
+
+Proposal profile:
+
+`SERA-PROPOSAL-1-D01`
+
+Strict proposal profile:
+
+`SERA-AGENT-STRICT-1-D01`
+
+Admission profile:
+
+`SERA-ADMISSION-DEP-1-D01`
+
+Preview profile:
+
+`SERA-PREVIEW-COMMIT-2-D01`
+
+Mutation-envelope profile:
+
+`SERA-MUTATION-ENVELOPE-1-D01`
+
+Permit profile:
+
+`SERA-EDIT-PERMIT-1-D01`
+
+Refusal-witness profile:
+
+`SERA-REFUSAL-WITNESS-1-D01`
+
+Receipt profile:
+
+`SERA-RECEIPT-2`
+
+Session bundle profile:
+
+`SERA-SESSION-BUNDLE-2`
+
+Grapheme profile:
+
+`SERA-UNICODE-GRAPHEME-1-D01`
+
+Evidence offset unit:
+
+`UTF16_CODE_UNIT`
+
+Human-facing narrow structural scopes include:
+
+`GRAPHEME`
+
+and:
+
+`CODE_POINT`
+
+These scopes are distinct.
+
+
+5 Primary Console Interface
+
+5.1 Full Release Audit
+
+`await SERA_AUDIT.runAll()`
+
+Purpose:
+
+run the complete producer-side reference release gate.
+
+
+5.2 Quick Audit
+
+`await SERA_AUDIT.quick()`
+
+The current quick suite runs the following current groups:
+
+`CORE`
+
+`RESOLUTION`
+
+`ADMISSION`
+
+`NO SILENT RETARGET`
+
+`REFUSAL WITNESSES`
+
+`INTERACTION`
+
+`EVIDENCE`
+
+`UNICODE`
+
+`UI`
+
+The current composition contains:
+
+`102 checks`
+
+All constituent groups are included in the verified 329/329 full release audit.
+
+
+5.3 Current State Inspection
+
+`SERA_AUDIT.inspect()`
+
+
+5.4 Feature Coverage
+
+`SERA_AUDIT.coverage()`
+
+
+5.5 Known Regressions
+
+`SERA_AUDIT.regressions()`
+
+
+5.6 Last Complete Full Audit
+
+`SERA_AUDIT.lastFull()`
+
+
+5.7 Audit Session Status
+
+`SERA_AUDIT.status()`
+
+
+5.8 Audit Requirements
+
+`SERA_AUDIT.requirements()`
+
+
+6 Focused Audit Commands
+
+Current focused commands include:
+
+`await SERA_AUDIT.runCore()`
+
+`await SERA_AUDIT.runResolution()`
+
+`await SERA_AUDIT.runEditing()`
+
+`await SERA_AUDIT.runAdmission()`
+
+`await SERA_AUDIT.runPreview()`
+
+`await SERA_AUDIT.runNoSilentRetarget()`
+
+`await SERA_AUDIT.runProposals()`
+
+`await SERA_AUDIT.runRefusalWitnesses()`
+
+`await SERA_AUDIT.runComparison()`
+
+`await SERA_AUDIT.runDemoFlows()`
+
+`await SERA_AUDIT.runInteraction()`
+
+`await SERA_AUDIT.runViewport()`
+
+`await SERA_AUDIT.runStatusControls()`
+
+`await SERA_AUDIT.runStructuralPosition()`
+
+`await SERA_AUDIT.runButtonAffordance()`
+
+`await SERA_AUDIT.runConcurrency()`
+
+`await SERA_AUDIT.runAdmissionBoundary()`
+
+`await SERA_AUDIT.runEvidence()`
+
+`await SERA_AUDIT.runUI()`
+
+`await SERA_AUDIT.runKeyboard()`
+
+`await SERA_AUDIT.runUnicode()`
+
+Every focused audit must visibly report:
+
+`group name + pass count + total count + final status`
+
+A focused run must not erase the latest complete full-audit archive.
+
+
+7 Current Full Release Audit Result
+
+The verified SERA v0.9.2 result is:
+
+`TOTAL = 329/329 PASS`
+
+`INTEGRITY REGRESSION = 0`
+
+`UNEXPECTED MUTATION = 0`
+
+`FEATURE COVERAGE = PASS`
+
+`KNOWN REGRESSIONS = 27/27 PASS`
+
+`FEATURE COVERAGE TESTS = 34/34 PASS`
+
+`AUDIT HARNESS = 4/4 PASS`
+
+`STATE RESTORATION = 1/1 PASS`
+
+`FINAL STATUS = PASS`
+
+This is a producer-side browser result under:
+
+`SERA-AUDIT-1-D04`
+
+
+8 Current Full Audit Group Table
+
+CORE
+`26/26 PASS`
+
+Foundational application identity, profile declarations, core invariants, and current implementation wiring.
+
+RESOLUTION
+`7/7 PASS`
+
+Deterministic target resolution and explicit non-resolution behavior.
+
+EDITING
+`5/5 PASS`
+
+Principal structural editing actions and bounded mutation behavior.
+
+ADMISSION
+`5/5 PASS`
+
+Admission-state behavior and dependency-sensitive revalidation.
+
+PREVIEW
+`5/5 PASS`
+
+Preview v2 construction, canonical plan binding, and commitment identity.
+
+NO SILENT RETARGET
+`6/6 PASS`
+
+Changed-target refusal and prevention of old-commitment authority transfer.
+
+PROPOSALS
+`16/16 PASS`
+
+Canonical proposal identity, strict machine range-hint handling, evaluation, and commit workflow.
+
+REFUSAL WITNESSES
+`11/11 PASS`
+
+Deterministic refusal evidence, visible Refusal Challenge behavior, and zero mutation.
+
+COMPARISON
+`9/9 PASS`
+
+Live Compare Current Target behavior, automatic display, and Run Again behavior.
+
+DEMO FLOWS
+`11/11 PASS`
+
+Reset Demo, Boundary Challenge, and Multilingual Demo loading, separation, and restoration.
+
+INTERACTION
+`3/3 PASS`
+
+Structural navigation and scope interaction.
+
+VIEWPORT
+`4/4 PASS`
+
+Automatic visual following of explicitly navigated or focused targets.
+
+STATUS CONTROLS
+`4/4 PASS`
+
+Interactive TARGET and ADMISSION controls.
+
+STRUCTURAL POSITION
+`4/4 PASS`
+
+Scope-aware structural location reporting.
+
+BUTTON AFFORDANCE
+`21/21 PASS`
+
+Measurable resting-state clickability of actionable controls, including Multilingual Demo.
+
+CONCURRENCY
+`9/9 PASS`
+
+Dependency-aware admission races and automatic race demonstration behavior.
+
+ADMISSION BOUNDARY
+`9/9 PASS`
+
+Admission Boundary Matrix semantics and automatic visible demonstration behavior.
+
+EVIDENCE
+`10/10 PASS`
+
+Receipt v2, bundle v2, verifier fixtures, replay-related evidence, and legacy read compatibility.
+
+UI
+`21/21 PASS`
+
+Declared toolbar, modal, demo-control, and multilingual interface structure.
+
+KEYBOARD
+`10/10 PASS`
+
+Keyboard operation, modal focus containment, and focus restoration.
+
+UNICODE
+`13/13 PASS`
+
+Code-point and grapheme separation, Tamil and complex-script vectors, normalization, and frozen grapheme conformance.
+
+BUILT-IN SELF-TEST
+`54/54 PASS`
+
+Embedded implementation self-tests.
+
+STATE RESTORATION
+`1/1 PASS`
+
+Full restoration of the declared working-state boundary after audit execution.
+
+AUDIT HARNESS
+`4/4 PASS`
+
+Full-audit archive persistence, coverage selection, and focused reporting.
+
+KNOWN REGRESSIONS
+`27/27 PASS`
+
+All permanent regression requirements currently registered.
+
+FEATURE COVERAGE
+`34/34 PASS`
+
+All declared deterministic feature families represented by required tests.
+
+
+9 Core Assurance
+
+The CORE group verifies foundational implementation identity and profile wiring.
+
+The current result is:
+
+`26/26 PASS`
+
+The group includes current implementation obligations that were previously forward-looking, including the presence and correct wiring of the v0.9.2 architecture family and current profile declarations.
+
+
+10 Resolution Assurance
+
+The RESOLUTION group verifies:
+
+- deterministic supported target resolution;
+- explicit non-resolution behavior;
+- declared schema and scope behavior;
+- stable target identity within the current profile.
+
+Current result:
+
+`7/7 PASS`
+
+
+11 Editing Assurance
+
+The EDITING group verifies principal structural editing behavior under admitted plans.
+
+Current result:
+
+`5/5 PASS`
+
+The audit remains bounded to the declared reference actions and does not claim exhaustive editor correctness.
+
+
+12 Admission Assurance
+
+The ADMISSION group verifies dependency-sensitive current validity and commit-time admission behavior.
+
+Current result:
+
+`5/5 PASS`
+
+The audit preserves the distinction:
+
+`CURRENTLY VALID != ADMITTED`
+
+Final admission remains a commit-time result.
+
+
+13 Preview v2 Assurance
+
+Current preview profile:
+
+`SERA-PREVIEW-COMMIT-2-D01`
+
+Current result:
+
+`5/5 PASS`
+
+The audit protects:
+
+- use of the v2 preview profile;
+- canonical-plan binding;
+- deterministic commitment identity;
+- separation from the historical v1 `collapse_plan` field;
+- execution of the same committed admitted plan that was previewed.
+
+
+14 No Silent Retarget Assurance
+
+Current result:
+
+`6/6 PASS`
+
+The permanent invariant is:
+
+`changed target -> old commitment cannot execute`
+
+The group verifies that:
+
+- target fingerprint change is detected;
+- old preview authority does not silently transfer;
+- a new target requires a new preview and commitment;
+- invalid old authority produces no successful mutation.
+
+
+15 Canonical Proposal and Strict Agent Assurance
+
+Current proposal result:
+
+`16/16 PASS`
+
+The group covers:
+
+- proposal modal availability;
+- valid proposal evaluation;
+- canonical proposal identity;
+- deterministic `proposal_hash`;
+- current and numbered structural locators;
+- source preservation;
+- strict range-hint behavior;
+- matching and mismatching range-hint cases;
+- commit-ready resolved states;
+- preview commitment presence;
+- committed mutation;
+- refusal of unavailable or malformed targets.
+
+The governing relation is:
+
+`proposal authority != target authority != mutation authority`
+
+
+16 Refusal Witness Assurance
+
+Current result:
+
+`11/11 PASS`
+
+The audit covers:
+
+- refusal-state correctness;
+- reason-code correctness;
+- deterministic witness construction;
+- deterministic witness hash;
+- zero mutation;
+- visible Refusal Challenge output;
+- automatic result generation when the demonstration opens;
+- visible `NO MUTATION` evidence;
+- Run Again behavior;
+- human-readable explanation generation for surfaced refusal states;
+- separation between deterministic refusal evidence and presentation text.
+
+The central assurance relation is:
+
+`refusal -> deterministic non-mutation + stable reason + witness`
+
+The current human-readable explanation layer preserves:
+
+`refusal witness = deterministic evidence`
+
+`refusal explanation = human-readable interpretation`
+
+`explanation != evidence authority`
+
+A user must not be required to interpret hashes or reason codes alone to understand why a surfaced refusal occurred.
+
+17 Compare Current Target Assurance
+
+Current result:
+
+`9/9 PASS`
+
+The comparison is bound to:
+
+`current editor content + current caret + current scope`
+
+The audit verifies:
+
+- live editor content is used;
+- current scope is used;
+- both comparison sides are produced;
+- no fixed hidden comparison sample is used;
+- results display automatically when the comparison opens;
+- the control exposes `Run Again`;
+- rerunning produces visible result feedback.
+
+
+18 Demonstration-Flow Assurance
+
+Current result:
+
+`11/11 PASS`
+
+The demonstration family contains three distinct content modes:
+
+`Reset Demo`
+
+`Boundary Challenge`
+
+`Multilingual Demo`
+
+The audit verifies that the modes are distinct and reversible.
+
+18.1 Reset Demo
+
+Reset Demo restores the normal reference content and active demo state.
+
+18.2 Boundary Challenge
+
+Boundary Challenge remains focused on punctuation, ambiguity, abbreviations, decimals, ellipses, and difficult sentence-boundary behavior.
+
+Multilingual content is not embedded in the Boundary Challenge.
+
+18.3 Multilingual Demo
+
+The dedicated Multilingual Demo currently contains:
+
+`Tamil`
+
+and:
+
+`French`
+
+The audit verifies:
+
+- multilingual content is separate from Boundary Challenge;
+- Tamil content is present;
+- French content is present;
+- each language contains the declared three-sentence demonstration structure;
+- the Tamil sentences resolve without unintended sentence ambiguity;
+- the French sentences resolve without unintended sentence ambiguity;
+- the Tamil grapheme checks remain valid;
+- the French accented-character check remains valid;
+- the Multilingual Demo control remains visible and actionable.
+
+The current dedicated diagnostic command is:
+
+`SERADemo.runMultilingualDemoCheck()`
+
+The latest verified diagnostic result is:
+
+`PASS`
+
+
+19 Viewport and Structural Position Assurance
+
+19.1 Viewport
+
+Current result:
+
+`4/4 PASS`
+
+The governing interaction principle is:
+
+`explicit structural navigation -> selected target becomes visible`
+
+19.2 Structural Position
+
+Current result:
+
+`4/4 PASS`
+
+Examples include:
+
+`Sentence 1 of 3`
+
+`Paragraph 2 of 4`
+
+`Word 7 of 28`
+
+The indicator follows the active structural scope.
+
+
+20 Status-Control Assurance
+
+Current result:
+
+`4/4 PASS`
+
+TARGET remains an actionable inspection surface that can focus and reveal the current target.
+
+ADMISSION remains an actionable inspection surface that can show the current contract and perform a non-mutating current-state check.
+
+The audit preserves:
+
+`CURRENTLY VALID != ADMITTED`
+
+
+21 Button-Affordance Assurance
+
+Current result:
+
+`21/21 PASS`
+
+The current checks protect measurable resting-state clickability for actionable controls.
+
+The additional current coverage includes the Multilingual Demo control.
+
+The audit does not attempt to measure aesthetic quality.
+
+
+22 Concurrency Assurance
+
+Current result:
+
+`9/9 PASS`
+
+The current Two-Agent Structural Admission Races cover:
+
+- same-target race;
+- unrelated-change race;
+- required-dependency-change race;
+- target-mutating structural relevance classification;
+- irrelevant structural relevance classification;
+- dependency-relevant structural relevance classification;
+- Structural Admission Survival after an unrelated document change;
+- automatic visible result generation when the race demonstration opens;
+- Run Again behavior.
+
+The current named agent roles are:
+
+`DRAFT_AGENT`
+
+`REVIEW_AGENT`
+
+The current classification family includes:
+
+`IRRELEVANT`
+
+`DEPENDENCY_RELEVANT`
+
+`TARGET_MUTATING`
+
+`RULES_RELEVANT`
+
+`SCHEMA_RELEVANT`
+
+The audit preserves:
+
+`not every concurrent edit is unsafe`
+
+`document changed != proposal automatically stale`
+
+and:
+
+`declared structural dependencies determine whether the original proposal still means the same thing`
+
+The current survival relation tested by the reference is:
+
+`document hash changed + required dependencies unchanged + current contract unchanged -> proposal may remain ADMITTED`
+
+This is admission assurance, not a collaborative merge claim.
+
+23 Admission Boundary Matrix Assurance
+
+Current result:
+
+`9/9 PASS`
+
+The matrix tests systematic changes around one frozen proposal.
+
+It includes cases equivalent to:
+
+`unrelated earlier change -> may remain ADMITTED`
+
+`unrelated later change -> may remain ADMITTED`
+
+`target content change -> STALE`
+
+`target boundary change -> STALE`
+
+`required destination relation change -> STALE OR CONFLICT`
+
+`mutation-envelope escape -> CONFLICT`
+
+The current interface also verifies:
+
+- automatic result generation when opened;
+- visible Run Again behavior.
+
+The matrix directly tests:
+
+`which changes actually matter to this proposal?`
+
+
+24 Evidence Assurance
+
+Current result:
+
+`10/10 PASS`
+
+The current evidence boundary includes:
+
+- receipt-chain behavior;
+- deterministic evidence identity;
+- receipt v2 profile use;
+- session bundle v2 profile use;
+- verifier-fixture generation;
+- explicit tamper-fixture boundaries;
+- legacy evidence read compatibility where declared.
+
+The local companion JSON Schema files are structural-validation aids:
+
+`SERA_Proposal_Schema_v1_0.json`
+
+`SERA_Refusal_Witness_Schema_v1_0.json`
+
+`SERA_Receipt_Schema_v2_0.json`
+
+`SERA_Session_Bundle_Schema_v2_0.json`
+
+They are not treated as an independent verifier and are not required to establish the current browser audit PASS.
+
+`JSON Schema validation != independent semantic verification`
+
+The browser remains the producer of these artifacts.
+
+The audit does not call its own fixture verification independent verification.
+
+
+25 Unicode and Grapheme Assurance
+
+Current result:
+
+`13/13 PASS`
+
+Current grapheme profile:
+
+`SERA-UNICODE-GRAPHEME-1-D01`
+
+Declared Unicode version:
+
+`17.0.0`
+
+Declared segmentation specification:
+
+`UAX_29`
+
+Declared segmentation revision:
+
+`47`
+
+Declared grapheme mode:
+
+`EXTENDED_GRAPHEME_CLUSTER`
+
+Declared tailoring:
+
+`NONE`
+
+Evidence offset unit:
+
+`UTF16_CODE_UNIT`
+
+The audit preserves:
+
+`GRAPHEME != CODE_POINT`
+
+and:
+
+`grapheme resolution unit != evidence offset unit`
+
+Current coverage includes:
+
+- Tamil grapheme vectors;
+- Tamil word spans;
+- joiner-based emoji;
+- canonical equivalence;
+- complex-script vectors;
+- UTF-16 evidence spans;
+- frozen grapheme conformance.
+
+The dedicated frozen conformance command is:
+
+`SERADemo.runFrozenGraphemeConformance()`
+
+The verified frozen grapheme result is:
+
+`766/766 PASS`
+
+The audit also preserves:
+
+`Unicode algorithm conformance != universal linguistic correctness`
+
+
+26 Keyboard Assurance
+
+Current result:
+
+`10/10 PASS`
+
+The current keyboard boundary includes:
+
+- keyboard structural navigation;
+- keyboard scope changes;
+- modal entry;
+- modal focus containment;
+- Escape behavior where declared;
+- focus restoration to the invoking control;
+- complete keyboard-only workflow checks represented in the feature registry.
+
+The audit does not by itself establish universal accessibility outcomes.
+
+
+27 Feature Coverage Registry
+
+The current D04 registry contains the following 34 feature families:
+
+- Agent Proposal;
+- Canonical Proposal Identity;
+- Strict Agent Proposal Authority;
+- No Silent Retarget;
+- Refusal Witnesses;
+- Human-Readable Refusal Explanations;
+- Preview Commitment v2;
+- Compare Current Target;
+- Refusal Challenge;
+- Boundary Challenge;
+- Multilingual Demo;
+- Reset Demo;
+- Structural Navigation;
+- Viewport Following;
+- Interactive TARGET Status;
+- Interactive ADMISSION Status;
+- Structural Position;
+- Button Affordance;
+- Concurrency;
+- Structural Relevance Classification;
+- Structural Admission Survival;
+- Admission Boundary Matrix;
+- Evidence;
+- Receipt and Bundle v2;
+- Independent Verifier Fixtures;
+- Legacy Evidence Read Compatibility;
+- Unicode;
+- Grapheme Scope;
+- Frozen Unicode Grapheme Conformance;
+- Multilingual and Complex-Script Vectors;
+- Keyboard-Only Complete Workflow;
+- Audit State Restoration;
+- Audit Result Persistence;
+- Focused Audit Reporting.
+
+Current result:
+
+`34/34 PASS`
+
+with:
+
+`UNCOVERED FEATURES = 0`
+
+Coverage means:
+
+`every declared feature family has all of its required registered tests present and passing in the selected complete audit result`
+
+It does not mean exhaustive testing of every possible behavior.
+
+28 Permanent Regression Registry
+
+The current permanent regression registry contains 27 requirements.
+
+REG-001
+`Live comparison must not fall back to a fixed example.`
+
+REG-002
+`Structural navigation must move visual attention to distant targets.`
+
+REG-003
+`Boundary Challenge must not appear permanently active.`
+
+REG-004
+`Action controls must look clickable before hover.`
+
+REG-005
+`Reset Demo must be a clear reversible demonstration path.`
+
+REG-006
+`Current-state checking must not be confused with commit-time ADMITTED.`
+
+REG-007
+`Running the full audit must leave no transient UI or working-state residue.`
+
+REG-008
+`Quick and focused audits must not erase the last complete full-audit record.`
+
+REG-009
+`Coverage after a full audit must remain complete after a later partial audit.`
+
+REG-010
+`Every focused audit command must print an explicit group result and final status.`
+
+REG-011
+`Machine-supplied ranges must not bypass structural resolution.`
+
+REG-012
+`A mismatched machine range hint must not silently become the target.`
+
+REG-013
+`A changed target must not execute under an old preview commitment.`
+
+REG-014
+`A refusal must never mutate the document.`
+
+REG-015
+`A refusal witness must remain deterministically hash-verifiable.`
+
+REG-016
+`Legacy receipt plan evidence must remain replay-readable when explicitly supported.`
+
+REG-017
+`Supported frozen grapheme vectors must not be split.`
+
+REG-018
+`Modal keyboard focus must enter, remain contained, and return to the invoking control.`
+
+REG-019
+`Verifier fixtures must preserve explicit profile and tamper-test boundaries.`
+
+REG-020
+`The frozen Unicode grapheme conformance corpus must remain fully passing.`
+
+REG-021
+`Compare Current Target must display results automatically when opened and expose Run Again.`
+
+REG-022
+`Refusal Challenge must display its refusal result automatically and visibly show zero mutation.`
+
+REG-023
+`Admission Boundary Matrix must display results automatically and expose Run Again.`
+
+REG-024
+`Agent Admission Races must display results automatically and expose Run Again.`
+
+REG-025
+`Multilingual Demo must remain separate from Boundary Challenge and preserve the declared Tamil and French content.`
+
+REG-026
+`Every surfaced refusal must remain understandable without requiring the user to interpret hashes or reason codes alone.`
+
+REG-027
+`Agent Admission Races must preserve the distinction between unrelated change, target mutation, and required-dependency change.`
+
+29 Regression Growth Rule
+
+The registry is intentionally cumulative.
+
+For every newly discovered deterministic bug:
+
+`next regression ID -> exact bug condition -> executable test mapping`
+
+The release gate requires:
+
+`all earlier regressions PASS + all new regressions PASS`
+
+
+30 Audit Harness Self-Tests
+
+Current result:
+
+`4/4 PASS`
+
+The audit harness verifies:
+
+- reporting prefers the archived full audit over a later partial audit;
+- feature coverage remains complete after a later partial run;
+- focused reporting produces explicit group counts and PASS state;
+- archived full-audit results remain independent from mutable partial results.
+
+
+31 Audit State Restoration
+
+Current result:
+
+`1/1 PASS`
+
+The restoration boundary includes principal application and interface state.
+
+The release summary also includes:
+
+`UNEXPECTED MUTATION = 0`
+
+Any non-zero unexpected mutation is release-blocking.
+
+
+32 Full-Audit Archive
+
+Each complete full release run is recorded in the page-session full-audit archive.
+
+The archive sequence number is page-session-specific and does not form part of the release identity.
+
+The current verified full-audit result is:
+
+`329/329 PASS`
+
+The archive preserves the complete full-audit result separately from later partial runs.
+
+The following commands use that preserved state where appropriate:
+
+`SERA_AUDIT.lastFull()`
+
+`SERA_AUDIT.coverage()`
+
+`SERA_AUDIT.regressions()`
+
+
+33 Local-File Browser Warning
+
+When the single-file HTML is opened directly through a `file:` URL, Chromium may report a warning similar to:
+
+`'file:' URLs are treated as unique security origins`
+
+This is a browser security-origin notice.
+
+The current verified v0.9.2 release audit completed successfully in local-file use despite that notice.
+
+The notice does not by itself establish:
+
+- application failure;
+- audit failure;
+- evidence failure.
+
+
+34 Recommended Verification Sequence
+
+Primary release gate:
+
+`await SERA_AUDIT.runAll()`
+
+Multilingual Demo diagnostic:
+
+`SERADemo.runMultilingualDemoCheck()`
+
+Frozen grapheme conformance:
+
+`SERADemo.runFrozenGraphemeConformance()`
+
+Feature coverage:
+
+`SERA_AUDIT.coverage()`
+
+Known regressions:
+
+`SERA_AUDIT.regressions()`
+
+Last full result:
+
+`SERA_AUDIT.lastFull()`
+
+Audit session status:
+
+`SERA_AUDIT.status()`
+
+Current structural state:
+
+`SERA_AUDIT.inspect()`
+
+Requirements:
+
+`SERA_AUDIT.requirements()`
+
+
+35 Release Acceptance
+
+A SERA browser reference release candidate is accepted under the current D04 profile only when:
+
+`full audit status = PASS`
+
+`integrity regression = 0`
+
+`unexpected mutation = 0`
+
+`feature coverage = PASS`
+
+`uncovered features = 0`
+
+`known regressions = PASS`
+
+`state restoration = PASS`
+
+`audit harness = PASS`
+
+The current verified result satisfies every listed condition.
+
+
+36 Current Claim Boundary
+
+The current audit supports the claim:
+
+`SERA v0.9.2 passed the declared producer-side SERA-AUDIT-1-D04 reference regression suite with 329/329 tests passing, zero integrity regression, zero unexpected mutation, 27/27 permanent regressions passing, and 34/34 declared feature coverage groups passing.`
+
+The current audit also supports the narrower demonstrated statements that:
+
+- the dedicated Multilingual Demo check passed;
+- the Multilingual Demo remains separate from Boundary Challenge;
+- the declared Tamil and French demonstration content is present;
+- the current multilingual sentence checks passed;
+- the frozen grapheme conformance run passed 766/766;
+- human-readable refusal explanations are covered by permanent tests;
+- structural relevance classification is covered by the concurrency audit;
+- Structural Admission Survival is demonstrated for an unrelated-change case;
+- the current full release audit passed after the Multilingual Demo update.
+
+The current audit does not establish:
+
+- independent verification;
+- second-resolver agreement;
+- universal linguistic correctness;
+- universal browser equivalence;
+- absence of all defects;
+- production qualification;
+- legal, regulatory, or safety certification;
+- universal accessibility outcomes;
+- universal usability superiority.
+
+
+37 Independent Verification Direction
+
+Independent verification remains a separate assurance level.
+
+A future independent verifier should reconstruct rather than trust:
+
+- genesis identity;
+- receipt hashes;
+- receipt-chain links;
+- canonical plan hashes;
+- mutation-envelope hashes;
+- refusal-witness hashes;
+- final replayed document identity.
+
+It must not treat producer-generated:
+
+`PASS`
+
+`chain_valid`
+
+or:
+
+`replay_valid`
+
+as proof.
+
+The separation remains:
+
+`browser audit -> producer regression evidence`
+
+`independent verifier -> independent replay evidence`
+
+
+38 Second Resolver Direction
+
+A second resolver remains distinct from the replay verifier.
+
+The target relation is:
+
+`implementation A + implementation B + same frozen vector -> same declared result`
+
+The current browser audit does not claim that this independent semantic agreement has already been established.
+
+
+39 Test Design Rules
+
+39.1 Determinism
+
+Audit verdicts must not depend on:
+
+- elapsed time;
+- random choice;
+- network availability;
+- uncontrolled external services.
+
+39.2 Isolation
+
+Focused and full tests must not permanently disturb the user's active session.
+
+39.3 Named Identity
+
+Every permanent regression has a stable identifier.
+
+39.4 Observable Failure
+
+A regression test must fail when the corresponding bug returns.
+
+39.5 No False Coverage
+
+A feature is not covered merely because an unrelated test passes.
+
+39.6 Explicit Boundaries
+
+Visual properties are tested through measurable deterministic requirements where practical.
+
+
+40 Final Assurance Perspective
+
+The SERA audit system converts discovered deterministic problems into permanent executable system knowledge.
+
+The progression is:
+
+`feature added -> tests added`
+
+`bug discovered -> regression added`
+
+`architecture changed -> coverage updated`
+
+`release candidate -> full audit run`
+
+`full audit PASS -> declared assurance boundary preserved`
+
+The current demonstrated assurance state is:
+
+`SERA v0.9.2`
+
+`SERA-AUDIT-1-D04`
+
+`329/329 PASS`
+
+`27/27 permanent regressions PASS`
+
+`34/34 feature coverage PASS`
+
+`0 integrity regression`
+
+`0 unexpected mutation`
+
+The governing assurance principle is:
+
+`what the project learns from a bug should remain executable as a future test`
+
+
+Appendix A - Current Audit Summary
+
+Full Audit:
+
+`329/329 PASS`
+
+Known Regressions:
+
+`27/27 PASS`
+
+Feature Coverage:
+
+`34/34 PASS`
+
+Built-In Self-Test:
+
+`54/54 PASS`
+
+Audit Harness:
+
+`4/4 PASS`
+
+State Restoration:
+
+`1/1 PASS`
+
+Integrity Regression:
+
+`0`
+
+Unexpected Mutation:
+
+`0`
+
+Multilingual Demo Check:
+
+`PASS`
+
+Frozen Grapheme Conformance:
+
+`766/766 PASS`
+
+
+Appendix B - Current Full Audit Group Table
+
+CORE
+`26/26 PASS`
+
+Foundational application identity, profile declarations, core invariants, and current implementation wiring.
+
+RESOLUTION
+`7/7 PASS`
+
+Deterministic target resolution and explicit non-resolution behavior.
+
+EDITING
+`5/5 PASS`
+
+Principal structural editing actions and bounded mutation behavior.
+
+ADMISSION
+`5/5 PASS`
+
+Admission-state behavior and dependency-sensitive revalidation.
+
+PREVIEW
+`5/5 PASS`
+
+Preview v2 construction, canonical plan binding, and commitment identity.
+
+NO SILENT RETARGET
+`6/6 PASS`
+
+Changed-target refusal and prevention of old-commitment authority transfer.
+
+PROPOSALS
+`16/16 PASS`
+
+Canonical proposal identity, strict machine range-hint handling, evaluation, and commit workflow.
+
+REFUSAL WITNESSES
+`11/11 PASS`
+
+Deterministic refusal evidence, visible Refusal Challenge behavior, and zero mutation.
+
+COMPARISON
+`9/9 PASS`
+
+Live Compare Current Target behavior, automatic display, and Run Again behavior.
+
+DEMO FLOWS
+`11/11 PASS`
+
+Reset Demo, Boundary Challenge, and Multilingual Demo loading, separation, and restoration.
+
+INTERACTION
+`3/3 PASS`
+
+Structural navigation and scope interaction.
+
+VIEWPORT
+`4/4 PASS`
+
+Automatic visual following of explicitly navigated or focused targets.
+
+STATUS CONTROLS
+`4/4 PASS`
+
+Interactive TARGET and ADMISSION controls.
+
+STRUCTURAL POSITION
+`4/4 PASS`
+
+Scope-aware structural location reporting.
+
+BUTTON AFFORDANCE
+`21/21 PASS`
+
+Measurable resting-state clickability of actionable controls, including Multilingual Demo.
+
+CONCURRENCY
+`9/9 PASS`
+
+Dependency-aware admission races and automatic race demonstration behavior.
+
+ADMISSION BOUNDARY
+`9/9 PASS`
+
+Admission Boundary Matrix semantics and automatic visible demonstration behavior.
+
+EVIDENCE
+`10/10 PASS`
+
+Receipt v2, bundle v2, verifier fixtures, replay-related evidence, and legacy read compatibility.
+
+UI
+`21/21 PASS`
+
+Declared toolbar, modal, demo-control, and multilingual interface structure.
+
+KEYBOARD
+`10/10 PASS`
+
+Keyboard operation, modal focus containment, and focus restoration.
+
+UNICODE
+`13/13 PASS`
+
+Code-point and grapheme separation, Tamil and complex-script vectors, normalization, and frozen grapheme conformance.
+
+BUILT-IN SELF-TEST
+`54/54 PASS`
+
+Embedded implementation self-tests.
+
+STATE RESTORATION
+`1/1 PASS`
+
+Full restoration of the declared working-state boundary after audit execution.
+
+AUDIT HARNESS
+`4/4 PASS`
+
+Full-audit archive persistence, coverage selection, and focused reporting.
+
+KNOWN REGRESSIONS
+`27/27 PASS`
+
+All permanent regression requirements currently registered.
+
+FEATURE COVERAGE
+`34/34 PASS`
+
+All declared deterministic feature families represented by required tests.
+
+
+Appendix C - Current Feature Coverage Families
+
+- Agent Proposal;
+- Canonical Proposal Identity;
+- Strict Agent Proposal Authority;
+- No Silent Retarget;
+- Refusal Witnesses;
+- Human-Readable Refusal Explanations;
+- Preview Commitment v2;
+- Compare Current Target;
+- Refusal Challenge;
+- Boundary Challenge;
+- Multilingual Demo;
+- Reset Demo;
+- Structural Navigation;
+- Viewport Following;
+- Interactive TARGET Status;
+- Interactive ADMISSION Status;
+- Structural Position;
+- Button Affordance;
+- Concurrency;
+- Structural Relevance Classification;
+- Structural Admission Survival;
+- Admission Boundary Matrix;
+- Evidence;
+- Receipt and Bundle v2;
+- Independent Verifier Fixtures;
+- Legacy Evidence Read Compatibility;
+- Unicode;
+- Grapheme Scope;
+- Frozen Unicode Grapheme Conformance;
+- Multilingual and Complex-Script Vectors;
+- Keyboard-Only Complete Workflow;
+- Audit State Restoration;
+- Audit Result Persistence;
+- Focused Audit Reporting.
+
+
+Appendix D - Permanent Regression Registry
+
+REG-001
+`Live comparison must not fall back to a fixed example.`
+
+REG-002
+`Structural navigation must move visual attention to distant targets.`
+
+REG-003
+`Boundary Challenge must not appear permanently active.`
+
+REG-004
+`Action controls must look clickable before hover.`
+
+REG-005
+`Reset Demo must be a clear reversible demonstration path.`
+
+REG-006
+`Current-state checking must not be confused with commit-time ADMITTED.`
+
+REG-007
+`Running the full audit must leave no transient UI or working-state residue.`
+
+REG-008
+`Quick and focused audits must not erase the last complete full-audit record.`
+
+REG-009
+`Coverage after a full audit must remain complete after a later partial audit.`
+
+REG-010
+`Every focused audit command must print an explicit group result and final status.`
+
+REG-011
+`Machine-supplied ranges must not bypass structural resolution.`
+
+REG-012
+`A mismatched machine range hint must not silently become the target.`
+
+REG-013
+`A changed target must not execute under an old preview commitment.`
+
+REG-014
+`A refusal must never mutate the document.`
+
+REG-015
+`A refusal witness must remain deterministically hash-verifiable.`
+
+REG-016
+`Legacy receipt plan evidence must remain replay-readable when explicitly supported.`
+
+REG-017
+`Supported frozen grapheme vectors must not be split.`
+
+REG-018
+`Modal keyboard focus must enter, remain contained, and return to the invoking control.`
+
+REG-019
+`Verifier fixtures must preserve explicit profile and tamper-test boundaries.`
+
+REG-020
+`The frozen Unicode grapheme conformance corpus must remain fully passing.`
+
+REG-021
+`Compare Current Target must display results automatically when opened and expose Run Again.`
+
+REG-022
+`Refusal Challenge must display its refusal result automatically and visibly show zero mutation.`
+
+REG-023
+`Admission Boundary Matrix must display results automatically and expose Run Again.`
+
+REG-024
+`Agent Admission Races must display results automatically and expose Run Again.`
+
+REG-025
+`Multilingual Demo must remain separate from Boundary Challenge and preserve the declared Tamil and French content.`
+
+REG-026
+`Every surfaced refusal must remain understandable without requiring the user to interpret hashes or reason codes alone.`
+
+REG-027
+`Agent Admission Races must preserve the distinction between unrelated change, target mutation, and required-dependency change.`
+
+
+Appendix E - Current Demonstration Assurance
+
+E1 Reset Demo
+
+Purpose:
+
+restore the normal reference document and demo state.
+
+E2 Boundary Challenge
+
+Purpose:
+
+exercise ambiguity, punctuation, abbreviation, decimal, ellipsis, and difficult sentence-boundary behavior.
+
+E3 Multilingual Demo
+
+Purpose:
+
+demonstrate the same structural editing surface with current non-English content.
+
+Current languages:
+
+`Tamil`
+
+`French`
+
+The current assurance law is:
+
+`Multilingual Demo != Boundary Challenge`
+
+The current implementation may add more languages in later versions while preserving the generic Multilingual Demo identity.
+
+
+Appendix F - Assurance Levels
+
+F1 Level 1 - Producer Regression
+
+Current state:
+
+`IMPLEMENTED`
+
+Current basis:
+
+`SERA-AUDIT-1-D04`
+
+Current result:
+
+`329/329 PASS`
+
+F2 Level 2 - Frozen Conformance Material
+
+Current state:
+
+`PARTIALLY IMPLEMENTED IN THE REFERENCE PROJECT`
+
+Current demonstrated browser evidence includes the frozen grapheme conformance run.
+
+This does not replace a separately published complete cross-implementation corpus.
+
+F3 Level 3 - Independent Verifier
+
+Current state:
+
+`NOT YET CLAIMED`
+
+F4 Level 4 - Second Resolver
+
+Current state:
+
+`NOT YET CLAIMED`
+
+F5 Level 5 - Cross-Implementation Agreement
+
+Current state:
+
+`NOT YET CLAIMED`
+
+
+Appendix G - Release Acceptance Checklist
+
+Before accepting a reference update, confirm:
+
+1. full audit executed;
+2. full audit status PASS;
+3. integrity regression equals zero;
+4. unexpected mutation equals zero;
+5. feature coverage PASS;
+6. uncovered features equals zero;
+7. known regressions PASS;
+8. audit harness PASS;
+9. state restoration PASS;
+10. new deterministic bugs have permanent regression tests;
+11. new deterministic features have feature coverage entries;
+12. documentation matches the declared implementation and audit profile;
+13. multilingual or other new demo content remains covered by permanent tests;
+14. producer-side results are not mislabeled as independent verification.
+
+
+Appendix H - Current Console Sequence
+
+Full release audit:
+
+`await SERA_AUDIT.runAll()`
+
+Quick audit:
+
+`await SERA_AUDIT.quick()`
+
+Multilingual Demo check:
+
+`SERADemo.runMultilingualDemoCheck()`
+
+Frozen grapheme conformance:
+
+`SERADemo.runFrozenGraphemeConformance()`
+
+Coverage:
+
+`SERA_AUDIT.coverage()`
+
+Known regressions:
+
+`SERA_AUDIT.regressions()`
+
+Last full result:
+
+`SERA_AUDIT.lastFull()`
+
+Audit status:
+
+`SERA_AUDIT.status()`
+
+Current structural state:
+
+`SERA_AUDIT.inspect()`
+
+Requirements:
+
+`SERA_AUDIT.requirements()`
+
+
+Appendix I - Assurance Separation
+
+Current producer-side browser assurance:
+
+`SERA-AUDIT-1-D04 -> 329/329 PASS`
+
+Separate future assurance:
+
+`independent verifier -> independently reconstructed replay assurance`
+
+Separate future assurance:
+
+`second resolver -> independent semantic agreement assurance`
+
+These assurance layers must not be collapsed into one PASS label.

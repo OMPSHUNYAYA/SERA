@@ -1,0 +1,5014 @@
+SERA
+
+Canonicalization, Conformance, and Evidence Specification
+
+Document version:
+v0.2.0
+
+Specification family:
+SERA Conformance Architecture
+
+Current reference implementation family:
+SERA v0.9.2
+Structural Keyboard Reference Surface v0.9.2
+
+Current architecture family:
+SERA v0.9.x
+
+Companion architecture document:
+SERA_Core_Architecture_v0_9_2.txt
+
+Legacy v0.8.1 evidence profiles preserved by this specification:
+SERA-PREVIEW-COMMIT-1-D01
+SERA-RECEIPT-1
+SERA-SESSION-BUNDLE-1
+
+Current v0.9.2 implemented conformance profiles:
+SK-RESOLVER-1-D01
+SK-RULES-1.1.0
+SK-FP-HYBRID-1-D01
+SERA-ADMISSION-DEP-1-D01
+SERA-PROPOSAL-1-D01
+SERA-AGENT-STRICT-1-D01
+SERA-PREVIEW-COMMIT-2-D01
+SERA-MUTATION-ENVELOPE-1-D01
+SERA-EDIT-PERMIT-1-D01
+SERA-REFUSAL-WITNESS-1-D01
+SERA-RECEIPT-2
+SERA-SESSION-BUNDLE-2
+SERA-UNICODE-GRAPHEME-1-D01
+
+Current reference audit profile:
+SERA-AUDIT-1-D04
+
+Defined but not currently demonstrated as a completed reference capability:
+SERA-COMMUTE-1-D01
+independent replay verifier
+independent second resolver
+
+Version date:
+July 2026
+
+Status:
+This specification is synchronized with the SERA v0.9.2 Structural Keyboard reference implementation. It preserves historical v0.8.1 evidence identities, defines the current v2 verifier-facing evidence profiles, and records the remaining independent-verification and commutativity boundaries without claiming them as completed.
+
+1 Purpose
+
+This specification defines the canonicalization, hashing, conformance, proposal, planning, admission, refusal, receipt, bundle, and evidence identity rules required for reproducible SERA implementations.
+
+Its purpose is to remove implementation freedom from the parts of the SERA pipeline that must agree across independent implementations.
+
+The governing conformance law is:
+
+`same declared input + same frozen profiles -> same declared result`
+
+For canonical identities:
+
+`same canonical subject -> same canonical bytes -> same SHA-256`
+
+For deterministic resolution:
+
+`same canonical document + same schema + same rules + same scope + same anchor -> same resolution state`
+
+For canonical planning:
+
+`same canonical document + same resolved target + same action + same parameters -> same canonical plan`
+
+The preferred architecture notation is:
+
+`E_c = plan(E_s, D)`
+
+Planning notation is deliberately distinct from the Shunyaya collapse operator:
+
+`phi((m, a)) = m`
+
+because:
+
+`planning constructs an edit artifact`
+
+while:
+
+`collapse preserves a declared value`
+
+For admission evidence:
+
+`same target + same declared dependencies + same plan + same mutation envelope -> same admission identities`
+
+For preview commitment:
+
+`same committed target + same admission subject + same action + same canonical plan + same envelope -> same preview commitment`
+
+For refusal evidence:
+
+`same refusal subject -> same refusal witness hash`
+
+For receipt evidence:
+
+`same receipt subject + same previous receipt identity -> same receipt hash`
+
+For replay:
+
+`same genesis + same valid receipt chain + same frozen profiles -> same reconstructed final document identity`
+
+This specification defines the identity and conformance boundary required for:
+
+- canonical document text;
+- canonical JSON;
+- SHA-256 subjects;
+- proposal canonicalization;
+- strict machine proposal handling;
+- target fingerprints;
+- candidate-set hashes;
+- canonical plans;
+- admission dependency fingerprints;
+- mutation envelopes;
+- mutation-envelope hashes;
+- preview commitments;
+- the No Silent Retarget Law;
+- structural edit permits;
+- refusal witnesses;
+- receipt hashes;
+- evidence-bundle fields;
+- grapheme-aware profile direction;
+- refusal and conformance behavior;
+- independent replay verification;
+- differential resolver comparison;
+- bounded commutativity evidence.
+
+This specification preserves the historical v0.8.1 profile identities while defining the current v0.9.2 conformance boundary.
+
+The v0.9.2 reference implementation now uses the current proposal, strict-agent, Preview v2, refusal-witness, Receipt v2, Session Bundle v2, and frozen grapheme-aware profiles defined by this specification.
+
+Where a newer profile changes a canonical field name or hash subject, the old profile remains valid for evidence created under that old profile.
+
+The governing migration law is:
+
+`normative identity change -> new profile identity`
+
+not:
+
+`normative identity change -> silent reinterpretation of old evidence`
+
+This specification does not establish independent verification by itself.
+
+A conforming implementation may still share a specification error with another implementation.
+
+Independent verification requires a separate implementation path that reconstructs declared evidence rather than trusting producer-generated PASS labels.
+
+
+2 Scope
+
+2.1 Included
+
+This specification covers:
+
+- UTF-8 canonical byte encoding;
+- Unicode NFC normalization for canonical document text;
+- CRLF and CR normalization to LF;
+- canonical JSON object ordering;
+- array-order preservation;
+- supported canonical scalar types;
+- SHA-256 encoding and hexadecimal output;
+- UTF-16 code-unit span semantics for the current reference profile;
+- Unicode code-point structural scope distinction;
+- a frozen forward grapheme-aware profile direction;
+- proposal canonicalization;
+- proposal hash identity;
+- strict agent range-hint semantics;
+- target fingerprint construction;
+- candidate-set hash construction;
+- canonical plan representation;
+- planning-notation separation from Shunyaya collapse notation;
+- admission dependency payloads;
+- admission fingerprints;
+- mutation-envelope representation;
+- mutation-envelope validation;
+- plan hashes;
+- preview commitments;
+- No Silent Retarget conformance;
+- structural edit permit identities;
+- refusal witness payloads and hashes;
+- receipt canonicalization and chaining;
+- evidence-bundle structure;
+- refusal precedence;
+- independent verifier requirements;
+- positive conformance vectors;
+- negative conformance requirements;
+- metamorphic conformance requirements;
+- cross-implementation comparison requirements;
+- separated corpus families;
+- admission-boundary evaluation;
+- bounded commutativity evidence direction.
+
+2.2 Excluded
+
+This specification does not:
+
+- define every linguistic segmentation rule for every language;
+- claim universal Unicode segmentation correctness;
+- claim that default grapheme segmentation equals every language's preferred editing unit;
+- define every future schema;
+- define user-interface layout;
+- define visual styling;
+- define transport protocols;
+- define access-control policy;
+- define organizational authorization;
+- define legal authorization;
+- define collaborative merge algorithms;
+- define independent verifier implementation language;
+- establish legal, regulatory, or safety certification;
+- establish the semantic correctness of proposed content;
+- define a universal document format;
+- establish external authenticity for an unanchored evidence chain.
+
+The exact scope is:
+
+`SERA conformance = reproducible declared edit-resolution, admission, refusal, and evidence identities under frozen profiles`
+
+The current v0.9.2 browser implementation is governed by the implemented profile set declared in this specification and in its exported profile manifest.
+
+The following profiles are currently demonstrated by the reference implementation:
+
+`SERA-PROPOSAL-1-D01`
+
+`SERA-AGENT-STRICT-1-D01`
+
+`SERA-PREVIEW-COMMIT-2-D01`
+
+`SERA-REFUSAL-WITNESS-1-D01`
+
+`SERA-RECEIPT-2`
+
+`SERA-SESSION-BUNDLE-2`
+
+`SERA-UNICODE-GRAPHEME-1-D01`
+
+`SERA-COMMUTE-1-D01` remains a defined future profile and is not currently claimed as implemented.
+
+Independent verification remains a separate assurance boundary.
+
+
+3 Normative Language
+
+The words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT, RECOMMENDED, MAY, and OPTIONAL are normative.
+
+A conforming implementation MUST distinguish:
+
+- architectural requirements;
+- profile-specific requirements;
+- current-reference behavior;
+- future profile extensions.
+
+A change to a normative canonical identity rule requires a new applicable profile or specification version.
+
+
+4 Canonical Byte Encoding
+
+4.1 Character Encoding
+
+Canonical text and canonical JSON MUST be hashed as UTF-8 bytes.
+
+A canonical hash subject is:
+
+`SHA256(UTF8(canonical_subject))`
+
+SHA-256 output MUST be represented as:
+
+- lowercase hexadecimal;
+- exactly 64 hexadecimal characters;
+- no prefix;
+- no spaces;
+- no line break included unless the canonical subject itself contains one.
+
+Example empty-string SHA-256:
+
+`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+
+
+4.2 Byte-Order Mark
+
+The current canonical `normalizeText` profile does not silently remove a Unicode byte-order mark that has already entered the decoded string.
+
+Therefore:
+
+`U+FEFF in decoded content -> content unless a higher-level adapter removes it before canonicalization`
+
+An adapter that removes a byte-order mark MUST do so before the SERA canonical text boundary and MUST declare that preprocessing behavior.
+
+A future stricter input profile MAY define mandatory BOM rejection or removal.
+
+
+5 Canonical Document Text
+
+5.1 Normalization Function
+
+For the current reference family, canonical document text is:
+
+`normalizeText(text) = NFC(lineEndingNormalize(text))`
+
+where:
+
+`CRLF -> LF`
+
+`CR -> LF`
+
+and all other characters are preserved.
+
+The order is:
+
+`decoded text -> line-ending normalization -> Unicode NFC normalization`
+
+Equivalent implementations MAY apply NFC before line-ending normalization if and only if the resulting canonical text is identical for every accepted input.
+
+
+5.2 Line Endings
+
+The following input line endings normalize to LF:
+
+`0x0D 0x0A -> 0x0A`
+
+`0x0D -> 0x0A`
+
+LF remains LF.
+
+Canonical document text therefore uses LF internally.
+
+
+5.3 Unicode Normalization
+
+The current canonical normalization form is:
+
+`NFC`
+
+Two canonically equivalent Unicode sequences MUST produce the same canonical document text after NFC normalization.
+
+
+5.4 Whitespace Preservation
+
+Canonical document normalization MUST NOT otherwise:
+
+- trim leading whitespace;
+- trim trailing whitespace;
+- collapse repeated spaces;
+- collapse repeated newlines;
+- change tabs;
+- normalize punctuation;
+- change letter case.
+
+Whitespace may be structurally significant.
+
+The law is:
+
+`canonicalization normalizes representation, not document meaning`
+
+
+5.5 Document Hash
+
+The canonical document hash is:
+
+`doc_hash = SHA256(UTF8(normalizeText(document)))`
+
+The document hash represents the complete canonical document.
+
+It is distinct from:
+
+- target fingerprint;
+- admission fingerprint;
+- plan hash;
+- envelope hash;
+- preview commitment;
+- permit ID;
+- receipt hash.
+
+These identities MUST NOT be treated as interchangeable.
+
+
+6 Canonical JSON
+
+6.1 Purpose
+
+Canonical JSON is used to construct deterministic hash subjects for structured SERA evidence.
+
+The canonical JSON function MUST produce the same JSON string for equivalent supported objects regardless of source object insertion order.
+
+
+6.2 Object Key Ordering
+
+Object keys MUST be sorted in ascending lexical order before serialization.
+
+All normative SERA field names in the current profiles are ASCII.
+
+For ASCII field names:
+
+`ascending lexical order = ascending UTF-8 byte order = ECMAScript default string order`
+
+An implementation MUST NOT depend on source map or object insertion order.
+
+
+6.3 Recursive Ordering
+
+Object-key sorting is recursive.
+
+Every nested object MUST be canonicalized independently.
+
+Example source:
+
+`{"z":1,"a":{"y":2,"b":3}}`
+
+Canonical form:
+
+`{"a":{"b":3,"y":2},"z":1}`
+
+
+6.4 Array Ordering
+
+Array order MUST be preserved exactly.
+
+A conforming implementation MUST NOT sort arrays unless the applicable profile explicitly defines the array as a mathematical set with a separate canonical ordering rule.
+
+
+6.5 Supported Scalar Types
+
+Canonical hash-domain values MAY contain:
+
+- string;
+- integer;
+- boolean;
+- null;
+- array;
+- object.
+
+Normative numeric fields SHOULD use integers within the exact interoperable range:
+
+`-(2^53 - 1) <= n <= 2^53 - 1`
+
+The following values MUST NOT appear in canonical SERA JSON:
+
+- NaN;
+- positive infinity;
+- negative infinity;
+- undefined;
+- functions;
+- runtime object references.
+
+Negative zero MUST serialize as:
+
+`0`
+
+
+6.6 Whitespace
+
+Canonical JSON MUST contain no insignificant whitespace.
+
+No spaces, indentation, or line breaks may be inserted outside JSON string values.
+
+Example:
+
+`{"a":1,"b":2}`
+
+not:
+
+`{ "a": 1, "b": 2 }`
+
+
+6.7 String Escaping
+
+Strings MUST use valid JSON string escaping.
+
+The canonical serializer MUST preserve Unicode scalar content while escaping characters required by JSON syntax.
+
+Canonical JSON is then encoded as UTF-8 before hashing.
+
+
+6.8 Canonical JSON Hash
+
+For any supported structured subject `X`:
+
+`hashValue(X) = SHA256(UTF8(canonicalJSON(X)))`
+
+
+6.9 Local JSON Schema Validation
+
+The current repository may provide local JSON Schema files corresponding to declared SERA evidence objects.
+
+The current companion files are:
+
+`SERA_Proposal_Schema_v1_0.json`
+
+`SERA_Refusal_Witness_Schema_v1_0.json`
+
+`SERA_Receipt_Schema_v2_0.json`
+
+`SERA_Session_Bundle_Schema_v2_0.json`
+
+These files validate structural shape.
+
+They do not replace the canonical rules in this specification.
+
+The governing separation is:
+
+`JSON Schema -> structural validity`
+
+`this specification -> normative canonical and semantic validity`
+
+`independent verifier -> reconstructed evidence validity`
+
+A schema validator alone cannot establish:
+
+- receipt-chain continuity;
+- correct receipt hashes;
+- refusal non-mutation;
+- canonical plan replay;
+- mutation-envelope containment;
+- No Silent Retarget;
+- final reconstructed document identity.
+
+The schema files require no hosted SERA service.
+
+The optional JSON Schema dialect declaration does not make network retrieval part of SERA semantics or admission authority.
+
+
+7 Offset and Character Semantics
+
+7.1 Current Offset Unit
+
+The current browser reference declares:
+
+`offset_unit = UTF16_CODE_UNIT`
+
+All spans and positions used by the current reference plan representation are expressed in UTF-16 code units.
+
+A span:
+
+`[start, end]`
+
+uses:
+
+`start = inclusive`
+
+`end = exclusive`
+
+
+7.2 Structural Character Units
+
+The current v0.9.2 reference implementation exposes two distinct narrow text scopes:
+
+`CODE_POINT`
+
+`GRAPHEME`
+
+The evidence coordinate representation remains:
+
+`offset_unit = UTF16_CODE_UNIT`
+
+The `CODE_POINT` scope resolves Unicode code points.
+
+The `GRAPHEME` scope resolves extended grapheme clusters under:
+
+`SERA-UNICODE-GRAPHEME-1-D01`
+
+Therefore:
+
+`UTF16_CODE_UNIT != UNICODE_CODE_POINT`
+
+and:
+
+`UNICODE_CODE_POINT != EXTENDED_GRAPHEME_CLUSTER`
+
+
+7.3 Grapheme Clusters
+
+The current human-facing grapheme profile is:
+
+`SERA-UNICODE-GRAPHEME-1-D01`
+
+It declares:
+
+`unicode_version = 17.0.0`
+
+`segmentation_specification = UAX_29`
+
+`segmentation_revision = 47`
+
+`grapheme_mode = EXTENDED_GRAPHEME_CLUSTER`
+
+`tailoring = NONE`
+
+A user-perceived character may contain multiple Unicode code points.
+
+A conforming implementation MUST NOT silently relabel `CODE_POINT` as `GRAPHEME`.
+
+Any later Unicode version, segmentation revision, or tailoring rule that changes normative segmentation behavior requires a new applicable profile identity.
+
+
+7.4 Cross-Implementation Requirement
+
+An implementation using another native offset unit MUST convert to the declared canonical offset unit before producing canonical SERA evidence.
+
+For the current reference family:
+
+`canonical evidence offset unit = UTF16_CODE_UNIT`
+
+
+7.5 Canonical Text Before Structural Segmentation
+
+Unless an applicable profile explicitly declares another boundary, structural segmentation operates on canonical document text.
+
+For the current family:
+
+`decoded text -> LF normalization -> NFC normalization -> structural segmentation`
+
+An implementation MUST NOT produce canonical evidence from offsets calculated against a different text representation without a declared conversion.
+
+
+7.6 Offset and Structural Unit Separation
+
+The evidence offset unit and the human-facing structural unit are independent declarations.
+
+The current v0.9.2 grapheme profile validly declares:
+
+`offset_unit = UTF16_CODE_UNIT`
+
+and:
+
+`character_unit = EXTENDED_GRAPHEME_CLUSTER`
+
+This means:
+
+`evidence coordinates use UTF-16 code units`
+
+while:
+
+`character navigation resolves extended grapheme clusters`
+
+The two concepts MUST NOT be treated as interchangeable.
+
+
+7.7 Host Coordinate Translation Boundary
+
+The current canonical evidence offset unit is:
+
+`UTF16_CODE_UNIT`
+
+A host adapter using another native coordinate unit MUST translate at the declared adapter boundary before producing current-profile canonical SERA coordinates.
+
+The governing distinction is:
+
+`canonical structural identity != host-native coordinate representation`
+
+A UTF-8 byte offset, Unicode code-point index, grapheme index, or other host-native coordinate MUST NOT be consumed as a `UTF16_CODE_UNIT` position without a declared deterministic conversion.
+
+Cross-host conformance should verify:
+
+`canonical structural span -> translated host span -> same intended text`
+
+
+8 Schema and Profile Identity
+
+Every conformance subject that depends on a schema or rule family MUST bind the applicable identity.
+
+Current browser schema identities include:
+
+TEXT:
+
+`schema_id = writing.basic`
+
+`schema_version = 1.1.0`
+
+MARKDOWN:
+
+`schema_id = markdown.basic`
+
+`schema_version = 1.1.0`
+
+Current primary rules identity:
+
+`rules_version = SK-RULES-1.1.0`
+
+A conforming implementation MUST NOT silently substitute another rule profile while preserving the same declared identity.
+
+`changed normative rule -> changed applicable profile identity`
+
+
+8.1 Current and Defined Profiles
+
+This specification distinguishes:
+
+`current implemented profile`
+
+from:
+
+`defined but not currently demonstrated profile`
+
+The evidence produced by an implementation MUST bind the profile actually used.
+
+An implementation MUST NOT claim conformance to a profile merely because the profile is described in this document.
+
+For the current v0.9.2 reference, the implemented profile set includes Proposal v1, Strict Agent v1, Preview v2, Refusal Witness v1, Receipt v2, Session Bundle v2, and the frozen Grapheme v1 profile.
+
+`SERA-COMMUTE-1-D01` remains defined but not currently demonstrated.
+
+
+8.2 Legacy Evidence Preservation
+
+Evidence created under:
+
+`SERA-PREVIEW-COMMIT-1-D01`
+
+`SERA-RECEIPT-1`
+
+`SERA-SESSION-BUNDLE-1`
+
+remains interpreted under those identities.
+
+A verifier supporting those profiles MUST reconstruct their original canonical subjects.
+
+It MUST NOT rewrite historical fields into the new profile and then compare the resulting hashes as if they were unchanged.
+
+
+8.3 v0.9.2 Profile Transition Status
+
+The v0.9.2 reference implementation has adopted:
+
+`SERA-PROPOSAL-1-D01`
+
+`SERA-AGENT-STRICT-1-D01`
+
+`SERA-PREVIEW-COMMIT-2-D01`
+
+`SERA-REFUSAL-WITNESS-1-D01`
+
+`SERA-RECEIPT-2`
+
+`SERA-SESSION-BUNDLE-2`
+
+`SERA-UNICODE-GRAPHEME-1-D01`
+
+The following profile remains defined but not currently demonstrated:
+
+`SERA-COMMUTE-1-D01`
+
+These profiles are specified in Sections 34 through 46.
+
+
+8.4 Current v0.9.2 Reference Scope Declarations
+
+The current TEXT schema declares:
+
+`GRAPHEME`
+
+`CODE_POINT`
+
+`WORD`
+
+`SENTENCE`
+
+`PARAGRAPH`
+
+The current MARKDOWN schema declares:
+
+`GRAPHEME`
+
+`CODE_POINT`
+
+`WORD`
+
+`SENTENCE`
+
+`PARAGRAPH`
+
+`LIST_ITEM`
+
+`SECTION`
+
+The presence of both `GRAPHEME` and `CODE_POINT` is intentional.
+
+`GRAPHEME` uses the frozen extended-grapheme-cluster profile.
+
+`CODE_POINT` remains a separate technical structural scope.
+
+
+9 Resolution Conformance
+
+9.1 Inputs
+
+A resolution conformance subject is determined by:
+
+- canonical document text;
+- schema identity;
+- schema version;
+- rules version;
+- scope;
+- anchor;
+- any explicit profile parameters.
+
+The general relation is:
+
+`resolve(canonical_document, schema, rules, scope, anchor) -> declared resolution`
+
+
+9.2 Resolution States
+
+The supported top-level states are:
+
+`RESOLVED`
+
+`AMBIGUOUS`
+
+`UNSUPPORTED`
+
+
+9.3 RESOLVED
+
+A resolved result MUST identify one target.
+
+The target MUST contain enough information to reproduce its identity under the active profile.
+
+For the current reference family:
+
+- span;
+- structural path;
+- fingerprint.
+
+
+9.4 AMBIGUOUS
+
+An ambiguous result MUST preserve the candidate order defined by the resolver profile.
+
+Candidate order MUST NOT depend on:
+
+- object iteration order;
+- runtime hash-table order;
+- wall-clock timing;
+- random choice.
+
+A candidate set MAY carry a candidate-set hash.
+
+
+9.5 UNSUPPORTED
+
+An unsupported result MUST provide a stable reason code under the applicable profile.
+
+A conforming implementation MUST NOT silently convert an unsupported result into an arbitrary resolved target.
+
+
+10 Target Fingerprint Profile
+
+10.1 Profile
+
+Current target fingerprint profile:
+
+`SK-FP-HYBRID-1-D01`
+
+
+10.2 Purpose
+
+The target fingerprint binds:
+
+- target structural scope;
+- target structural path;
+- target canonical content;
+- bounded left context;
+- bounded right context;
+- canonical offset profile identity.
+
+It is intended to identify structural target meaning more strongly than raw offsets alone.
+
+
+10.3 Context Window
+
+The current context window is:
+
+`40 UTF-16 code units`
+
+For target span:
+
+`[start, end]`
+
+left context is:
+
+`text[max(0, start - 40) : start]`
+
+right context is:
+
+`text[end : min(document_length, end + 40)]`
+
+
+10.4 Target Text Hash
+
+`text_hash = SHA256(UTF8(normalizeText(target_text)))`
+
+
+10.5 Context Hashes
+
+`before_hash = SHA256(UTF8(normalizeText(before_context)))`
+
+`after_hash = SHA256(UTF8(normalizeText(after_context)))`
+
+
+10.6 Fingerprint Payload
+
+The payload is:
+
+`profile`
+
+`offset_unit`
+
+`scope`
+
+`path`
+
+`text_hash`
+
+`context_window`
+
+`context.before_hash`
+
+`context.after_hash`
+
+Conceptually:
+
+{
+  "profile": "SK-FP-HYBRID-1-D01",
+  "offset_unit": "UTF16_CODE_UNIT",
+  "scope": "<scope>",
+  "path": [...],
+  "text_hash": "<sha256>",
+  "context_window": 40,
+  "context": {
+    "before_hash": "<sha256>",
+    "after_hash": "<sha256>"
+  }
+}
+
+The target fingerprint is:
+
+`target_fingerprint = SHA256(UTF8(canonicalJSON(payload)))`
+
+
+10.7 Structural Path
+
+The structural path is an ordered integer array.
+
+Its exact interpretation is schema-specific.
+
+Examples may include:
+
+`[paragraph_index, sentence_index]`
+
+or:
+
+`[unit_index]`
+
+The path order MUST be preserved.
+
+
+10.8 Target Span Exclusion
+
+The current fingerprint payload does not directly include raw `start` and `end` span offsets.
+
+The fingerprint derives identity from:
+
+- path;
+- scope;
+- target text;
+- bounded context.
+
+The resolved result may still carry the span separately.
+
+This distinction is intentional:
+
+`span = execution coordinate`
+
+`fingerprint = structural target identity evidence`
+
+
+11 Candidate-Set Hash
+
+For an ambiguous result, the current candidate-set hash payload is an ordered array.
+
+For each candidate:
+
+`index`
+
+`span`
+
+`path`
+
+`fingerprint`
+
+The candidate-set hash is:
+
+`candidate_set_hash = SHA256(UTF8(canonicalJSON(candidate_array)))`
+
+Candidate order MUST remain exactly the resolver-defined order.
+
+Reordering candidates changes the candidate-set hash.
+
+
+12 Canonical Plan Representation
+
+12.1 Purpose
+
+The canonical plan is the exact classical edit representation committed for admission.
+
+The current plan is an ordered array of canonical operations.
+
+Operation order is significant.
+
+The preferred architecture notation is:
+
+`E_c = plan(E_s, D)`
+
+where:
+
+`E_s = structural edit intent`
+
+`D = canonical document state`
+
+`E_c = canonical classical edit plan`
+
+The notation `plan()` MUST be used for forward SERA planning documentation.
+
+The symbol `phi` is reserved in the wider Shunyaya ecosystem for collapse relations such as:
+
+`phi((m, a)) = m`
+
+The two meanings MUST NOT be conflated.
+
+
+12.2 Supported Current Operations
+
+Current canonical operations include:
+
+`DELETE_RANGE`
+
+`INSERT_AT`
+
+`REPLACE_RANGE`
+
+A future profile MAY add:
+
+`MOVE_RANGE`
+
+or other operations only with a new compatible normative definition.
+
+
+12.3 DELETE_RANGE
+
+Canonical fields:
+
+`op`
+
+`start`
+
+`end`
+
+Example:
+
+{
+  "op": "DELETE_RANGE",
+  "start": 12,
+  "end": 28
+}
+
+
+12.4 INSERT_AT
+
+Canonical fields:
+
+`op`
+
+`position`
+
+`content`
+
+Example:
+
+{
+  "op": "INSERT_AT",
+  "position": 28,
+  "content": "Inserted text"
+}
+
+
+12.5 REPLACE_RANGE
+
+Canonical fields:
+
+`op`
+
+`start`
+
+`end`
+
+`content`
+
+Example:
+
+{
+  "op": "REPLACE_RANGE",
+  "start": 12,
+  "end": 28,
+  "content": "Replacement"
+}
+
+
+12.6 Non-Canonical Operational Metadata
+
+The current reference planner may temporarily carry operational metadata such as:
+
+`move_meta`
+
+`paste_meta`
+
+These fields MUST be removed from the canonical plan before plan hashing and preview commitment.
+
+The current canonicalization law is:
+
+`canonical plan = raw plan - non-canonical transient operation metadata`
+
+
+12.7 Plan Hash
+
+`plan_hash = SHA256(UTF8(canonicalJSON(canonical_plan)))`
+
+
+12.8 Plan Determinism
+
+Under one planning profile:
+
+`same canonical document + same target + same action + same parameters -> same canonical plan`
+
+A changed plan hash after preview is a staleness condition under the current admission model.
+
+
+12.9 Structural-to-Classical Plan Equivalence
+
+Where an applicable profile claims structural-to-classical equivalence:
+
+`apply_structural(E_s, D) = apply_classical(plan(E_s, D), D)`
+
+The equivalence claim MUST be bounded to:
+
+- one declared schema;
+- one declared rules profile;
+- one declared planning profile;
+- one declared action family.
+
+A conformance vector MAY additionally bind the deterministic post-action anchor.
+
+
+13 Admission Dependency Payload
+
+13.1 Purpose
+
+The admission dependency payload identifies the exact structure that must remain equivalent for a proposal to keep the same admitted meaning.
+
+The current profile is:
+
+`SERA-ADMISSION-DEP-1-D01`
+
+
+13.2 Common Fields
+
+Every current admission dependency payload contains:
+
+`profile`
+
+`schema_id`
+
+`schema_version`
+
+`rules_version`
+
+`scope`
+
+`action`
+
+`target_fingerprint`
+
+
+13.3 DELETE and CUT Dependencies
+
+Additional fields:
+
+`delete_range`
+
+`delete_preimage_hash`
+
+The preimage hash is:
+
+`SHA256(UTF8(exact canonical document substring in delete_range))`
+
+Because the document entering planning is already canonical text, the exact substring is the hash subject.
+
+
+13.4 DUPLICATE Dependencies
+
+Additional fields:
+
+`insertion_point`
+
+`insertion_context_hash`
+
+The current insertion context window is:
+
+`24 UTF-16 code units before insertion point`
+
+plus:
+
+`24 UTF-16 code units after insertion point`
+
+clamped to document boundaries.
+
+The context hash subject is the exact canonical document substring in that window.
+
+
+13.5 PASTE Dependencies
+
+Additional fields:
+
+`insertion_point`
+
+`insertion_context_hash`
+
+`clipboard_content_hash`
+
+`clipboard_scope`
+
+The clipboard content presented to the planning layer MUST have a declared normalization boundary.
+
+For conformance with the current reference path, adapter-provided clipboard text SHOULD enter the planner in canonical NFC/LF form.
+
+
+13.6 MOVE Dependencies
+
+For:
+
+`MOVE_BACK`
+
+`MOVE_FORWARD`
+
+additional current fields are:
+
+`relation`
+
+`relation_range`
+
+`relation_preimage_hash`
+
+The relation preimage covers the exact canonical source-to-destination relation range used by the current plan.
+
+
+13.7 Admission Fingerprint
+
+`admission_fingerprint = SHA256(UTF8(canonicalJSON(dependency_payload)))`
+
+
+13.8 Dependency Meaning
+
+The admission fingerprint is not the whole-document hash.
+
+Therefore:
+
+`document_hash changed`
+
+does not automatically imply:
+
+`admission_fingerprint changed`
+
+This allows a structurally unrelated edit to preserve another proposal's admission identity.
+
+
+14 Mutation Envelope
+
+14.1 Profile
+
+Current profile:
+
+`SERA-MUTATION-ENVELOPE-1-D01`
+
+
+14.2 Purpose
+
+The mutation envelope bounds the write authority of the admitted canonical plan.
+
+The governing law is:
+
+`write_set(plan) subseteq admitted_mutation_envelope`
+
+
+14.3 Envelope Object
+
+The current envelope contains:
+
+`profile`
+
+`operations`
+
+The operation list corresponds positionally to the canonical plan operation list.
+
+
+14.4 INSERTION_POINT
+
+For `INSERT_AT`:
+
+{
+  "kind": "INSERTION_POINT",
+  "position": <position>
+}
+
+
+14.5 RANGE
+
+For `DELETE_RANGE` or `REPLACE_RANGE`:
+
+{
+  "kind": "RANGE",
+  "start": <start>,
+  "end": <end>
+}
+
+
+14.6 MOVE
+
+A future canonical `MOVE_RANGE` operation may use:
+
+{
+  "kind": "MOVE",
+  "start": <start>,
+  "end": <end>,
+  "destination": <destination>
+}
+
+The current browser planner represents structural movement as `REPLACE_RANGE`, so the current canonical envelope for that operation is `RANGE`.
+
+
+14.7 Envelope Hash
+
+`mutation_envelope_hash = SHA256(UTF8(canonicalJSON(envelope)))`
+
+
+14.8 Positional Validation
+
+Under the current profile:
+
+`number of plan operations = number of envelope operations`
+
+Each plan operation MUST match the envelope operation at the same array index.
+
+A mismatch is:
+
+`MUTATION_ENVELOPE_VIOLATION`
+
+
+15 Preview Commitment
+
+15.1 Legacy v1 Profile
+
+The v0.8.1 browser reference used:
+
+`SERA-PREVIEW-COMMIT-1-D01`
+
+This profile remains preserved for compatibility with historical evidence created under that identity.
+
+The current v0.9.2 reference implementation uses:
+
+`SERA-PREVIEW-COMMIT-2-D01`
+
+
+15.2 Purpose
+
+The preview commitment binds the exact plan and structural admission context presented before commitment.
+
+
+15.3 Legacy v1 Payload
+
+The v1 payload contains:
+
+`profile`
+
+`target_fingerprint`
+
+`admission_fingerprint`
+
+`action`
+
+`collapse_plan`
+
+`mutation_envelope`
+
+The action object contains:
+
+`op`
+
+`params`
+
+The field name `collapse_plan` is retained only as a legacy canonical field of `SERA-PREVIEW-COMMIT-1-D01`.
+
+Its historical hash subject MUST NOT be silently renamed during verification.
+
+
+15.4 Legacy v1 Commitment
+
+`preview_commitment = SHA256(UTF8(canonicalJSON(preview_payload)))`
+
+
+15.5 Commitment Law
+
+`executed admitted plan = previewed committed plan`
+
+A change to:
+
+- target fingerprint;
+- admission fingerprint;
+- action;
+- action parameters;
+- canonical plan;
+- mutation envelope;
+
+changes the applicable preview commitment.
+
+
+15.6 Current v2 Profile
+
+The current v0.9.2 profile is:
+
+`SERA-PREVIEW-COMMIT-2-D01`
+
+It replaces the legacy field name:
+
+`collapse_plan`
+
+with:
+
+`canonical_plan`
+
+The exact v2 payload and transition rules are defined in Section 36.
+
+
+16 Structural Edit Permit
+
+16.1 Profile
+
+Current profile:
+
+`SERA-EDIT-PERMIT-1-D01`
+
+
+16.2 Purpose
+
+The permit identifies one structurally admitted proposal and its bounded mutation authority.
+
+
+16.3 Current Permit Payload
+
+Fields:
+
+`profile`
+
+`proposal_id`
+
+`target_fingerprint`
+
+`admission_fingerprint`
+
+`plan_hash`
+
+`mutation_envelope_hash`
+
+
+16.4 Permit Identity
+
+`permit_id = SHA256(UTF8(canonicalJSON(permit_payload)))`
+
+
+16.5 Permit Semantics
+
+A permit is:
+
+- deterministic;
+- proposal-bound;
+- target-bound;
+- dependency-bound;
+- plan-bound;
+- envelope-bound;
+- single-use after successful commit.
+
+A permit does not replace higher-level authorization.
+
+
+16.6 Structural Validity
+
+A permit MAY remain valid across unrelated document changes if all bound admission dependencies remain equivalent.
+
+A permit MUST NOT be treated as valid when its required structure no longer matches.
+
+
+17 Commit-Time Revalidation and Refusal Precedence
+
+17.1 Purpose
+
+When multiple failure conditions could apply, implementations must evaluate the current admission path in a declared order.
+
+
+17.2 Current Admission Evaluation Order
+
+The current reference family evaluates:
+
+1. resolved snapshot exists;
+2. snapshot target revalidation;
+3. expected action contract construction from the resolution snapshot;
+4. current action contract construction from the current canonical document;
+5. admission fingerprint comparison;
+6. canonical plan hash comparison;
+7. mutation-envelope validation;
+8. ADMITTED result.
+
+The first applicable refusal under this order governs the result.
+
+
+17.3 No Resolved Target
+
+Failure:
+
+`CONFLICT`
+
+Reason:
+
+`NO_RESOLVED_TARGET`
+
+
+17.4 Explicit-Choice Target Outside Document
+
+Failure:
+
+`STALE`
+
+Reason:
+
+`TARGET_OUTSIDE_CURRENT_DOCUMENT`
+
+
+17.5 Explicit-Choice Target Fingerprint Changed
+
+Failure:
+
+`STALE`
+
+Reason:
+
+`TARGET_STALE`
+
+
+17.6 Automatically Resolved Target No Longer Resolves
+
+Failure:
+
+`STALE`
+
+Reason:
+
+`TARGET_NO_LONGER_RESOLVES`
+
+
+17.7 Automatically Resolved Target Fingerprint Changed
+
+Failure:
+
+`STALE`
+
+Reason:
+
+`TARGET_STALE`
+
+
+17.8 No Valid Movement Destination
+
+Failure:
+
+`CONFLICT`
+
+Reason:
+
+`NO_VALID_MOVEMENT_DESTINATION`
+
+
+17.9 Admission Dependencies Changed
+
+For non-move actions:
+
+`STALE`
+
+Reason:
+
+`ADMISSION_DEPENDENCIES_CHANGED`
+
+
+17.10 Structural Move Dependency Conflict
+
+For `MOVE_BACK` or `MOVE_FORWARD`:
+
+`CONFLICT`
+
+Reason:
+
+`STRUCTURAL_DEPENDENCY_CONFLICT`
+
+
+17.11 Canonical Plan Changed
+
+Failure:
+
+`STALE`
+
+Reason:
+
+`CANONICAL_PLAN_CHANGED`
+
+
+17.12 Mutation Envelope Violation
+
+Failure:
+
+`CONFLICT`
+
+Reason:
+
+`MUTATION_ENVELOPE_VIOLATION`
+
+
+17.13 Successful Admission
+
+Only after all preceding checks pass:
+
+`ADMITTED`
+
+
+17.14 No Silent Retarget Law
+
+The target represented by the active preview commitment MUST remain the target admitted at commit time.
+
+The governing law is:
+
+`preview_target_fingerprint != commit_target_fingerprint -> no execution under old commitment`
+
+A valid continuation requires:
+
+`re-resolve -> new preview -> new commitment -> new admission`
+
+An implementation MUST NOT:
+
+- preserve the old preview commitment;
+- silently resolve a different target;
+- execute against the new target under the old commitment.
+
+A verifier that detects this condition SHOULD report:
+
+`TARGET_RETARGETED_WITHOUT_NEW_COMMITMENT`
+
+The top-level SERA admission state remains determined by the applicable profile's refusal ordering.
+
+For the current family, a changed target fingerprint normally produces:
+
+`STALE`
+
+with reason:
+
+`TARGET_STALE`
+
+The No Silent Retarget Law is therefore an invariant over the full proposal-to-commit path, not a replacement top-level state.
+
+
+18 Receipt Canonicalization
+
+18.1 Legacy v1 and Current v2 Profiles
+
+The historical v0.8.1 receipt profile is:
+
+`SERA-RECEIPT-1`
+
+This profile remains valid for evidence already produced under that identity.
+
+The current v0.9.2 receipt profile is:
+
+`SERA-RECEIPT-2`
+
+The current reference implementation applies the deterministic sequence, previous-link, `ts = null`, and canonical receipt-hash rules defined by the v2 profile in Section 40.
+
+
+18.2 Receipt Sequence
+
+Each receipt contains:
+
+`seq`
+
+The first receipt uses:
+
+`seq = 0`
+
+Subsequent receipts increment by exactly one.
+
+
+18.3 Previous Receipt Link
+
+The first receipt contains:
+
+`prev = null`
+
+Every later receipt contains:
+
+`prev = previous_receipt.receipt_hash`
+
+
+18.4 Timestamp Field
+
+The current deterministic receipt profile uses:
+
+`ts = null`
+
+Wall-clock time is therefore not part of receipt identity.
+
+
+18.5 Receipt Version
+
+Each v1 receipt contains:
+
+`v = SERA-RECEIPT-1`
+
+
+18.6 Receipt Hash Construction
+
+Before hashing, the receipt contains all canonical receipt fields except:
+
+`receipt_hash`
+
+Then:
+
+`receipt_hash = SHA256(UTF8(canonicalJSON(receipt_without_receipt_hash)))`
+
+The computed hash is appended as:
+
+`receipt_hash`
+
+
+18.7 Chain Verification
+
+For every receipt:
+
+`recomputed receipt_hash = stored receipt_hash`
+
+For every receipt after the first:
+
+`receipt.prev = previous.receipt_hash`
+
+A mismatch invalidates the chain result.
+
+
+18.8 Forward Receipt Profile
+
+The forward receipt profile is:
+
+`SERA-RECEIPT-2`
+
+It preserves deterministic chaining while adding verifier-facing requirements for:
+
+- canonical proposal identity where present;
+- canonical plan naming;
+- refusal witness identity;
+- explicit profile binding.
+
+The exact forward rules are defined in Section 39.
+
+
+19 Receipt Kinds
+
+19.1 GENESIS
+
+A genesis receipt establishes:
+
+- profile context;
+- canonicalization declaration;
+- initial document hash;
+- canonical document length.
+
+The current canonicalization declaration includes:
+
+`text_encoding = UTF-8`
+
+`unicode_normalization = NFC`
+
+`line_endings = LF`
+
+
+19.2 EDIT
+
+An edit receipt may bind:
+
+- proposal source;
+- proposal ID;
+- resolution evidence;
+- target fingerprint;
+- admission state;
+- admission fingerprint;
+- mutation envelope hash;
+- permit ID;
+- action;
+- pre-document hash;
+- post-document hash;
+- post-anchor;
+- preview commitment;
+- displayed preview commitment;
+- preview display match;
+- full mutation envelope;
+- consumed permit;
+- canonical plan;
+- plan hash.
+
+
+19.3 REFUSAL
+
+A refusal receipt records a non-mutating outcome.
+
+For a refusal:
+
+`pre.doc_hash = post.doc_hash`
+
+A refusal MUST NOT fabricate a successful mutation.
+
+
+19.4 UNDO
+
+An undo receipt may bind:
+
+- inverted receipt sequence;
+- inverted receipt hash;
+- whole-document replacement plan;
+- pre-document hash;
+- post-document hash.
+
+
+19.5 REDO
+
+A redo receipt may bind:
+
+- reapplied receipt sequence;
+- reapplied receipt hash;
+- whole-document replacement plan;
+- pre-document hash;
+- post-document hash.
+
+
+20 Context Object
+
+The current v0.9.2 receipt context binds:
+
+`architecture_version`
+
+`conformance_version`
+
+`schema_id`
+
+`schema_version`
+
+`rules_version`
+
+`resolver_profile`
+
+`fingerprint_profile`
+
+`admission_profile`
+
+`proposal_profile`
+
+`strict_agent_profile`
+
+`preview_profile`
+
+`mutation_envelope_profile`
+
+`permit_profile`
+
+`refusal_witness_profile`
+
+`grapheme_profile`
+
+`unicode_version`
+
+`receipt_profile`
+
+`bundle_format`
+
+`offset_unit`
+
+`character_unit`
+
+A receipt produced under different normative profiles MUST declare those different identities.
+
+A verifier MUST interpret the receipt using the declared profile set rather than silently substituting a newer or older profile.
+
+
+21 Evidence Bundle
+
+21.1 Legacy and Current Formats
+
+Historical v0.8.1 bundle format:
+
+`SERA-SESSION-BUNDLE-1`
+
+Current v0.9.2 bundle format:
+
+`SERA-SESSION-BUNDLE-2`
+
+The current v2 bundle includes an explicit `profile_manifest` and remains a producer export rather than an independent verifier result.
+
+
+21.2 Current Bundle Fields
+
+The current v0.9.2 producer export contains:
+
+`format`
+
+`producer`
+
+`verification_scope`
+
+`profile_manifest`
+
+`genesis`
+
+`receipts`
+
+`chain_head`
+
+`final`
+
+`producer_checks`
+
+
+21.3 Producer Verification Scope
+
+The current producer export declares:
+
+`verification_scope = PRODUCER_EXPORT`
+
+This MUST NOT be presented as independent verification.
+
+
+21.4 Genesis Bundle Section
+
+The genesis section contains:
+
+`canonical_text`
+
+`doc_hash`
+
+
+21.5 Receipt Section
+
+The receipt array preserves receipt order exactly.
+
+A conforming verifier MUST process receipts in array order.
+
+
+21.6 Chain Head
+
+`chain_head = last receipt_hash`
+
+For an empty receipt array, a future profile must define the allowed result explicitly.
+
+The current browser session always begins with genesis.
+
+
+21.7 Final Section
+
+The final section contains:
+
+`canonical_text`
+
+`doc_hash`
+
+The final document hash MUST equal:
+
+`SHA256(UTF8(normalizeText(final.canonical_text)))`
+
+
+21.8 Producer Checks
+
+Current fields include:
+
+`chain_valid`
+
+`replay_valid`
+
+These values are producer assertions.
+
+A verifier MUST reconstruct the underlying result rather than trusting stored booleans.
+
+
+21.9 Bundle Identity
+
+`SERA-SESSION-BUNDLE-2` does not currently define a canonical bundle root stored in the exported object.
+
+A later bundle profile MAY define:
+
+- canonical bundle root;
+- manifest root;
+- verifier report root.
+
+Such a change requires a new applicable bundle profile.
+
+
+22 Hash-Domain Separation
+
+The following identities have different subjects and MUST remain distinct:
+
+`doc_hash`
+
+`target_fingerprint`
+
+`candidate_set_hash`
+
+`plan_hash`
+
+`admission_fingerprint`
+
+`mutation_envelope_hash`
+
+`preview_commitment`
+
+`permit_id`
+
+`receipt_hash`
+
+A system MUST NOT use one of these values as a silent substitute for another.
+
+Examples:
+
+`document_hash != admission_fingerprint`
+
+`plan_hash != preview_commitment`
+
+`permit_id != receipt_hash`
+
+
+23 Canonicalization Conformance Vectors
+
+23.1 Vector CJSON-001
+
+Purpose:
+
+recursive object-key ordering.
+
+Input object:
+
+{
+  "z": 1,
+  "a": {
+    "y": 2,
+    "b": 3
+  },
+  "list": [
+    {
+      "d": 4,
+      "c": 5
+    }
+  ]
+}
+
+Expected canonical JSON:
+
+`{"a":{"b":3,"y":2},"list":[{"c":5,"d":4}],"z":1}`
+
+Expected SHA-256:
+
+`a58c3e0f8aa1604c9a5aad9fde9711a7dac3c544a3898a12c3beedfe24271b03`
+
+
+23.2 Vector TEXT-001
+
+Purpose:
+
+line-ending normalization.
+
+Input logical text:
+
+`Alpha.<CRLF>Beta.`
+
+Expected canonical text:
+
+`Alpha.<LF>Beta.`
+
+Expected document SHA-256:
+
+`2621964493b8330a31a84ca7418dcbaa508f633436ad22b8eca4aa962437afc4`
+
+
+23.3 Vector TARGET-001
+
+Canonical document:
+
+`Alpha. Beta.`
+
+Scope:
+
+`SENTENCE`
+
+Target span:
+
+`[0,6]`
+
+Target path:
+
+`[0,0]`
+
+Target text:
+
+`Alpha.`
+
+Target text SHA-256:
+
+`e3b0b40be44bd13bc38213d1116b4ab4b61bb1a3ada1d2aaa22d74674926aaf1`
+
+Before-context SHA-256:
+
+`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+
+After-context SHA-256:
+
+`5ee8225e677214b7e93e4e5a683a8ea878b195d8ba27640f1511096fdf710902`
+
+Expected target fingerprint:
+
+`500f7d197db2dc7757650de05642f947a2844adb78bb32ca41cae990250724cd`
+
+
+23.4 Vector PLAN-001
+
+Action:
+
+`DUPLICATE`
+
+Canonical document:
+
+`Alpha. Beta.`
+
+Resolved target:
+
+first sentence
+
+Canonical plan:
+
+[
+  {
+    "op": "INSERT_AT",
+    "position": 6,
+    "content": " Alpha."
+  }
+]
+
+Expected plan hash:
+
+`ebc871f6ee6c79d203cd6d3b30799c721908b278db01472c3c545c195bcbdb6d`
+
+
+23.5 Vector ENVELOPE-001
+
+Canonical mutation envelope:
+
+{
+  "profile": "SERA-MUTATION-ENVELOPE-1-D01",
+  "operations": [
+    {
+      "kind": "INSERTION_POINT",
+      "position": 6
+    }
+  ]
+}
+
+Expected mutation-envelope hash:
+
+`0d9499961c0e3cc17773dca817fc0fa8d5055289f1d6e767cdc8bb74f5e70570`
+
+
+23.6 Vector ADMISSION-001
+
+Using TARGET-001 and PLAN-001:
+
+Action:
+
+`DUPLICATE`
+
+Insertion point:
+
+`6`
+
+Expected admission fingerprint:
+
+`a89ac9d804d730469836d93dccf1b9c619d9acf84debe436d83d49c04640a86c`
+
+
+23.7 Vector PREVIEW-001
+
+Legacy profile:
+
+`SERA-PREVIEW-COMMIT-1-D01`
+
+This vector is retained for historical v1 compatibility.
+
+Using:
+
+TARGET-001
+
+ADMISSION-001
+
+PLAN-001
+
+ENVELOPE-001
+
+Action:
+
+`DUPLICATE`
+
+Action parameters:
+
+empty object
+
+Expected preview commitment:
+
+`c3fa05a6aaa3b052f9a9a0aa58478247cd2a70bd9edcd6f4b311effd7dfd8fa4`
+
+The current v0.9.2 v2 preview vector is:
+
+`PREVIEW2-001`
+
+
+23.8 Vector PERMIT-001
+
+Proposal ID:
+
+`vector-duplicate-001`
+
+Using:
+
+TARGET-001
+
+ADMISSION-001
+
+PLAN-001
+
+ENVELOPE-001
+
+Expected permit ID:
+
+`61a5cc67fb40bb937d2caae17684035ce6fe6c2620af4add4207e5dfbd2adc85`
+
+
+24 Positive Conformance Requirements
+
+A conforming implementation under the current v0.9.2 profile set MUST pass positive vectors for at least:
+
+- canonical JSON ordering;
+- LF normalization;
+- NFC normalization;
+- UTF-8 hashing;
+- empty-string hashing;
+- canonical proposal construction;
+- proposal hashing;
+- strict machine range-hint handling;
+- target fingerprint construction;
+- candidate-set ordering;
+- plan canonicalization;
+- plan hashing;
+- admission fingerprint construction;
+- mutation-envelope construction;
+- envelope hashing;
+- v2 preview commitment;
+- No Silent Retarget preservation;
+- permit identity;
+- refusal-witness construction and hashing;
+- refusal non-mutation;
+- receipt hashing;
+- receipt-chain continuity;
+- v2 bundle profile-manifest interpretation;
+- bundle final-document identity;
+- grapheme segmentation under the frozen Unicode profile;
+- UTF-16 conversion for grapheme evidence spans.
+
+A verifier supporting historical v1 evidence SHOULD additionally pass the preserved v1 preview, receipt, and bundle vectors.
+
+
+25 Negative Conformance Requirements
+
+A conformance corpus SHOULD include refusal or rejection vectors for:
+
+`INVALID_JSON_DOMAIN`
+
+`UNSUPPORTED_CANONICAL_NUMBER`
+
+`INVALID_OFFSET_UNIT`
+
+`SPAN_OUT_OF_RANGE`
+
+`SCOPE_NOT_IN_SCHEMA`
+
+`EMPTY_DOCUMENT`
+
+`NO_WORD`
+
+`NO_PARAGRAPH`
+
+`ANCHOR_NOT_IN_LIST_ITEM`
+
+`NO_MARKDOWN_SECTION`
+
+`ANCHOR_BEFORE_FIRST_SECTION`
+
+`TARGET_OUTSIDE_CURRENT_DOCUMENT`
+
+`TARGET_STALE`
+
+`TARGET_NO_LONGER_RESOLVES`
+
+`NO_VALID_MOVEMENT_DESTINATION`
+
+`ADMISSION_DEPENDENCIES_CHANGED`
+
+`STRUCTURAL_DEPENDENCY_CONFLICT`
+
+`CANONICAL_PLAN_CHANGED`
+
+`MUTATION_ENVELOPE_VIOLATION`
+
+`EMPTY_CLIPBOARD`
+
+`RECEIPT_HASH_MISMATCH`
+
+`RECEIPT_CHAIN_BROKEN`
+
+`RANGE_HINT_TARGET_MISMATCH`
+
+`TARGET_RETARGETED_WITHOUT_NEW_COMMITMENT`
+
+`REFUSAL_MUTATED`
+
+`UNSUPPORTED_PROFILE_IDENTITY`
+
+A frozen conformance corpus MUST define exact expected top-level state and reason for each normative vector.
+
+
+26 Parser-Negative Requirements
+
+A future independent verifier SHOULD reject evidence containing:
+
+- duplicate semantic fields where the chosen parser exposes ambiguity;
+- invalid UTF-8;
+- malformed JSON;
+- unsupported profile identity;
+- non-integer canonical offsets;
+- offsets outside the canonical document;
+- negative span length;
+- unknown canonical plan operation;
+- unknown mutation-envelope operation;
+- plan/envelope operation count mismatch;
+- receipt sequence discontinuity;
+- receipt previous-link mismatch;
+- incorrect receipt hash;
+- final document hash mismatch.
+
+
+27 Metamorphic Conformance
+
+27.1 Object Insertion Order
+
+Changing source object insertion order without changing semantic values MUST NOT change canonical JSON or hash.
+
+
+27.2 Line-Ending Equivalence
+
+For canonical document identity:
+
+`LF`
+
+`CRLF`
+
+and:
+
+`CR`
+
+representations of the same line structure MUST produce the same normalized canonical document and document hash.
+
+
+27.3 NFC Equivalence
+
+Canonically equivalent Unicode input sequences MUST produce the same canonical document hash after NFC normalization.
+
+
+27.4 Unrelated Document Change
+
+A change outside an action's declared dependencies MAY change:
+
+`document_hash`
+
+while preserving:
+
+`admission_fingerprint`
+
+This is an expected property, not a conformance failure.
+
+
+27.5 Relevant Dependency Change
+
+A change to a declared dependency MUST change the applicable admission fingerprint unless the changed representation canonicalizes to the same dependency subject.
+
+
+27.6 Object Key Reordering in Evidence
+
+Reordering JSON object fields MUST NOT change any canonical hash.
+
+
+27.7 Array Reordering
+
+Reordering an ordered array MUST change the canonical subject when order is semantically significant.
+
+Examples include:
+
+- plan operations;
+- candidates;
+- receipts.
+
+
+28 Differential Conformance
+
+Two independent implementations are differentially conformant for one vector when:
+
+`same vector -> same canonical result`
+
+The comparison SHOULD include, where applicable:
+
+- top-level state;
+- reason code;
+- canonical text;
+- proposal hash;
+- target span;
+- target path;
+- target fingerprint;
+- candidate-set hash;
+- canonical plan;
+- plan hash;
+- admission fingerprint;
+- mutation envelope;
+- envelope hash;
+- preview commitment;
+- permit ID;
+- refusal-witness hash;
+- receipt hash;
+- profile-manifest interpretation;
+- grapheme boundaries and canonical evidence spans.
+
+A second implementation SHOULD be written from the specification rather than by translating the original implementation line by line.
+
+
+29 Independent Verifier Boundary
+
+An independent verifier should reconstruct, at minimum:
+
+- profile-manifest interpretation;
+- canonical document hashes;
+- proposal hashes where canonical proposals are present;
+- receipt hashes;
+- receipt-chain links;
+- plan hashes;
+- mutation-envelope hashes;
+- preview commitments;
+- permit IDs;
+- refusal-witness hashes where present;
+- refusal non-mutation;
+- final document identity.
+
+A stronger verifier should also reconstruct:
+
+- target resolution;
+- target fingerprints;
+- admission dependency fingerprints;
+- action replay;
+- No Silent Retarget compliance;
+- grapheme boundaries for applicable frozen vectors;
+- refusal outcomes.
+
+The verifier MUST NOT treat stored:
+
+`PASS`
+
+`chain_valid`
+
+or:
+
+`replay_valid`
+
+as proof.
+
+Stored producer results are evidence inputs, not verifier authority.
+
+
+30 Compatibility and Versioning
+
+30.1 User-Interface Changes
+
+A change to:
+
+- layout;
+- button styling;
+- labels;
+- viewport behavior;
+- non-normative help text;
+
+does not automatically require a new conformance profile.
+
+
+30.2 Normative Changes
+
+A change to any of the following requires an applicable profile or specification version change:
+
+- canonical text normalization;
+- canonical JSON rules;
+- offset unit;
+- structural character unit;
+- target fingerprint payload;
+- context window;
+- candidate ordering;
+- canonical plan fields;
+- admission dependency payload;
+- mutation-envelope representation;
+- preview commitment subject;
+- permit subject;
+- receipt hash subject;
+- refusal precedence;
+- bundle canonical identity.
+
+
+30.3 Profile Binding
+
+Evidence MUST bind the profiles that governed its normative identities.
+
+A verifier MUST reject or explicitly report unsupported profile identities rather than silently applying different rules.
+
+
+31 Security and Evidence Boundary
+
+SHA-256 provides deterministic content identity for the declared hash subjects.
+
+It does not by itself establish:
+
+- authorship;
+- authorization;
+- secure hosting;
+- absence of malware;
+- legal validity;
+- external truth;
+- complete absence of defects.
+
+The correct interpretation is:
+
+`matching hash -> matching canonical subject under the declared profile`
+
+not:
+
+`matching hash -> complete system trust`
+
+
+32 Conformance Status of the Current Reference
+
+The current reference implementation is:
+
+`SERA v0.9.2`
+
+`Structural Keyboard Reference Surface v0.9.2`
+
+The current implementation declares:
+
+`architecture_version = 0.9.2`
+
+`conformance_version = 0.2.0`
+
+`receipt_profile = SERA-RECEIPT-2`
+
+`bundle_format = SERA-SESSION-BUNDLE-2`
+
+`proposal_profile = SERA-PROPOSAL-1-D01`
+
+`strict_agent_profile = SERA-AGENT-STRICT-1-D01`
+
+`resolver_profile = SK-RESOLVER-1-D01`
+
+`rules_version = SK-RULES-1.1.0`
+
+`fingerprint_profile = SK-FP-HYBRID-1-D01`
+
+`admission_profile = SERA-ADMISSION-DEP-1-D01`
+
+`preview_profile = SERA-PREVIEW-COMMIT-2-D01`
+
+`mutation_envelope_profile = SERA-MUTATION-ENVELOPE-1-D01`
+
+`permit_profile = SERA-EDIT-PERMIT-1-D01`
+
+`refusal_witness_profile = SERA-REFUSAL-WITNESS-1-D01`
+
+`grapheme_profile = SERA-UNICODE-GRAPHEME-1-D01`
+
+`unicode_version = 17.0.0`
+
+`grapheme_revision = 47`
+
+`audit_profile = SERA-AUDIT-1-D04`
+
+`offset_unit = UTF16_CODE_UNIT`
+
+`character_unit = EXTENDED_GRAPHEME_CLUSTER`
+
+The current browser reference implements and demonstrates:
+
+- NFC and LF document normalization;
+- recursive canonical JSON key ordering;
+- UTF-8 SHA-256;
+- UTF-16 code-unit evidence offsets;
+- separate `GRAPHEME` and `CODE_POINT` scopes;
+- Unicode 17.0.0 extended grapheme segmentation under revision 47;
+- target fingerprints;
+- candidate-set hashes;
+- canonical proposals and proposal hashes;
+- strict machine range-hint handling;
+- canonical plans;
+- admission fingerprints;
+- mutation envelopes;
+- plan hashes;
+- `SERA-PREVIEW-COMMIT-2-D01`;
+- No Silent Retarget behavior;
+- permit identities;
+- refusal witnesses and refusal-witness hashes;
+- `SERA-RECEIPT-2`;
+- receipt chaining;
+- `SERA-SESSION-BUNDLE-2` export with explicit profile manifest;
+- producer-side replay;
+- verifier fixture generation;
+- Admission Boundary Matrix behavior;
+- two-agent structural admission-race behavior;
+- a dedicated Multilingual Demo separated from Boundary Challenge;
+- Tamil and French reference-demo content;
+- Tamil grapheme, emoji, canonical-equivalence, and additional complex-script vectors.
+
+The verified producer-side reference audit currently reports:
+
+`329/329 PASS`
+
+`KNOWN REGRESSIONS = 27/27 PASS`
+
+`FEATURE COVERAGE = 34/34 PASS`
+
+`INTEGRITY REGRESSION = 0`
+
+`UNEXPECTED MUTATION = 0`
+
+The current dedicated demonstration checks include:
+
+`MULTILINGUAL DEMO CHECK = PASS`
+
+`DEMO FLOWS = 11/11 PASS`
+
+`UNICODE = 13/13 PASS`
+
+The frozen grapheme conformance runner has demonstrated:
+
+`766/766 PASS`
+
+under the current browser implementation.
+
+These are producer-side reference results.
+
+They do not establish independent replay verification or independent semantic agreement.
+
+The complete cross-implementation conformance status remains:
+
+`NOT YET INDEPENDENTLY ESTABLISHED`
+
+The following profile remains defined but is not currently claimed as a completed reference capability:
+
+`SERA-COMMUTE-1-D01`
+
+A separate independent verifier remains required before claiming independent replay verification.
+
+A second resolver remains separately required before claiming independent semantic agreement.
+
+
+33 Baseline Conformance Laws
+
+The primary laws of this specification are:
+
+`same canonical document -> same document hash`
+
+`same supported canonical object -> same canonical JSON -> same hash`
+
+`same target subject -> same target fingerprint`
+
+`same ordered candidate set -> same candidate-set hash`
+
+`same structural action subject -> same canonical plan -> same plan hash`
+
+`same declared admission dependencies -> same admission fingerprint`
+
+`same canonical plan -> same mutation envelope under the same profile`
+
+`same preview subject -> same preview commitment`
+
+`same permit subject -> same permit ID`
+
+`same receipt subject + same previous receipt hash -> same receipt hash`
+
+`same frozen vector + same frozen profiles -> same declared result`
+
+The governing principle is:
+
+`canonical identity must come from declared bytes, not implementation accident`
+
+
+Appendix A - Canonical Identity Summary
+
+A1 Document Hash
+
+`SHA256(UTF8(NFC(LF-normalized document)))`
+
+
+A2 Structured Hash
+
+`SHA256(UTF8(canonicalJSON(subject)))`
+
+
+A3 Target Fingerprint
+
+Binds:
+
+`profile + offset unit + scope + path + target text hash + bounded context hashes`
+
+
+A4 Candidate-Set Hash
+
+Binds ordered:
+
+`index + span + path + fingerprint`
+
+
+A5 Plan Hash
+
+Binds:
+
+`ordered canonical edit operations`
+
+
+A6 Admission Fingerprint
+
+Binds:
+
+`profile + schema + rules + scope + action + target fingerprint + action-specific dependencies`
+
+
+A7 Mutation-Envelope Hash
+
+Binds:
+
+`profile + ordered bounded write-authority operations`
+
+
+A8 Preview Commitment
+
+Binds:
+
+`profile + target fingerprint + admission fingerprint + action + canonical plan + mutation envelope`
+
+
+A9 Permit ID
+
+Binds:
+
+`profile + proposal ID + target fingerprint + admission fingerprint + plan hash + envelope hash`
+
+
+A10 Receipt Hash
+
+Binds:
+
+`complete canonical receipt body excluding receipt_hash`
+
+
+Appendix B - Current and Legacy Hash Domains
+
+B1 Whole Document
+
+Subject:
+
+`normalizeText(document)`
+
+Identity:
+
+`doc_hash`
+
+
+B2 Target
+
+Subject:
+
+`SK-FP-HYBRID-1-D01 payload`
+
+Identity:
+
+`target_fingerprint`
+
+
+B3 Candidate Set
+
+Subject:
+
+`ordered candidate identity array`
+
+Identity:
+
+`candidate_set_hash`
+
+
+B4 Plan
+
+Subject:
+
+`canonical plan array`
+
+Identity:
+
+`plan_hash`
+
+
+B5 Admission Dependencies
+
+Subject:
+
+`SERA-ADMISSION-DEP-1-D01 payload`
+
+Identity:
+
+`admission_fingerprint`
+
+
+B6 Mutation Authority
+
+Subject:
+
+`SERA-MUTATION-ENVELOPE-1-D01 object`
+
+Identity:
+
+`mutation_envelope_hash`
+
+
+B7 Preview
+
+Current subject:
+
+`SERA-PREVIEW-COMMIT-2-D01 payload`
+
+Identity:
+
+`preview_commitment`
+
+Legacy v0.8.1 evidence remains interpreted under:
+
+`SERA-PREVIEW-COMMIT-1-D01`
+
+
+B8 Permit
+
+Subject:
+
+`SERA-EDIT-PERMIT-1-D01 payload`
+
+Identity:
+
+`permit_id`
+
+
+B9 Receipt
+
+Current subject:
+
+`SERA-RECEIPT-2 receipt body`
+
+Identity:
+
+`receipt_hash`
+
+Legacy v0.8.1 evidence remains interpreted under:
+
+`SERA-RECEIPT-1`
+
+
+Appendix C - Conformance Corpus Families
+
+A complete future corpus should contain at least these families:
+
+`CANONICAL_JSON`
+
+`TEXT_NORMALIZATION`
+
+`OFFSET`
+
+`BOUNDARY`
+
+`AMBIGUITY`
+
+`UNICODE`
+
+`REPETITION`
+
+`MALFORMED`
+
+`SEPARATOR`
+
+`MARKDOWN`
+
+`TARGET_FINGERPRINT`
+
+`CANDIDATE_SET`
+
+`PLAN`
+
+`DEPENDENCY`
+
+`MUTATION_ENVELOPE`
+
+`PREVIEW`
+
+`PERMIT`
+
+`STALE`
+
+`CONFLICT`
+
+`REFUSAL`
+
+`RECEIPT`
+
+`CHAIN`
+
+`BUNDLE`
+
+`METAMORPHIC`
+
+
+Appendix D - Cross-Implementation Checklist
+
+A conforming second implementation should confirm:
+
+1. identical canonical document text;
+2. identical document SHA-256;
+3. identical resolution state;
+4. identical reason code where unresolved;
+5. identical target span;
+6. identical target path;
+7. identical target fingerprint;
+8. identical candidate order;
+9. identical candidate-set hash;
+10. identical canonical plan;
+11. identical plan hash;
+12. identical admission dependency payload;
+13. identical admission fingerprint;
+14. identical mutation envelope;
+15. identical envelope hash;
+16. identical preview commitment;
+17. identical permit ID;
+18. identical receipt hash;
+19. identical receipt chain head;
+20. identical final replayed document identity.
+
+
+Appendix E - Evidence Interpretation
+
+A matching SERA identity establishes equality of the declared canonical subject under the declared profile.
+
+It does not automatically establish equality of:
+
+- hidden implementation state;
+- user intention outside the declared proposal;
+- external facts;
+- authorship;
+- authorization;
+- legal meaning;
+- safety suitability.
+
+The evidence boundary is intentionally narrow:
+
+`declared proposal-to-document transition evidence`
+
+
+34 Verifier-Facing Profile Set and Transition
+
+34.1 Purpose
+
+This section defines the verifier-facing profile set adopted by the SERA v0.9.2 reference implementation and the remaining transition rules required before independent verification is frozen.
+
+The objective is to prevent a verifier from institutionalizing terminology or canonical subjects that are no longer current.
+
+The governing transition law is:
+
+`freeze semantics -> freeze vectors -> implement independent verifier`
+
+The v0.9.1 profile set does not invalidate v1 evidence.
+
+The v2 profiles create distinct canonical subjects for new evidence.
+
+
+34.2 Planning Terminology
+
+The preferred planning relation is:
+
+`E_c = plan(E_s, D)`
+
+The symbol:
+
+`phi`
+
+is reserved for Shunyaya collapse semantics.
+
+A field or document that used `collapse_plan` under an old frozen profile remains valid under that old profile.
+
+New verifier-facing profiles MUST use:
+
+`canonical_plan`
+
+where the canonical plan itself is embedded.
+
+
+34.3 Profile Migration
+
+A producer adopting the current verifier-facing profile set MUST update the declared profile identities.
+
+It MUST NOT produce a v2 canonical subject while declaring a v1 profile identity.
+
+The governing law is:
+
+`new canonical subject + old profile identity -> invalid evidence`
+
+
+35 Canonical Proposal Profile
+
+35.1 Profile
+
+Current v0.9.2 profile:
+
+`SERA-PROPOSAL-1-D01`
+
+
+35.2 Purpose
+
+The proposal profile provides a deterministic machine-readable identity for an edit proposal before target resolution.
+
+It makes the proposal source explicit without granting that source target or mutation authority.
+
+
+35.3 Canonical Proposal Fields
+
+The canonical proposal object contains:
+
+`profile`
+
+`proposal_id`
+
+`source`
+
+`schema`
+
+`scope`
+
+`locator`
+
+`action`
+
+`payload`
+
+`expected_profile`
+
+`expected_document_hash`
+
+`range_hint`
+
+The exact object key order in source input is irrelevant because canonical JSON sorts object keys recursively.
+
+
+35.4 Source
+
+Supported declared source values for the initial profile include:
+
+`HUMAN`
+
+`AI_AGENT`
+
+`API`
+
+`ASSISTIVE_TECHNOLOGY`
+
+An extension MAY define additional source values under a new or compatible profile rule.
+
+The source is evidence.
+
+`source != target authority`
+
+
+35.5 Schema
+
+The `schema` object contains:
+
+`id`
+
+`version`
+
+
+35.6 Locator
+
+The locator is resolver input.
+
+A canonical locator MUST declare a `kind`.
+
+Example:
+
+{
+  "kind": "STRUCTURAL_PATH",
+  "path": [0, 0]
+}
+
+A future profile MAY add other locator kinds with explicit canonical definitions.
+
+
+35.7 Action
+
+The action object contains:
+
+`op`
+
+`params`
+
+The `params` object MUST be present.
+
+An action with no parameters uses:
+
+`{}`
+
+
+35.8 Optional Values
+
+For this profile, semantically absent optional values in the canonical proposal object are represented as:
+
+`null`
+
+They MUST NOT be silently omitted if the profile declares the field as part of the canonical proposal subject.
+
+
+35.9 Proposal Hash
+
+The proposal hash is:
+
+`proposal_hash = SHA256(UTF8(canonicalJSON(canonical_proposal)))`
+
+The proposal ID and proposal hash are different identities.
+
+`proposal_id = caller-facing declared identifier`
+
+`proposal_hash = canonical proposal content identity`
+
+
+35.10 Proposal Immutability
+
+After proposal hashing, a change to any canonical proposal field produces a different proposal hash.
+
+An implementation MUST NOT change:
+
+- source;
+- schema;
+- scope;
+- locator;
+- action;
+- payload;
+- expected profile;
+- expected document hash;
+- range hint;
+
+while preserving the same proposal hash.
+
+
+36 Strict Machine Proposal Profile
+
+36.1 Profile
+
+Current v0.9.2 profile:
+
+`SERA-AGENT-STRICT-1-D01`
+
+
+36.2 Purpose
+
+The strict machine profile prevents machine-supplied coordinates from automatically becoming mutation authority.
+
+
+36.3 Range Hint Semantics
+
+Under this profile:
+
+`machine-supplied range = locator hint`
+
+not:
+
+`machine-supplied range = admitted mutation range`
+
+A `range_hint` MAY help identify a candidate region.
+
+The resolver MUST independently determine the supported target under the active structural profile.
+
+
+36.4 Matching Range Hint
+
+If a range hint corresponds to the independently resolved target:
+
+`range_hint match -> may continue`
+
+The range hint still does not replace the target fingerprint, canonical plan, admission dependencies, or mutation envelope.
+
+
+36.5 Mismatching Range Hint
+
+If a machine-supplied range hint conflicts with the independently resolved target, the implementation MUST NOT silently use the machine range as the target.
+
+The profile MUST produce a declared non-success path.
+
+A corpus may use the reason:
+
+`RANGE_HINT_TARGET_MISMATCH`
+
+The applicable top-level state depends on the resolver and admission stage.
+
+
+36.6 Direct Range Authority Forbidden
+
+A conforming strict implementation MUST reject an execution path equivalent to:
+
+`machine range -> direct canonical plan -> mutation`
+
+when structural resolution was required by the active proposal profile.
+
+The required path is:
+
+`machine proposal -> resolve -> plan -> preview -> revalidate -> admit -> bounded execution`
+
+
+36.7 Compatibility Adapters
+
+A compatibility adapter MAY accept a legacy range-bearing request.
+
+It MUST declare the adapter behavior.
+
+The recommended compatibility relation is:
+
+`legacy range -> range_hint`
+
+The adapter MUST NOT silently convert:
+
+`legacy range`
+
+into:
+
+`admitted mutation authority`
+
+
+37 Preview Commitment v2
+
+37.1 Profile
+
+Current v0.9.2 profile:
+
+`SERA-PREVIEW-COMMIT-2-D01`
+
+
+37.2 Purpose
+
+The v2 profile removes the overloaded legacy field name `collapse_plan`.
+
+The v2 canonical payload contains:
+
+`profile`
+
+`target_fingerprint`
+
+`admission_fingerprint`
+
+`action`
+
+`canonical_plan`
+
+`mutation_envelope`
+
+
+37.3 Canonical Payload
+
+Conceptually:
+
+{
+  "profile": "SERA-PREVIEW-COMMIT-2-D01",
+  "target_fingerprint": "<sha256>",
+  "admission_fingerprint": "<sha256>",
+  "action": {
+    "op": "<action>",
+    "params": {}
+  },
+  "canonical_plan": [...],
+  "mutation_envelope": {...}
+}
+
+
+37.4 Commitment
+
+`preview_commitment = SHA256(UTF8(canonicalJSON(preview_payload)))`
+
+
+37.5 v1 and v2 Separation
+
+The v1 and v2 commitment hashes are intentionally different even when they represent the same edit intent.
+
+This is required because:
+
+- the profile identity changed;
+- the canonical field name changed.
+
+A verifier MUST reconstruct the subject according to the declared profile.
+
+
+37.6 Commitment Law
+
+`executed admitted plan = previewed committed plan`
+
+The commit-time target MUST also remain the target bound by the preview commitment.
+
+Therefore:
+
+`target changed -> old preview commitment cannot authorize execution`
+
+
+38 No Silent Retarget Conformance
+
+38.1 Governing Law
+
+`preview_target_fingerprint != commit_target_fingerprint -> no execution under old commitment`
+
+
+38.2 Valid Continuation
+
+A proposal may continue only through:
+
+`re-resolve -> new preview -> new commitment -> new admission`
+
+
+38.3 Invalid Continuation
+
+The following path is non-conforming:
+
+`old preview commitment + newly resolved different target -> execution`
+
+
+38.4 Verification
+
+Where the receipt or bundle provides sufficient information, an independent verifier SHOULD compare:
+
+`preview target fingerprint`
+
+with:
+
+`commit target fingerprint`
+
+A mismatch without a new preview commitment is:
+
+`TARGET_RETARGETED_WITHOUT_NEW_COMMITMENT`
+
+
+38.5 Refusal State
+
+The No Silent Retarget invariant does not create a new top-level SERA state.
+
+The top-level state remains determined by the applicable profile.
+
+For the current admission family, a changed target fingerprint ordinarily produces:
+
+`STALE`
+
+with:
+
+`TARGET_STALE`
+
+
+39 Refusal Witness Profile
+
+39.1 Profile
+
+Current v0.9.2 profile:
+
+`SERA-REFUSAL-WITNESS-1-D01`
+
+
+39.2 Purpose
+
+A refusal witness records enough canonical evidence to explain a non-mutating outcome within the declared disclosure boundary.
+
+The governing relation is:
+
+`refusal = deterministic non-mutation + reason + witness`
+
+
+39.3 Common Payload
+
+The canonical refusal witness contains:
+
+`profile`
+
+`proposal_id`
+
+`state`
+
+`reason_code`
+
+`pre_doc_hash`
+
+`details`
+
+
+39.4 Witness Hash
+
+`refusal_witness_hash = SHA256(UTF8(canonicalJSON(refusal_witness)))`
+
+
+39.5 AMBIGUOUS Details
+
+For `AMBIGUOUS`, details SHOULD contain:
+
+`candidate_count`
+
+`candidate_set_hash`
+
+
+39.6 UNSUPPORTED Details
+
+For `UNSUPPORTED`, details SHOULD contain:
+
+`requested_schema_id`
+
+`requested_scope`
+
+and MAY contain a stable profile-defined detail code.
+
+
+39.7 STALE Details
+
+For `STALE`, details MAY contain:
+
+`expected_target_fingerprint`
+
+`current_target_fingerprint`
+
+`expected_admission_fingerprint`
+
+`current_admission_fingerprint`
+
+Only fields supported by the active disclosure profile should be included.
+
+
+39.8 CONFLICT Details
+
+For `CONFLICT`, details MAY contain:
+
+`expected_mutation_envelope_hash`
+
+`current_mutation_envelope_hash`
+
+`conflict_subject_hash`
+
+where those identities are available and permitted.
+
+
+39.9 Non-Mutation Requirement
+
+Every refusal vector MUST satisfy:
+
+`pre.doc_hash = post.doc_hash`
+
+or, for a refusal recorded without a separate post object:
+
+`replayed document after refusal = replayed document before refusal`
+
+
+39.10 Disclosure Boundary
+
+A refusal witness MUST NOT require plaintext document disclosure when the active evidence profile intentionally exposes only hashes or bounded identities.
+
+The law is:
+
+`verifiability != unrestricted disclosure`
+
+
+39.11 Human-Readable Refusal Explanation Boundary
+
+A conforming implementation MAY present a human-readable explanation alongside canonical refusal evidence.
+
+The explanation MUST NOT silently replace or redefine:
+
+- `state`;
+- `reason_code`;
+- canonical witness fields;
+- `refusal_witness_hash`.
+
+The governing separation is:
+
+`refusal witness = canonical evidence`
+
+`refusal explanation = presentation`
+
+`presentation text != witness identity`
+
+A change to explanation wording alone does not require a new refusal-witness profile when the canonical witness subject is unchanged.
+
+
+40 Receipt Profile v2
+
+40.1 Profile
+
+Current v0.9.2 profile:
+
+`SERA-RECEIPT-2`
+
+
+40.2 Chain Rules
+
+The v2 profile preserves:
+
+`seq`
+
+`prev`
+
+`ts = null`
+
+and:
+
+`receipt_hash = SHA256(UTF8(canonicalJSON(receipt_without_receipt_hash)))`
+
+
+40.3 Version Field
+
+Every v2 receipt contains:
+
+`v = SERA-RECEIPT-2`
+
+
+40.4 Canonical Plan Naming
+
+A v2 receipt MUST use:
+
+`canonical_plan`
+
+for an embedded canonical plan.
+
+It MUST NOT use:
+
+`collapse_plan`
+
+as a v2 canonical field.
+
+
+40.5 Proposal Identity
+
+Where a canonical proposal is available, a v2 receipt SHOULD bind:
+
+`proposal_id`
+
+`proposal_hash`
+
+and:
+
+`proposal_profile`
+
+
+40.6 Edit Receipt
+
+A v2 `EDIT` receipt SHOULD bind, where applicable:
+
+- proposal identity;
+- proposal source;
+- resolution state;
+- target fingerprint;
+- action;
+- canonical plan;
+- plan hash;
+- admission fingerprint;
+- mutation-envelope hash;
+- preview commitment;
+- permit identity;
+- pre-document hash;
+- post-document hash.
+
+
+40.7 Refusal Receipt
+
+A v2 `REFUSAL` receipt MUST bind:
+
+`state`
+
+`reason_code`
+
+`refusal_witness_hash`
+
+and MUST preserve the non-mutation relation.
+
+Where the refusal witness itself is embedded, its recomputed hash MUST equal the stored `refusal_witness_hash`.
+
+
+40.8 No Silent Retarget Evidence
+
+A successful v2 edit receipt SHOULD expose enough bound identity to establish:
+
+`preview target = commit target`
+
+without relying on a producer PASS label.
+
+
+40.9 Legacy Separation
+
+A v1 receipt MUST be verified as v1.
+
+A v2 receipt MUST be verified as v2.
+
+A verifier MUST NOT normalize both profiles into one canonical receipt body before checking their stored hashes.
+
+
+41 Session Bundle Profile v2
+
+41.1 Profile
+
+Current v0.9.2 bundle format:
+
+`SERA-SESSION-BUNDLE-2`
+
+
+41.2 Purpose
+
+The v2 bundle is designed for a small independent replay verifier.
+
+It makes the profile manifest explicit and separates producer assertions from verifier reconstruction.
+
+
+41.3 Required Top-Level Fields
+
+The v2 bundle contains:
+
+`format`
+
+`producer`
+
+`verification_scope`
+
+`profile_manifest`
+
+`genesis`
+
+`receipts`
+
+`chain_head`
+
+`final`
+
+`producer_checks`
+
+
+41.4 Format
+
+`format = SERA-SESSION-BUNDLE-2`
+
+
+41.5 Verification Scope
+
+A producer export uses:
+
+`verification_scope = PRODUCER_EXPORT`
+
+An independent verifier report MUST use a different declared identity and MUST NOT overwrite the producer field.
+
+
+41.6 Profile Manifest
+
+The profile manifest MUST identify every normative profile required to interpret the bundle.
+
+The current v0.9.2 producer export includes:
+
+`architecture_version`
+
+`conformance_version`
+
+`receipt_profile`
+
+`proposal_profile`
+
+`strict_agent_profile`
+
+`resolver_profile`
+
+`rules_version`
+
+`fingerprint_profile`
+
+`admission_profile`
+
+`preview_profile`
+
+`mutation_envelope_profile`
+
+`permit_profile`
+
+`refusal_witness_profile`
+
+`grapheme_profile`
+
+`unicode_version`
+
+`offset_unit`
+
+`character_unit`
+
+A later implementation MAY include additional declared profile identities, but a verifier MUST NOT infer omitted normative identities when the active bundle profile requires them.
+
+
+41.7 Genesis
+
+The genesis section contains:
+
+`canonical_text`
+
+`doc_hash`
+
+An evidence-minimizing future profile MAY replace plaintext canonical text with another replay input mechanism, but such a change requires a different bundle profile.
+
+
+41.8 Receipts
+
+Receipts are processed in array order.
+
+The verifier MUST reconstruct:
+
+- receipt hashes;
+- sequence continuity;
+- previous links;
+- supported transition semantics.
+
+
+41.9 Chain Head
+
+`chain_head = last receipt_hash`
+
+The value is evidence of the current chain head.
+
+It is not a stable session identifier.
+
+
+41.10 Final
+
+The final section contains:
+
+`canonical_text`
+
+`doc_hash`
+
+The verifier MUST recompute the final document hash.
+
+
+41.11 Producer Checks
+
+Producer checks remain assertions.
+
+A verifier MUST ignore them as proof and reconstruct the underlying results independently.
+
+
+42 Frozen Grapheme-Aware Profile
+
+42.1 Profile
+
+Current v0.9.2 profile:
+
+`SERA-UNICODE-GRAPHEME-1-D01`
+
+
+42.2 Frozen Unicode Basis
+
+This profile declares:
+
+`unicode_version = 17.0.0`
+
+`segmentation_specification = UAX_29`
+
+`segmentation_revision = 47`
+
+`grapheme_mode = EXTENDED_GRAPHEME_CLUSTER`
+
+`tailoring = NONE`
+
+The profile is intentionally frozen.
+
+A later Unicode version or tailoring requires a new applicable profile identity.
+
+
+42.3 Normalization Boundary
+
+The profile operates on canonical SERA document text:
+
+`LF-normalized + NFC-normalized`
+
+
+42.4 Evidence Offset Unit
+
+The initial profile retains:
+
+`offset_unit = UTF16_CODE_UNIT`
+
+Therefore:
+
+`grapheme resolution unit != evidence offset unit`
+
+
+42.5 Character Unit
+
+The profile declares:
+
+`character_unit = EXTENDED_GRAPHEME_CLUSTER`
+
+
+42.6 Scope
+
+A conforming implementation MAY expose a human-facing scope named:
+
+`GRAPHEME`
+
+only when the active profile actually implements this grapheme contract.
+
+It MUST NOT relabel `CODE_POINT` as `GRAPHEME`.
+
+
+42.7 Tamil Vector Direction
+
+The corpus MUST include Tamil sequences that demonstrate code-point and grapheme separation.
+
+At minimum:
+
+`கி`
+
+Expected:
+
+`one extended grapheme cluster`
+
+UTF-16 span:
+
+`[0,2]`
+
+For:
+
+`தமிழ்`
+
+expected extended grapheme clusters are:
+
+`த`
+
+`மி`
+
+`ழ்`
+
+with UTF-16 spans:
+
+`[0,1]`
+
+`[1,3]`
+
+`[3,5]`
+
+
+42.8 Emoji Joiner Vector
+
+For:
+
+`👩‍💻`
+
+expected:
+
+`one extended grapheme cluster`
+
+The UTF-16 span is:
+
+`[0,5]`
+
+
+42.9 Canonical Equivalence Vector
+
+The two decoded inputs:
+
+`கொ`
+
+and:
+
+`கொ`
+
+MUST normalize to the same canonical document text under NFC.
+
+Expected canonical text:
+
+`கொ`
+
+Expected document SHA-256:
+
+`59cde04ece24a814edceccb0539445d6b1c167d20e1eb4516be1c32d15ea62f9`
+
+
+42.10 Human Review Boundary
+
+Normative Unicode conformance and language-specific human review are different evidence categories.
+
+The governing law is:
+
+`Unicode algorithm conformance != universal linguistic correctness`
+
+Tamil, Devanagari, and other complex-script review MAY identify the need for a future tailored profile.
+
+Such tailoring MUST NOT silently alter this frozen no-tailoring profile.
+
+
+42.11 Current Multilingual Reference Demo Boundary
+
+The v0.9.2 Structural Keyboard reference surface includes a dedicated:
+
+`Multilingual Demo`
+
+The Multilingual Demo is intentionally separate from:
+
+`Boundary Challenge`
+
+The current Multilingual Demo contains:
+
+`Tamil`
+
+and:
+
+`French`
+
+This separation is a reference-surface and audit requirement.
+
+It does not alter the normative Unicode segmentation profile.
+
+The current Tamil reference text is:
+
+`நீங்கள் மாற்ற விரும்பும் பகுதியை முதலில் தெளிவாக கண்டறியலாம். நீங்கள் ஒரு வார்த்தை, ஒரு வாக்கியம் அல்லது ஒரு பத்தியை மிக எளிதாகத் தேர்ந்தெடுத்து திருத்தலாம். எந்தப் பகுதியை மாற்ற வேண்டும் என்பது தெளிவாகத் தெரியவில்லை என்றால், யூகிக்க முயற்சிப்பதை விட நிறுத்துவதே பாதுகாப்பானது.`
+
+The current French reference text is:
+
+`Vous pouvez d’abord identifier clairement la partie que vous souhaitez modifier. Vous pouvez très facilement sélectionner et corriger un mot, une phrase ou un paragraphe. Si la partie à modifier n’est pas clairement identifiable, il est plus sûr de s’arrêter que d’essayer de deviner.`
+
+The current producer-side multilingual check verifies, at minimum:
+
+- Multilingual Demo content is separate from Boundary Challenge;
+- Tamil content is present;
+- French content is present;
+- the Tamil sample resolves as three declared sentences;
+- the French sample resolves as three declared sentences;
+- the declared sentence texts match the frozen demo content;
+- neither sample introduces an unexpected sentence ambiguity under the active reference rules;
+- `கி` resolves as one grapheme;
+- the declared Tamil word grapheme spans remain stable;
+- `é` resolves as one grapheme.
+
+The current dedicated command is:
+
+`SERADemo.runMultilingualDemoCheck()`
+
+This check is a producer-side reference-demo audit.
+
+It is not a substitute for independent Unicode or linguistic verification.
+
+
+42.12 Multilingual Expansion Rule
+
+Additional languages MAY be added to the Multilingual Demo without changing this conformance version when the change is limited to non-normative demonstration content and audit coverage.
+
+A new conformance profile or specification version is required when a language addition changes a normative segmentation algorithm, tailoring rule, canonical hash subject, offset rule, or required cross-implementation result.
+
+The governing distinction is:
+
+`new demonstration content != normative segmentation change`
+
+while:
+
+`changed normative segmentation behavior -> new applicable profile identity`
+
+
+43 Separated Conformance Corpus Families
+
+43.1 Purpose
+
+The assurance program SHOULD publish separate corpora rather than one undifferentiated test set.
+
+
+43.2 Canonical Identity Corpus
+
+Profile family:
+
+`SERA-CANON-1`
+
+Covers:
+
+- canonical text;
+- canonical JSON;
+- hash domains;
+- profile binding;
+- canonical equivalence.
+
+
+43.3 Resolution Adversarial Corpus
+
+Profile family:
+
+`SERA-RESOLVE-ADV-1`
+
+Covers:
+
+- RESOLVED;
+- AMBIGUOUS;
+- UNSUPPORTED;
+- explicit candidate choice;
+- No Silent Retarget;
+- strict range-hint mismatch.
+
+
+43.4 Admission Adversarial Corpus
+
+Profile family:
+
+`SERA-ADMIT-ADV-1`
+
+Covers:
+
+- unrelated changes that preserve admissibility;
+- target changes;
+- dependency changes;
+- destination changes;
+- plan changes;
+- mutation-envelope violations.
+
+
+43.5 Replay Corpus
+
+Profile family:
+
+`SERA-REPLAY-1`
+
+Covers:
+
+- genesis;
+- edit transitions;
+- refusal transitions;
+- receipt chaining;
+- tamper rejection;
+- final document reconstruction.
+
+
+43.6 Unicode Corpus
+
+Profile family:
+
+`SERA-UNICODE-1`
+
+Covers:
+
+- normalization;
+- code points;
+- graphemes;
+- UTF-16 conversion;
+- Tamil;
+- accented Latin text including French reference vectors;
+- Devanagari and other Indic conjunct vectors;
+- combining sequences;
+- joiner-based emoji;
+- mixed scripts.
+
+Reference-surface multilingual content MAY be covered by the release audit without becoming a new normative Unicode profile.
+
+
+43.7 Commutativity Corpus
+
+A future corpus MAY use:
+
+`SERA-COMMUTE-1`
+
+to test bounded independence and commutativity certificates.
+
+
+44 Admission Boundary Matrix
+
+44.1 Purpose
+
+The Admission Boundary Matrix is a deterministic conformance artifact for one frozen proposal under systematically varied surrounding changes.
+
+It answers:
+
+`which changes actually matter to this proposal?`
+
+
+44.2 Required Categories
+
+A matrix SHOULD include:
+
+`unrelated earlier change`
+
+`unrelated later change`
+
+`target content change`
+
+`target boundary change`
+
+`required separator change`
+
+`required destination relation change`
+
+`mutation-envelope escape`
+
+
+44.3 Expected Pattern
+
+Example expected outcomes:
+
+`unrelated earlier change -> may remain ADMITTED`
+
+`unrelated later change -> may remain ADMITTED`
+
+`target content change -> STALE`
+
+`target boundary change -> STALE`
+
+`required destination relation change -> STALE OR CONFLICT`
+
+`mutation-envelope escape -> CONFLICT`
+
+
+44.4 Conformance Value
+
+The matrix distinguishes:
+
+`whole document changed`
+
+from:
+
+`declared proposal dependency changed`
+
+This is the primary conformance evidence for the claim that SERA admission is not merely whole-document invalidation.
+
+
+44.5 Structural Relevance Classification
+
+The current reference implementation exposes the following informative change classifications:
+
+`IRRELEVANT`
+
+`DEPENDENCY_RELEVANT`
+
+`TARGET_MUTATING`
+
+`RULES_RELEVANT`
+
+`SCHEMA_RELEVANT`
+
+These labels explain why a concurrent change matters to a prepared proposal.
+
+They do not replace the canonical admission state.
+
+The normative admission result remains:
+
+`ADMITTED`
+
+`STALE`
+
+or:
+
+`CONFLICT`
+
+unless another applicable profile is declared.
+
+
+44.6 Structural Admission Survival
+
+The current reference demonstrates the following admissible pattern:
+
+`pre_document_hash != current_document_hash`
+
+while:
+
+`required target and admission dependencies remain valid`
+
+and the proposal revalidates to:
+
+`ADMITTED`
+
+This is Structural Admission Survival.
+
+The conformance meaning is:
+
+`whole-document identity change alone is not sufficient evidence of staleness under a dependency-aware admission profile`
+
+A survival claim MUST still establish the declared proposal dependencies and active contract required by the applicable profile.
+
+This subsection adds no new canonical hash subject to `SERA-ADMISSION-DEP-1-D01`.
+
+
+45 Commutativity Certificate Profile
+
+45.1 Profile
+
+Forward profile:
+
+`SERA-COMMUTE-1-D01`
+
+
+45.2 Purpose
+
+The certificate records whether two admitted plans commute under one frozen pre-state and profile set.
+
+
+45.3 Governing Relation
+
+Compare:
+
+`apply(B, apply(A, D))`
+
+with:
+
+`apply(A, apply(B, D))`
+
+If canonical final document identities match:
+
+`COMMUTE`
+
+otherwise:
+
+`ORDER_DEPENDENT`
+
+
+45.4 Required Certificate Subject
+
+A certificate subject SHOULD bind:
+
+`profile`
+
+`pre_state_hash`
+
+`plan_A_hash`
+
+`plan_B_hash`
+
+`dependency_A_hash`
+
+`dependency_B_hash`
+
+`envelope_A_hash`
+
+`envelope_B_hash`
+
+`A_then_B_final_hash`
+
+`B_then_A_final_hash`
+
+`commutativity_result`
+
+
+45.5 Certificate Hash
+
+`commutativity_certificate_hash = SHA256(UTF8(canonicalJSON(certificate_subject)))`
+
+
+45.6 Bounded Meaning
+
+A certificate establishes only the result for:
+
+- the declared pre-state;
+- the declared plans;
+- the declared profiles.
+
+It does not prove that the semantic intentions commute in every document state.
+
+
+45.7 Independence Separation
+
+A conforming implementation MUST distinguish:
+
+`proposal independence`
+
+`commit compatibility`
+
+`result commutativity`
+
+The three terms MUST NOT be treated as synonyms.
+
+
+46 Independent Verifier Minimum Profile
+
+46.1 Priority
+
+The first independent assurance artifact SHOULD be a small replay verifier before a second resolver is presented as independent semantic confirmation.
+
+
+46.2 Minimum Inputs
+
+The verifier accepts:
+
+`genesis document`
+
+`receipt chain`
+
+`profile manifest`
+
+and any additional frozen replay data required by the applicable profile.
+
+
+46.3 Minimum Reconstruction
+
+The verifier MUST independently reconstruct:
+
+- canonical genesis document hash;
+- receipt hashes;
+- receipt sequence continuity;
+- previous-receipt links;
+- canonical plan hashes;
+- mutation-envelope hashes;
+- refusal witness hashes where present;
+- final document identity.
+
+
+46.4 Transition Replay
+
+For supported edit receipts, the verifier MUST replay the canonical plan rather than trusting:
+
+`post.doc_hash`
+
+For refusal receipts, the verifier MUST verify:
+
+`document before refusal = document after refusal`
+
+
+46.5 Tamper Rejection
+
+The minimum verifier corpus MUST include rejection of:
+
+`MODIFIED_GENESIS`
+
+`MODIFIED_CANONICAL_PLAN`
+
+`MODIFIED_RECEIPT`
+
+`BROKEN_PREVIOUS_LINK`
+
+`INVALID_MUTATION_ENVELOPE`
+
+`PERMIT_REUSE`
+
+`REFUSAL_MUTATED`
+
+`UNEXPECTED_FINAL_HASH`
+
+
+46.6 No Producer Authority
+
+The verifier MUST NOT treat:
+
+`PASS`
+
+`chain_valid`
+
+`replay_valid`
+
+or another producer-generated success field as proof.
+
+
+46.7 Second Resolver Separation
+
+The independent replay verifier and the independent resolver answer different questions.
+
+`verifier -> did recorded evidence reconstruct correctly?`
+
+`second resolver -> did another implementation independently reach the same structural result?`
+
+
+47 New Conformance Vectors
+
+47.1 Vector PROPOSAL-001
+
+Profile:
+
+`SERA-PROPOSAL-1-D01`
+
+Canonical proposal:
+
+{
+  "profile": "SERA-PROPOSAL-1-D01",
+  "proposal_id": "vector-proposal-001",
+  "source": "AI_AGENT",
+  "schema": {
+    "id": "writing.basic",
+    "version": "1.1.0"
+  },
+  "scope": "SENTENCE",
+  "locator": {
+    "kind": "STRUCTURAL_PATH",
+    "path": [0, 0]
+  },
+  "action": {
+    "op": "DUPLICATE",
+    "params": {}
+  },
+  "payload": null,
+  "expected_profile": "SK-RULES-1.1.0",
+  "expected_document_hash": null,
+  "range_hint": null
+}
+
+Expected proposal hash:
+
+`0dfd377f7f81daccb320f10680c6a000c299702b864305f81a56b93d0bcf4cb8`
+
+
+47.2 Vector PREVIEW2-001
+
+This vector uses:
+
+TARGET-001
+
+ADMISSION-001
+
+PLAN-001
+
+ENVELOPE-001
+
+Action:
+
+`DUPLICATE`
+
+Action parameters:
+
+empty object
+
+Profile:
+
+`SERA-PREVIEW-COMMIT-2-D01`
+
+The v2 payload uses:
+
+`canonical_plan`
+
+Expected preview commitment:
+
+`c21417aae878c5bd92727bbf7534c5cbe06ef8a2d49cd6fdae3c2466efe1ba6b`
+
+
+47.3 Vector TARGET-002
+
+Canonical document:
+
+`Alpha. Beta.`
+
+Scope:
+
+`SENTENCE`
+
+Target span:
+
+`[7,12]`
+
+Target path:
+
+`[0,1]`
+
+Target text:
+
+`Beta.`
+
+Expected target fingerprint:
+
+`b9a27493516994b79fcb19387b79685609ef85466d74677e7bba4ed442dac897`
+
+
+47.4 Vector CANDIDATE-001
+
+Ordered candidates:
+
+candidate 0:
+
+`TARGET-001`
+
+candidate 1:
+
+`TARGET-002`
+
+Expected candidate-set hash:
+
+`87f628732c13eeebe554c5900bcca5a79b982bdca4d18953bae6d382d3815757`
+
+
+47.5 Vector REFUSAL-001
+
+Profile:
+
+`SERA-REFUSAL-WITNESS-1-D01`
+
+Proposal ID:
+
+`vector-proposal-ambiguous-001`
+
+State:
+
+`AMBIGUOUS`
+
+Reason:
+
+`MULTIPLE_VALID_TARGETS`
+
+Pre-document:
+
+`Alpha. Beta.`
+
+Expected pre-document hash:
+
+`c970691b37e3b0ad6ad458e565c583d5cbc8e552d310bf69f7ea64d271769cc1`
+
+Candidate count:
+
+`2`
+
+Candidate-set hash:
+
+`87f628732c13eeebe554c5900bcca5a79b982bdca4d18953bae6d382d3815757`
+
+Expected refusal-witness hash:
+
+`3d541f8840f1bc07681a60c239cae861abc11804e45a120938cfc05fa1fb2d52`
+
+
+47.6 Vector TAMIL-NFC-001
+
+Input A:
+
+`கொ`
+
+Input B:
+
+`கொ`
+
+Expected canonical text for both:
+
+`கொ`
+
+Expected document hash for both:
+
+`59cde04ece24a814edceccb0539445d6b1c167d20e1eb4516be1c32d15ea62f9`
+
+
+47.7 Vector TAMIL-GRAPHEME-001
+
+Profile:
+
+`SERA-UNICODE-GRAPHEME-1-D01`
+
+Canonical text:
+
+`கி`
+
+Expected grapheme count:
+
+`1`
+
+Expected UTF-16 grapheme spans:
+
+`[[0,2]]`
+
+
+47.8 Vector TAMIL-GRAPHEME-002
+
+Profile:
+
+`SERA-UNICODE-GRAPHEME-1-D01`
+
+Canonical text:
+
+`தமிழ்`
+
+Expected grapheme count:
+
+`3`
+
+Expected UTF-16 grapheme spans:
+
+`[[0,1],[1,3],[3,5]]`
+
+
+47.9 Vector EMOJI-GRAPHEME-001
+
+Profile:
+
+`SERA-UNICODE-GRAPHEME-1-D01`
+
+Canonical text:
+
+`👩‍💻`
+
+Expected grapheme count:
+
+`1`
+
+Expected UTF-16 grapheme spans:
+
+`[[0,5]]`
+
+
+47.10 Informative Reference-Demo Multilingual Audit Vector
+
+This subsection records the current reference-surface behavior and is not a new normative hash vector.
+
+Current demo family:
+
+`Multilingual Demo`
+
+Current language labels:
+
+`தமிழ்`
+
+`Français`
+
+Current expected reference behavior:
+
+`tamil_sentence_count = 3`
+
+`french_sentence_count = 3`
+
+`tamil_sentence_ambiguity = false`
+
+`french_sentence_ambiguity = false`
+
+`grapheme_count("கி") = 1`
+
+`grapheme_count("é") = 1`
+
+The current release audit also requires:
+
+`Multilingual Demo content separate from Boundary Challenge`
+
+The dedicated producer-side command is:
+
+`SERADemo.runMultilingualDemoCheck()`
+
+A PASS result from this command is producer-side evidence only.
+
+
+48 Migration and Compatibility Rules
+
+48.1 Existing v0.8.1 Evidence
+
+Existing evidence remains governed by:
+
+`SERA-PREVIEW-COMMIT-1-D01`
+
+`SERA-RECEIPT-1`
+
+`SERA-SESSION-BUNDLE-1`
+
+A verifier MAY support these profiles for historical compatibility.
+
+
+48.2 Current v0.9.2 Evidence
+
+The current v0.9.2 reference implementation uses:
+
+`SERA-PREVIEW-COMMIT-2-D01`
+
+`SERA-RECEIPT-2`
+
+`SERA-SESSION-BUNDLE-2`
+
+where those profiles are applicable.
+
+New evidence produced by the current reference implementation MUST declare the profiles actually used in its receipt context and bundle profile manifest.
+
+
+48.3 No Hash Preservation Across Canonical Subject Changes
+
+Changing:
+
+`collapse_plan`
+
+to:
+
+`canonical_plan`
+
+changes the canonical subject.
+
+Therefore:
+
+`v1 preview hash != v2 preview hash`
+
+even when both represent the same human-readable edit.
+
+
+48.4 Explicit Profile Reporting
+
+A verifier MUST report unsupported profile identities explicitly.
+
+It MUST NOT silently choose the closest profile.
+
+
+48.5 Implementation Update Rule
+
+A browser or host implementation adopting the current profile set MUST add permanent regression coverage for:
+
+- v1 compatibility if retained;
+- v2 preview identity;
+- proposal hashing;
+- strict agent range-hint behavior;
+- No Silent Retarget;
+- refusal witness hashing;
+- refusal non-mutation;
+- bundle v2 export;
+- independent verifier fixtures;
+- grapheme profile vectors;
+- Multilingual Demo separation from Boundary Challenge where that reference surface is implemented;
+- declared multilingual reference content where it is part of release behavior.
+
+The current v0.9.2 reference implementation includes permanent regression coverage through:
+
+`REG-025`
+
+for the dedicated Multilingual Demo boundary and its declared Tamil and French content.
+
+
+49 Final Conformance Laws
+
+The primary v0.2.0 laws are:
+
+`same canonical document -> same document hash`
+
+`same supported canonical object -> same canonical JSON -> same hash`
+
+`same canonical proposal -> same proposal hash`
+
+`proposal source != target authority`
+
+`machine range under strict profile -> locator hint, not mutation authority`
+
+`same target subject -> same target fingerprint`
+
+`same ordered candidate set -> same candidate-set hash`
+
+`same structural action subject -> same canonical plan -> same plan hash`
+
+`same declared admission dependencies -> same admission fingerprint`
+
+`same canonical plan -> same mutation envelope under the same profile`
+
+`same v2 preview subject -> same v2 preview commitment`
+
+`preview target changed -> old commitment cannot execute`
+
+`same permit subject -> same permit ID`
+
+`same refusal subject -> same refusal witness hash`
+
+`refusal -> no successful mutation`
+
+`same receipt subject + same previous receipt hash -> same receipt hash`
+
+`same genesis + same valid replay evidence + same frozen profiles -> same reconstructed final identity`
+
+`same frozen vector + same frozen profiles -> same declared result`
+
+`profile identity determines canonical interpretation`
+
+`new canonical subject -> new applicable profile identity`
+
+The governing principle remains:
+
+`canonical identity must come from declared bytes, not implementation accident`
+
+
+Appendix F - Current and Forward Hash Domains
+
+F1 Proposal
+
+Subject:
+
+`SERA-PROPOSAL-1-D01 canonical proposal`
+
+Identity:
+
+`proposal_hash`
+
+
+F2 Refusal Witness
+
+Subject:
+
+`SERA-REFUSAL-WITNESS-1-D01 canonical witness`
+
+Identity:
+
+`refusal_witness_hash`
+
+
+F3 Commutativity Certificate
+
+Subject:
+
+`SERA-COMMUTE-1-D01 canonical certificate subject`
+
+Identity:
+
+`commutativity_certificate_hash`
+
+
+F4 Hash-Domain Separation
+
+The proposal and refusal-witness identities are current v0.9.2 domains.
+
+The commutativity-certificate identity remains a defined future domain.
+
+They MUST remain distinct from:
+
+`doc_hash`
+
+`target_fingerprint`
+
+`candidate_set_hash`
+
+`plan_hash`
+
+`admission_fingerprint`
+
+`mutation_envelope_hash`
+
+`preview_commitment`
+
+`permit_id`
+
+`receipt_hash`
+
+
+Appendix G - Strict Agent Proposal Checklist
+
+A strict agent adapter should confirm:
+
+1. proposal source is explicit;
+2. proposal profile is explicit;
+3. proposal hash is reproducible;
+4. machine range is treated only as a range hint;
+5. structural target is independently resolved;
+6. unresolved target does not mutate;
+7. preview target is committed explicitly;
+8. commit target equals preview target;
+9. admission dependencies are revalidated;
+10. plan remains unchanged;
+11. write set remains inside the mutation envelope;
+12. refusal produces no mutation;
+13. receipt records the declared result.
+
+
+Appendix H - Refusal Verification Checklist
+
+For every refusal vector verify:
+
+1. top-level state;
+2. stable reason code;
+3. refusal witness profile;
+4. refusal witness hash;
+5. proposal identity where available;
+6. pre-document hash;
+7. post-document hash or replayed post-state;
+8. exact non-mutation;
+9. receipt hash;
+10. receipt-chain continuity.
+
+
+Appendix I - Unicode and Multilingual Review Checklist
+
+For the grapheme-aware and multilingual reference boundary verify:
+
+1. Unicode version is exactly declared;
+2. segmentation revision is exactly declared;
+3. tailoring behavior is exactly declared;
+4. canonical text normalization occurs before segmentation;
+5. UTF-16 offsets are converted correctly;
+6. `கி` resolves as one extended grapheme cluster;
+7. `தமிழ்` resolves as three declared grapheme clusters;
+8. `👩‍💻` resolves as one extended grapheme cluster;
+9. canonically equivalent Tamil input produces the same canonical document identity;
+10. the French accented character vector resolves under the declared grapheme profile;
+11. the dedicated Multilingual Demo remains separate from Boundary Challenge;
+12. the current Tamil and French reference samples are present and resolve as their declared three-sentence samples under the reference rules;
+13. human linguistic review is reported separately from normative algorithm conformance;
+14. adding a new demonstration language does not silently change the frozen segmentation profile.
+
+
+Appendix J - Assurance Sequence
+
+The recommended sequence is:
+
+`freeze verifier-facing canonical semantics`
+
+then:
+
+`freeze minimal replay and adversarial corpora`
+
+then:
+
+`implement independent verifier`
+
+then:
+
+`publish refusal-inclusive frozen corpora`
+
+then:
+
+`implement independent second resolver`
+
+then:
+
+`compare cross-implementation results`
+
+The independent verifier and second resolver must remain distinct assurance artifacts.
+Appendix K - Current v0.9.2 Reference Synchronization
+
+K1 Reference Implementation
+
+`SERA v0.9.2`
+
+`Structural Keyboard Reference Surface v0.9.2`
+
+
+K2 Current Conformance Declaration
+
+`conformance_version = 0.2.0`
+
+This document remains version `v0.2.0` because the latest reference-surface changes do not alter the normative canonicalization, hash-domain, or segmentation-profile identities defined by this specification.
+
+
+K3 Current Producer-Side Release Evidence
+
+`FULL RELEASE AUDIT = 329/329 PASS`
+
+`KNOWN REGRESSIONS = 27/27 PASS`
+
+`FEATURE COVERAGE = 34/34 PASS`
+
+`INTEGRITY REGRESSION = 0`
+
+`UNEXPECTED MUTATION = 0`
+
+`DEMO FLOWS = 11/11 PASS`
+
+`UNICODE = 13/13 PASS`
+
+`MULTILINGUAL DEMO CHECK = PASS`
+
+`FROZEN GRAPHEME CONFORMANCE = 766/766 PASS`
+
+
+K4 Current Multilingual Reference Surface
+
+The Multilingual Demo currently includes:
+
+`Tamil`
+
+`French`
+
+The demo is structurally separate from Boundary Challenge.
+
+Additional languages may be added later under the non-normative demonstration-content rule in Section 42.12.
+
+
+K5 Assurance Boundary
+
+All current PASS results are producer-side reference evidence.
+
+The following remain unclaimed:
+
+`independent replay verification`
+
+`independent semantic agreement`
+
+`completed commutativity certification`
+
+These require separate assurance artifacts.

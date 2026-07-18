@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "SERA_Refusal_Witness_Schema_v1_0.json",
+  "title": "SERA Refusal Witness Schema v1.0",
+  "description": "Structural validation schema for SERA-REFUSAL-WITNESS-1-D01. The witness records deterministic refusal evidence without granting authority or requiring unrestricted content disclosure.",
+  "type": "object",
+  "required": [
+    "profile",
+    "proposal_id",
+    "state",
+    "reason_code",
+    "pre_doc_hash",
+    "details"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profile": {
+      "const": "SERA-REFUSAL-WITNESS-1-D01"
+    },
+    "proposal_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "AMBIGUOUS",
+        "UNSUPPORTED",
+        "STALE",
+        "CONFLICT"
+      ]
+    },
+    "reason_code": {
+      "type": "string",
+      "minLength": 1
+    },
+    "pre_doc_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "details": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "AMBIGUOUS"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "details": {
+            "type": "object",
+            "required": [
+              "candidate_count",
+              "candidate_set_hash"
+            ],
+            "properties": {
+              "candidate_count": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 2
+              },
+              "candidate_set_hash": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/hash"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "UNSUPPORTED"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "details": {
+            "type": "object",
+            "properties": {
+              "requested_schema_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "requested_scope": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "detail_code": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "STALE"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "details": {
+            "type": "object",
+            "properties": {
+              "expected_target_fingerprint": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/hash"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "current_target_fingerprint": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/hash"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "expected_admission_fingerprint": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/hash"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "current_admission_fingerprint": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/hash"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "CONFLICT"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "details": {
+            "type": "object",
+            "properties": {
+              "expected_mutation_envelope_hash": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/hash"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "current_mutation_envelope_hash": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/hash"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "conflict_subject_hash": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/hash"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}
