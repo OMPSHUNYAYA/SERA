@@ -14,6 +14,8 @@
 ![Deterministic](https://img.shields.io/badge/Core%20Model-Deterministic-purple)
 ![Shunyaya](https://img.shields.io/badge/Part%20of-Shunyaya%20Framework-gold)
 
+[![SERA Verify](https://github.com/OMPSHUNYAYA/SERA/actions/workflows/sera-verify.yml/badge.svg?branch=main)](https://github.com/OMPSHUNYAYA/SERA/actions/workflows/sera-verify.yml)
+
 ---
 
 # **Anyone may propose. Structure resolves. Admission permits. Evidence records.**
