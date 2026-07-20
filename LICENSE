@@ -1,117 +1,122 @@
-SERA Open Use License v1.0
+SERA LICENSE v1.0
 
-1. Reference Implementation
+1. Scope
 
-Permission is granted, free of charge, on a worldwide, perpetual, non-exclusive, royalty-free, and irrevocable basis, provided that these terms are followed, to any person or organization obtaining a copy of the SERA reference implementation.
+This license applies to the SERA materials distributed with this repository unless
+a specific file or directory states otherwise.
 
-This permission includes the right to use, execute, study, copy, reproduce, publish, distribute, modify, implement, extend, and deploy the reference implementation, in whole or in part, for commercial or non-commercial purposes.
+The covered materials are divided into:
 
-This permission applies to the SERA reference implementation, including its use within modified and extended versions, subject to the conditions in Section 2.
+- reference implementation and verification artifacts; and
+- documentation and architecture materials.
 
-No registration, fee, or prior approval is required.
+2. Reference Implementation and Verification Artifacts
 
+The reference implementation and verification artifacts include, where present,
+the browser demonstration, audit and verification tooling, frozen conformance
+artifacts, schemas, fixtures, and other implementation or verification files.
 
-2. Conditions
+Permission is granted, without a license fee, to use, copy, modify, test, study,
+and redistribute these materials for lawful purposes, including commercial and
+non-commercial use, subject to the terms of this license.
 
-Redistributions of the reference implementation, or substantial portions of it, must include a copy of this license.
+A substantial redistribution of these materials must retain this license and any
+applicable copyright or attribution notices included with the original materials.
 
-Applicable third-party license notices and attributions must be retained.
-
-Modified or extended versions must be clearly identified as modified and must not be represented as the official or canonical SERA reference implementation unless explicitly authorized by the authors or maintainers.
-
-The name "SERA", "Structural Edit Resolution and Admission", or "Structural Keyboard" may be used for accurate descriptive reference, but must not imply official authorship, endorsement, certification, approval, conformance, governance authority, independent verification, or production readiness.
-
-No right to use any trademark, service mark, logo, or other branding is granted except for accurate descriptive reference.
-
-Attribution to SERA is not required for use of the reference implementation, but is encouraged.
-
-Suggested attribution:
-
-Based on the SERA reference implementation developed within the Shunyaya Framework.
-
-Attribution must not imply endorsement.
+Modified implementation or verification files must be clearly identified as
+modified and must not imply that the modifications were verified, certified,
+endorsed, or authored by the original project maintainers.
 
 Third-party components remain subject to their own licenses and notices.
 
+3. Documentation and Architecture Materials
 
-3. Architecture and Documentation
+Unless a file or section states otherwise, SERA documentation, architectural
+descriptions, specifications, diagrams, and explanatory materials are licensed
+under the Creative Commons Attribution-NonCommercial 4.0 International License
+(CC BY-NC 4.0).
 
-Unless a file or section states otherwise, the SERA architecture descriptions, diagrams, and documentation are licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
-
-Under that license, these materials may be shared and adapted for non-commercial purposes with appropriate credit, a link to the license, and an indication of whether changes were made.
-
-Attribution must not imply endorsement.
+Under that license, these materials may be shared and adapted for non-commercial
+purposes with appropriate attribution, a link to the license, and an indication
+of whether changes were made.
 
 The full license terms govern these materials:
 
 https://creativecommons.org/licenses/by-nc/4.0/legalcode
 
-Commercial use of the architecture descriptions, diagrams, and documentation requires separate written permission from the relevant rights holder.
+Commercial use of substantial portions of the documentation or architecture
+materials requires separate permission from the relevant rights holder unless the
+use is limited to factual reference, interoperability, review, or implementation
+of independently written software without substantial copying of the protected
+materials.
 
+Nothing in this license is intended to restrict rights that may otherwise be
+available under applicable law.
 
-4. Reference Scope and Responsibility
+4. Attribution
 
-Use of SERA is entirely at the user's own risk.
+Attribution is not required for use, modification, or redistribution of the
+reference implementation or verification artifacts, but it is appreciated.
 
-SERA v0.9.2 is a reference implementation and research architecture for structural edit resolution, admission, bounded mutation, refusal, and replay-oriented evidence under the declared profiles and schemas.
+Where attribution is required for documentation or architecture materials, or
+where voluntary attribution is provided for the reference implementation, a
+reasonable attribution is:
 
-The current reference architecture separates:
+SERA — Structural Edit Resolution and Admission
+Developed within the Shunyaya Framework
 
-proposal authority
+Attribution may be provided in documentation, notices, credits, or another
+reasonable location appropriate to the form of redistribution or adaptation.
 
-target authority
+Attribution must not imply endorsement.
 
-mutation authority
+5. Names and Marks
 
-The central authority relation is:
+This license does not grant trademark rights or permission to imply endorsement.
 
-proposal authority != target authority != mutation authority
+The names SERA, Structural Edit Resolution and Admission, Structural Keyboard,
+Shunyaya, and related project names may be used for accurate factual reference and
+attribution.
 
-The current reference processing relation is:
+6. Verification and Assurance Claims
 
-proposal -> resolve -> plan -> preview -> revalidate -> admit -> execute OR refuse -> receipt
+A passing producer audit, regression result, feature-coverage result, conformance
+result, replay result, or other verification result applies only to the declared
+files, profiles, inputs, schemas, conformance artifacts, and verification boundary
+associated with that result.
 
-The current bounded admission model includes:
+Modified files, changed rules, changed profiles, changed schemas, changed evidence,
+or changed conformance artifacts require their own verification.
 
-RESOLVED + ADMITTED -> execution may proceed within the admitted mutation envelope
+Redistribution, modification, or use of the covered materials must not imply
+third-party verification, certification, production qualification, legal approval,
+security approval, regulatory approval, or endorsement by the original project
+maintainers unless such a claim has been separately and expressly authorized.
 
-AMBIGUOUS or UNSUPPORTED -> no silent mutation
+Producer-side audit or replay results do not constitute independent verification
+or certification.
 
-STALE or CONFLICT -> no admitted execution under the invalid or conflicting commitment
+7. No Security or Safety Warranty
 
-The current mutation-boundary relation is:
+THE SERA REFERENCE IMPLEMENTATION, VERIFICATION ARTIFACTS, ARCHITECTURE, DIAGRAMS,
+SPECIFICATIONS, AND DOCUMENTATION ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, NON-INFRINGEMENT, ACCURACY, RELIABILITY, SECURITY, SAFETY,
+AVAILABILITY, OR CORRECTNESS.
 
-write_set(E_c) subseteq admitted_mutation_envelope
+SERA is not a replacement for access control, authentication, authorization,
+application security, operating-system security, transaction systems,
+collaborative reconciliation, legal authorization, organizational approval, or
+domain-specific controls.
 
-The current reference also demonstrates dependency-aware admission, No Silent Retarget, Structural Relevance classification, Structural Admission Survival, deterministic refusal witnesses, human-readable refusal explanations, receipt chaining, producer-side replay, grapheme-aware structural scope, and multilingual reference demonstrations.
+8. Limitation of Liability
 
-The reference implementation does not guarantee universal edit correctness, universal target resolution, factual or semantic correctness of proposed content, legal or organizational authorization, universal linguistic correctness, universal concurrency safety, universal browser compatibility, accessibility outcomes, security suitability, regulatory compliance, production readiness, independent verification, third-party certification, or fitness for financial, medical, safety-critical, or other high-risk use.
+To the maximum extent permitted by applicable law, the authors and contributors
+shall not be liable for any claim, damages, loss, or other liability arising from
+use, modification, distribution, implementation, extension, deployment,
+publication, or reliance on SERA or the covered materials.
 
-Proposal information is not treated as automatic target authority.
+9. Acceptance
 
-A resolved target is not treated as automatic mutation authority.
-
-Whole-document change is not treated as the sole authority over proposal staleness where the declared admission profile permits dependency-aware revalidation.
-
-These statements do not imply that ranges, offsets, patches, transactions, collaborative reconciliation, access control, authentication, authorization, networking, synchronization, coordination, persistence, or other operational mechanisms are universally unnecessary.
-
-The current producer-side audit results do not constitute independent verification or certification.
-
-
-5. No Warranty
-
-THE SERA REFERENCE IMPLEMENTATION, ARCHITECTURE, DIAGRAMS, AND DOCUMENTATION ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
-
-THIS INCLUDES, BUT IS NOT LIMITED TO, WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, ACCURACY, RELIABILITY, SECURITY, OR FITNESS FOR FINANCIAL, MEDICAL, SAFETY-CRITICAL, OR OTHER HIGH-RISK USE.
-
-
-6. Limitation of Liability
-
-TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE AUTHORS AND CONTRIBUTORS SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGE, LOSS, OR OTHER LIABILITY ARISING FROM THE USE, MODIFICATION, DISTRIBUTION, IMPLEMENTATION, EXTENSION, OR DEPLOYMENT OF SERA.
-
-
-7. Severability
-
-If any provision of this license is held unenforceable, the remaining provisions remain in effect.
-
-Exercise of the permissions granted under this license is subject to these terms.
+Using, modifying, or redistributing the covered materials indicates acceptance of
+these terms.
