@@ -16,6 +16,8 @@
 
 [![SERA Verify](https://github.com/OMPSHUNYAYA/SERA/actions/workflows/sera-verify.yml/badge.svg?branch=main)](https://github.com/OMPSHUNYAYA/SERA/actions/workflows/sera-verify.yml)
 
+🌐 **Live Demo:** [Launch SERA Structural Keyboard v0.9.2](https://ompshunyaya.github.io/SERA/demo/SERA_Structural_Keyboard_Reference_Demo_v0_9_2.html)
+
 ---
 
 # **Anyone may propose. Structure resolves. Admission permits. Evidence records.**
